@@ -41,6 +41,12 @@ type (
 	DisconnectResponse   struct{} // Network disconnect response
 	GetNetworkStatsRequest struct{} // Network stats request
 	GetNetworkStatsResponse struct{} // Network stats response
+	
+	// Container network operations
+	ConnectContainerRequest    struct{} // Connect container to network request
+	ConnectContainerResponse   struct{} // Connect container to network response
+	DisconnectContainerRequest struct{} // Disconnect container from network request
+	DisconnectContainerResponse struct{} // Disconnect container from network response
 )
 
 // Volume operation types
@@ -67,6 +73,20 @@ type (
 	PingResponse         struct{} // Health ping response
 	GetEventsRequest     struct{} // Event stream request
 	GetEventsResponse    struct{} // Event stream response
+	
+	// Extended system operations
+	GetSystemEventsRequest  struct{} // System events request
+	SystemEvent            struct{} // System event data
+	GetDiskUsageRequest    struct{} // Disk usage request
+	GetDiskUsageResponse   struct{} // Disk usage response
+	SystemPruneRequest     struct{} // System prune request
+	SystemPruneResponse    struct{} // System prune response
+	
+	// Daemon configuration
+	GetDaemonConfigRequest    struct{} // Get daemon config request
+	GetDaemonConfigResponse   struct{} // Get daemon config response
+	UpdateDaemonConfigRequest struct{} // Update daemon config request
+	UpdateDaemonConfigResponse struct{} // Update daemon config response
 )
 
 // Authentication and security types
@@ -101,4 +121,80 @@ type (
 	ExtractOptions       struct{} // Archive extraction options
 	FileInfo             struct{} // File metadata information
 	DirectoryListing     struct{} // Directory contents
+)
+
+// Additional missing types for interfaces
+type (
+	// Image security and registry types
+	ScanImageRequest        struct{} // Image security scan request
+	ScanImageResponse       struct{} // Image security scan response
+	SearchImagesRequest     struct{} // Image search request
+	SearchImagesResponse    struct{} // Image search response
+	PullOptions            struct{} // Image pull options
+	PushOptions            struct{} // Image push options
+	BuildOptions           struct{} // Image build options
+	RegistryInfo           struct{} // Registry information
+	ImageManifest          struct{} // Image manifest data
+	
+	// Cache and optimization types
+	CacheInfo              struct{} // Cache information
+	PruneCacheOptions      struct{} // Cache pruning options
+	PruneCacheResponse     struct{} // Cache pruning response
+	CacheValidationResult  struct{} // Cache validation result
+)
+
+// Docker Compose operation types
+type (
+	ComposeUpRequest       struct{} // Compose up request
+	ComposeUpResponse      struct{} // Compose up response
+	ComposeDownRequest     struct{} // Compose down request
+	ComposeDownResponse    struct{} // Compose down response
+	ComposeStartRequest    struct{} // Compose start request
+	ComposeStartResponse   struct{} // Compose start response
+	ComposeStopRequest     struct{} // Compose stop request
+	ComposeStopResponse    struct{} // Compose stop response
+	ComposeRestartRequest  struct{} // Compose restart request
+	ComposeRestartResponse struct{} // Compose restart response
+	ComposePsRequest       struct{} // Compose ps request
+	ComposePsResponse      struct{} // Compose ps response
+	ComposeLogsRequest     struct{} // Compose logs request
+	ComposeLogsResponse    struct{} // Compose logs response
+	ComposeExecRequest     struct{} // Compose exec request
+	ComposeExecResponse    struct{} // Compose exec response
+	ComposeBuildRequest    struct{} // Compose build request
+	ComposeBuildResponse   struct{} // Compose build response
+	ComposePullRequest     struct{} // Compose pull request
+	ComposePullResponse    struct{} // Compose pull response
+	ComposePushRequest     struct{} // Compose push request
+	ComposePushResponse    struct{} // Compose push response
+	
+	// Additional Compose operations
+	ComposeConfigRequest   struct{} // Compose config request
+	ComposeConfigResponse  struct{} // Compose config response
+	ComposeValidateRequest struct{} // Compose validate request
+	ComposeValidateResponse struct{} // Compose validate response
+	ComposeScaleRequest    struct{} // Compose scale request
+	ComposeScaleResponse   struct{} // Compose scale response
+	
+	// Compose project management
+	ListComposeProjectsRequest   struct{} // List compose projects request
+	ListComposeProjectsResponse  struct{} // List compose projects response
+	RemoveComposeProjectRequest  struct{} // Remove compose project request
+	RemoveComposeProjectResponse struct{} // Remove compose project response
+)
+
+// Namespace operation types
+type (
+	CreateNamespaceRequest    struct{} // Create namespace request
+	CreateNamespaceResponse   struct{} // Create namespace response
+	RemoveNamespaceRequest    struct{} // Remove namespace request
+	RemoveNamespaceResponse   struct{} // Remove namespace response
+	ListNamespacesRequest     struct{} // List namespaces request
+	ListNamespacesResponse    struct{} // List namespaces response
+	InspectNamespaceRequest   struct{} // Inspect namespace request
+	InspectNamespaceResponse  struct{} // Inspect namespace response
+	SetDefaultNamespaceRequest  struct{} // Set default namespace request
+	SetDefaultNamespaceResponse struct{} // Set default namespace response
+	GetDefaultNamespaceRequest  struct{} // Get default namespace request
+	GetDefaultNamespaceResponse struct{} // Get default namespace response
 )

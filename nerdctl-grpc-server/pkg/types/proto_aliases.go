@@ -40,13 +40,7 @@ type (
 	PruneContainersResponse       = pb.PruneContainersResponse
 )
 
-// Additional utility types
-type (
-	LogOptions    struct{} // Placeholder - define as needed
-	StatsOptions  struct{} // Placeholder - define as needed
-	AttachOptions struct{} // Placeholder - define as needed
-	ExecOptions   struct{} // Placeholder - define as needed
-)
+// Additional utility types are defined in complete_aliases.go
 
 // Image service types
 type (
@@ -84,16 +78,10 @@ type (
 
 // Additional missing types based on interfaces
 type (
-	LoadImageChunk          struct{} // Placeholder - define as needed
 	LoadImageResponse       = pb.LoadImageResponse
 	SaveImageResponse       = pb.SaveImageResponse
-	ImportImageRequest      struct{} // Placeholder - define as needed
-	ImportImageChunk        struct{} // Placeholder - define as needed
-	ImportImageResponse     struct{} // Placeholder - define as needed
-	GetImageHistoryRequest  struct{} // Placeholder - define as needed
-	GetImageHistoryResponse struct{} // Placeholder - define as needed
-	BuildImageRequest       struct{} // Placeholder - define as needed
-	BuildImageResponse      struct{} // Placeholder - define as needed
 )
+
+// Other additional types are defined in complete_aliases.go
 
 // Note: RunContainerStreamResponse, LogEntry, ContainerEvent are already defined in other files

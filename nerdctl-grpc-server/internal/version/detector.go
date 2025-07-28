@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/containerd/nerdctl-grpc-server/internal/compatibility"
 )
 
 // NerdctlVersionInfo contains version information about nerdctl and its components
@@ -24,10 +25,13 @@ type VersionInfo struct {
 	GitCommit string `json:"git_commit,omitempty"`
 }
 
+// Version is an alias for compatibility.Version
+type Version = compatibility.Version
+
 // VersionRange represents a version range for compatibility checking
 type VersionRange struct {
-	MinVersion string
-	MaxVersion string
+	Min Version
+	Max Version
 }
 
 // Detector detects nerdctl version and component information
@@ -186,8 +190,8 @@ func IsVersionInRange(version string, versionRange VersionRange) bool {
 	// In a production system, you might want to use a proper semantic versioning library
 	
 	version = strings.TrimPrefix(version, "v")
-	minVersion := strings.TrimPrefix(versionRange.MinVersion, "v")
-	maxVersion := strings.TrimPrefix(versionRange.MaxVersion, "v")
+	minVersion := strings.TrimPrefix(versionRange.Min.String(), "v")
+	maxVersion := strings.TrimPrefix(versionRange.Max.String(), "v")
 	
 	// Simple string comparison for now
 	// This works for versions like "1.7.0", "2.0.0" etc.

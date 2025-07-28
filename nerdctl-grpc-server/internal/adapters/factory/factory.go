@@ -229,7 +229,7 @@ func (f *AdapterFactory) selectLatestAdapter(creators []AdapterCreator) (Adapter
 		return nil, fmt.Errorf("no suitable adapter found")
 	}
 	
-	f.logger.WithField("max_version", highestMaxVersion.Raw).Info("Selected latest adapter")
+	f.logger.WithField("max_version", highestMaxVersion.String()).Info("Selected latest adapter")
 	return latestCreator, nil
 }
 
@@ -294,8 +294,8 @@ func (f *AdapterFactory) GetAvailableAdapters() map[string]AdapterInfo {
 		versionRange := creator.GetSupportedVersionRange()
 		info[name] = AdapterInfo{
 			Name:         name,
-			MinVersion:   versionRange.Min.Raw,
-			MaxVersion:   versionRange.Max.Raw,
+			MinVersion:   versionRange.Min.String(),
+			MaxVersion:   versionRange.Max.String(),
 			Priority:     creator.GetPriority(),
 			Enabled:      true,
 		}
