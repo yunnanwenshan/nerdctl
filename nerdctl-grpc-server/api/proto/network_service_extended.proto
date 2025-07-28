@@ -1,0 +1,831 @@
+syntax = "proto3";
+
+package nerdctl.v1;
+
+option go_package = "github.com/containerd/nerdctl-grpc-server/api/proto";
+
+import "google/protobuf/timestamp.proto";
+import "api/proto/common.proto";
+import "api/proto/network_service.proto";
+
+// Extended Network service for managing container networks with comprehensive functionality
+service NetworkServiceExtended {
+  // Basic network lifecycle operations
+  rpc CreateNetwork(CreateNetworkExtendedRequest) returns (CreateNetworkExtendedResponse);
+  rpc RemoveNetwork(RemoveNetworkExtendedRequest) returns (RemoveNetworkExtendedResponse);
+  rpc ListNetworks(ListNetworksExtendedRequest) returns (ListNetworksExtendedResponse);
+  rpc InspectNetwork(InspectNetworkExtendedRequest) returns (InspectNetworkExtendedResponse);
+  
+  // Network connection operations
+  rpc ConnectNetwork(ConnectNetworkExtendedRequest) returns (ConnectNetworkExtendedResponse);
+  rpc DisconnectNetwork(DisconnectNetworkExtendedRequest) returns (DisconnectNetworkExtendedResponse);
+  
+  // Network cleanup and maintenance
+  rpc PruneNetworks(PruneNetworksExtendedRequest) returns (PruneNetworksExtendedResponse);
+  
+  // Advanced network operations
+  rpc UpdateNetwork(UpdateNetworkRequest) returns (UpdateNetworkResponse);
+  rpc NetworkExists(NetworkExistsRequest) returns (NetworkExistsResponse);
+  
+  // Network monitoring and events
+  rpc NetworkEvents(NetworkEventsRequest) returns (stream NetworkEvent);
+  rpc NetworkStats(NetworkStatsRequest) returns (stream NetworkStatsResponse);
+  
+  // Batch operations
+  rpc BatchNetworkOperations(BatchNetworkRequest) returns (stream BatchNetworkResponse);
+  rpc BulkNetworkInspect(BulkInspectNetworkRequest) returns (BulkInspectNetworkResponse);
+  
+  // CNI and driver specific operations
+  rpc ListNetworkDrivers(ListNetworkDriversRequest) returns (ListNetworkDriversResponse);
+  rpc GetNetworkConfig(GetNetworkConfigRequest) returns (GetNetworkConfigResponse);
+  rpc ValidateNetworkConfig(ValidateNetworkConfigRequest) returns (ValidateNetworkConfigResponse);
+  
+  // Network diagnostics
+  rpc DiagnoseNetwork(DiagnoseNetworkRequest) returns (DiagnoseNetworkResponse);
+  rpc NetworkConnectivity(NetworkConnectivityRequest) returns (NetworkConnectivityResponse);
+  
+  // Version and capabilities
+  rpc GetNetworkSupportedFeatures(GetNetworkSupportedFeaturesRequest) returns (GetNetworkSupportedFeaturesResponse);
+}
+
+// Extended network information with comprehensive details
+message NetworkInfoExtended {
+  // Basic information
+  string id = 1;
+  string name = 2;
+  string driver = 3;
+  string scope = 4;
+  
+  // Network configuration
+  IPAMConfigExtended ipam = 5;
+  map<string, string> options = 6;
+  map<string, string> labels = 7;
+  
+  // Network properties
+  bool internal = 8;
+  bool attachable = 9;
+  bool ingress = 10;
+  bool ipv6_enabled = 11;
+  bool enable_icc = 12;
+  
+  // Timestamps
+  google.protobuf.Timestamp created = 13;
+  google.protobuf.Timestamp updated = 14;
+  
+  // Connected entities
+  repeated NetworkContainerExtended containers = 15;
+  repeated NetworkEndpoint endpoints = 16;
+  
+  // Network state
+  NetworkState state = 17;
+  NetworkConfig config = 18;
+  
+  // Metrics and statistics
+  NetworkMetrics metrics = 19;
+  
+  // Driver-specific information
+  map<string, string> driver_data = 20;
+  
+  // Network topology
+  repeated string subnet_ranges = 21;
+  repeated string gateway_addresses = 22;
+  
+  // Security and isolation
+  repeated string firewall_rules = 23;
+  string isolation_mode = 24;
+}
+
+message IPAMConfigExtended {
+  string driver = 1;
+  repeated IPAMSubnet subnets = 2;
+  map<string, string> options = 3;
+  map<string, string> driver_opts = 4;
+  
+  // Advanced IPAM configuration
+  bool enable_dhcp = 5;
+  string dhcp_range_start = 6;
+  string dhcp_range_end = 7;
+  repeated string reserved_ips = 8;
+  string dns_server = 9;
+  repeated string dns_search = 10;
+}
+
+message IPAMSubnet {
+  string subnet = 1;
+  string gateway = 2;
+  string ip_range = 3;
+  map<string, string> aux_addresses = 4;
+  int32 vlan_id = 5;
+  
+  // Subnet state
+  int32 available_ips = 6;
+  int32 allocated_ips = 7;
+  repeated string allocated_addresses = 8;
+}
+
+message NetworkContainerExtended {
+  string container_id = 1;
+  string name = 2;
+  string image = 3;
+  string ipv4_address = 4;
+  string ipv6_address = 5;
+  string mac_address = 6;
+  
+  // Network configuration for container
+  repeated string aliases = 7;
+  repeated string links = 8;
+  map<string, string> endpoints = 9;
+  
+  // Container network state
+  NetworkEndpointState state = 10;
+  google.protobuf.Timestamp connected_at = 11;
+  
+  // Port mappings
+  repeated PortMapping port_mappings = 12;
+}
+
+message NetworkEndpoint {
+  string endpoint_id = 1;
+  string name = 2;
+  string network_id = 3;
+  string container_id = 4;
+  
+  // Endpoint addresses
+  string ipv4_address = 5;
+  string ipv6_address = 6;
+  string mac_address = 7;
+  
+  // Endpoint configuration
+  repeated string dns_names = 8;
+  repeated string aliases = 9;
+  map<string, string> options = 10;
+  
+  // Endpoint state
+  NetworkEndpointState state = 11;
+  google.protobuf.Timestamp created = 12;
+}
+
+message NetworkState {
+  string status = 1;  // active, inactive, error, creating, removing
+  string health = 2;  // healthy, unhealthy, degraded
+  string last_error = 3;
+  int32 container_count = 4;
+  int32 endpoint_count = 5;
+  google.protobuf.Timestamp last_activity = 6;
+  
+  // Network connectivity state
+  bool bridge_up = 7;
+  bool dhcp_active = 8;
+  repeated string active_interfaces = 9;
+}
+
+message ExtendedNetworkConfig {
+  // CNI configuration
+  string cni_version = 1;
+  string cni_config_path = 2;
+  repeated string cni_plugins = 3;
+  
+  // Network drivers
+  string primary_driver = 4;
+  repeated string available_drivers = 5;
+  map<string, string> driver_config = 6;
+  
+  // Advanced configuration
+  int32 mtu = 7;
+  bool hairpin_mode = 8;
+  bool bridge_nf_call_iptables = 9;
+  bool bridge_nf_call_ip6tables = 10;
+  bool ip_forward = 11;
+  bool ip_masq = 12;
+  
+  // VLAN configuration
+  int32 vlan_id = 13;
+  string parent_interface = 14;
+  
+  // Security configuration
+  repeated string allowed_protocols = 15;
+  repeated string blocked_ports = 16;
+  bool enable_encryption = 17;
+}
+
+message NetworkMetrics {
+  // Traffic statistics
+  int64 bytes_sent = 1;
+  int64 bytes_received = 2;
+  int64 packets_sent = 3;
+  int64 packets_received = 4;
+  
+  // Error statistics
+  int64 tx_errors = 5;
+  int64 rx_errors = 6;
+  int64 tx_dropped = 7;
+  int64 rx_dropped = 8;
+  
+  // Connection statistics
+  int32 current_connections = 9;
+  int32 peak_connections = 10;
+  int64 total_connections = 11;
+  
+  // Performance metrics
+  double latency_ms = 12;
+  double throughput_mbps = 13;
+  double packet_loss_rate = 14;
+  
+  google.protobuf.Timestamp collected_at = 15;
+}
+
+enum NetworkEndpointState {
+  ENDPOINT_UNKNOWN = 0;
+  ENDPOINT_CREATING = 1;
+  ENDPOINT_ACTIVE = 2;
+  ENDPOINT_INACTIVE = 3;
+  ENDPOINT_ERROR = 4;
+  ENDPOINT_REMOVING = 5;
+}
+
+message ExtendedPortMapping {
+  int32 container_port = 1;
+  int32 host_port = 2;
+  string protocol = 3;  // tcp, udp, sctp
+  string host_ip = 4;
+  string description = 5;
+}
+
+// Create network request/response
+message CreateNetworkExtendedRequest {
+  string name = 1;
+  string namespace = 2;
+  string driver = 3;
+  
+  // IPAM configuration
+  IPAMConfigExtended ipam = 4;
+  
+  // Network properties
+  bool internal = 5;
+  bool attachable = 6;
+  bool ingress = 7;
+  bool ipv6 = 8;
+  bool enable_icc = 9;
+  
+  // Configuration
+  map<string, string> options = 10;
+  map<string, string> labels = 11;
+  
+  // Advanced options
+  int32 mtu = 12;
+  string parent_interface = 13;
+  int32 vlan_id = 14;
+  
+  // Security options
+  repeated string firewall_rules = 15;
+  string isolation_mode = 16;
+  bool enable_encryption = 17;
+  
+  // CNI specific
+  string config_file = 18;
+  string config_dir = 19;
+  bool validate_config = 20;
+}
+
+message CreateNetworkExtendedResponse {
+  string network_id = 1;
+  repeated string warnings = 2;
+  NetworkInfoExtended network = 3;
+  OperationMetadata metadata = 4;
+}
+
+// Remove network request/response
+message RemoveNetworkExtendedRequest {
+  repeated string networks = 1;
+  string namespace = 2;
+  bool force = 3;
+  bool remove_containers = 4;
+  int32 timeout_seconds = 5;
+  bool dry_run = 6;
+}
+
+message RemoveNetworkExtendedResponse {
+  repeated string removed = 1;
+  repeated string failed = 2;
+  repeated string warnings = 3;
+  repeated OperationResult results = 4;
+  OperationMetadata metadata = 5;
+}
+
+// List networks request/response
+message ListNetworksExtendedRequest {
+  string namespace = 1;
+  map<string, string> filters = 2;
+  bool quiet = 3;
+  string format = 4;
+  bool no_trunc = 5;
+  bool all = 6;
+  
+  // Extended options
+  bool include_system = 7;
+  bool include_metrics = 8;
+  bool include_containers = 9;
+  repeated string fields = 10;
+  
+  // Pagination
+  int32 limit = 11;
+  string continue_token = 12;
+  
+  // Sorting
+  string sort_by = 13;
+  bool reverse_sort = 14;
+}
+
+message ListNetworksExtendedResponse {
+  repeated NetworkInfoExtended networks = 1;
+  int32 total_count = 2;
+  string continue_token = 3;
+  repeated string warnings = 4;
+  OperationMetadata metadata = 5;
+}
+
+// Inspect network request/response
+message InspectNetworkExtendedRequest {
+  string network = 1;
+  string namespace = 2;
+  string format = 3;
+  bool verbose = 4;
+  bool include_containers = 5;
+  bool include_endpoints = 6;
+  bool include_metrics = 7;
+  repeated string fields = 8;
+}
+
+message InspectNetworkExtendedResponse {
+  NetworkInfoExtended network = 1;
+  repeated string warnings = 2;
+  OperationMetadata metadata = 3;
+}
+
+// Connect network request/response
+message ConnectNetworkExtendedRequest {
+  string network = 1;
+  string container = 2;
+  string namespace = 3;
+  
+  // Endpoint configuration
+  NetworkEndpointConfigExtended endpoint_config = 4;
+  
+  // Connection options
+  bool force = 5;
+  int32 timeout_seconds = 6;
+  bool validate_connectivity = 7;
+}
+
+message NetworkEndpointConfigExtended {
+  string ipv4_address = 1;
+  string ipv6_address = 2;
+  repeated string aliases = 3;
+  repeated string links = 4;
+  map<string, string> driver_opts = 5;
+  string mac_address = 6;
+  
+  // Advanced endpoint configuration
+  repeated string dns_names = 7;
+  repeated string dns_servers = 8;
+  repeated string dns_search = 9;
+  map<string, string> extra_hosts = 10;
+  
+  // Port configuration
+  repeated PortMapping port_mappings = 11;
+  
+  // Security configuration
+  repeated string capabilities = 12;
+  bool privileged = 13;
+  string user_ns_mode = 14;
+}
+
+message ConnectNetworkExtendedResponse {
+  bool connected = 1;
+  string endpoint_id = 2;
+  repeated string warnings = 3;
+  NetworkEndpoint endpoint = 4;
+  OperationMetadata metadata = 5;
+}
+
+// Disconnect network request/response
+message DisconnectNetworkExtendedRequest {
+  string network = 1;
+  string container = 2;
+  string namespace = 3;
+  bool force = 4;
+  int32 timeout_seconds = 5;
+  bool cleanup_resources = 6;
+}
+
+message DisconnectNetworkExtendedResponse {
+  bool disconnected = 1;
+  repeated string warnings = 2;
+  repeated string cleanup_actions = 3;
+  OperationMetadata metadata = 4;
+}
+
+// Prune networks request/response
+message PruneNetworksExtendedRequest {
+  string namespace = 1;
+  map<string, string> filters = 2;
+  bool force = 3;
+  bool prune_system_networks = 4;
+  int32 timeout_seconds = 5;
+  bool dry_run = 6;
+  
+  // Advanced pruning options
+  string until = 7;  // Prune networks older than this timestamp
+  bool prune_unused_only = 8;
+  bool include_volumes = 9;
+}
+
+message PruneNetworksExtendedResponse {
+  repeated string pruned = 1;
+  repeated string failed = 2;
+  int64 space_reclaimed = 3;
+  repeated string warnings = 4;
+  repeated OperationResult results = 5;
+  OperationMetadata metadata = 6;
+}
+
+// Update network request/response
+message UpdateNetworkRequest {
+  string network = 1;
+  string namespace = 2;
+  
+  // Updatable fields
+  map<string, string> labels = 3;
+  map<string, string> options = 4;
+  
+  // Configuration updates
+  bool enable_icc = 5;
+  int32 mtu = 6;
+  repeated string firewall_rules = 7;
+  
+  // Advanced updates
+  IPAMConfigExtended ipam_update = 8;
+  bool add_ipam = 9;  // Whether to add or replace IPAM config
+  
+  string update_mask = 10;  // Field mask for partial updates
+}
+
+message UpdateNetworkResponse {
+  bool updated = 1;
+  NetworkInfoExtended network = 2;
+  repeated string warnings = 3;
+  OperationMetadata metadata = 4;
+}
+
+// Network exists request/response
+message NetworkExistsRequest {
+  string network = 1;
+  string namespace = 2;
+}
+
+message NetworkExistsResponse {
+  bool exists = 1;
+  string network_id = 2;
+}
+
+// Network events request/response
+message NetworkEventsRequest {
+  string namespace = 1;
+  map<string, string> filters = 2;
+  google.protobuf.Timestamp since = 3;
+  google.protobuf.Timestamp until = 4;
+  bool follow = 5;
+  repeated string event_types = 6;
+}
+
+message NetworkEvent {
+  string event_type = 1;  // create, remove, connect, disconnect, update
+  string network_id = 2;
+  string network_name = 3;
+  string container_id = 4;
+  string container_name = 5;
+  
+  google.protobuf.Timestamp timestamp = 6;
+  map<string, string> attributes = 7;
+  string message = 8;
+  string actor = 9;
+  
+  // Event-specific data
+  oneof event_data {
+    NetworkCreateEvent create_event = 10;
+    NetworkRemoveEvent remove_event = 11;
+    NetworkConnectEvent connect_event = 12;
+    NetworkDisconnectEvent disconnect_event = 13;
+    NetworkUpdateEvent update_event = 14;
+  }
+}
+
+message NetworkCreateEvent {
+  NetworkInfoExtended network = 1;
+  string driver_used = 2;
+}
+
+message NetworkRemoveEvent {
+  string network_id = 1;
+  string network_name = 2;
+  bool force_removed = 3;
+}
+
+message NetworkConnectEvent {
+  string network_id = 1;
+  string container_id = 2;
+  string endpoint_id = 3;
+  string assigned_ip = 4;
+}
+
+message NetworkDisconnectEvent {
+  string network_id = 1;
+  string container_id = 2;
+  string endpoint_id = 3;
+  bool force_disconnected = 4;
+}
+
+message NetworkUpdateEvent {
+  string network_id = 1;
+  repeated string updated_fields = 2;
+  map<string, string> old_values = 3;
+  map<string, string> new_values = 4;
+}
+
+// Network stats request/response
+message NetworkStatsRequest {
+  repeated string networks = 1;
+  string namespace = 2;
+  bool stream = 3;
+  int32 interval_seconds = 4;
+  bool include_system_stats = 5;
+}
+
+message NetworkStatsResponse {
+  string network_id = 1;
+  string network_name = 2;
+  NetworkMetrics stats = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  
+  // System-level network stats
+  map<string, double> system_stats = 5;
+  repeated InterfaceStats interfaces = 6;
+}
+
+message InterfaceStats {
+  string interface_name = 1;
+  int64 bytes_sent = 2;
+  int64 bytes_received = 3;
+  int64 packets_sent = 4;
+  int64 packets_received = 5;
+  int64 errors = 6;
+  int64 dropped = 7;
+  bool is_up = 8;
+  int32 mtu = 9;
+}
+
+// Batch operations request/response
+message BatchNetworkRequest {
+  repeated NetworkOperation operations = 1;
+  string namespace = 2;
+  bool fail_fast = 3;
+  int32 concurrency = 4;
+  int32 timeout_seconds = 5;
+}
+
+message NetworkOperation {
+  string operation_id = 1;
+  
+  oneof operation {
+    CreateNetworkExtendedRequest create = 2;
+    RemoveNetworkExtendedRequest remove = 3;
+    ConnectNetworkExtendedRequest connect = 4;
+    DisconnectNetworkExtendedRequest disconnect = 5;
+    UpdateNetworkRequest update = 6;
+  }
+}
+
+message BatchNetworkResponse {
+  string operation_id = 1;
+  bool success = 2;
+  string error_message = 3;
+  
+  oneof result {
+    CreateNetworkExtendedResponse create_result = 4;
+    RemoveNetworkExtendedResponse remove_result = 5;
+    ConnectNetworkExtendedResponse connect_result = 6;
+    DisconnectNetworkExtendedResponse disconnect_result = 7;
+    UpdateNetworkResponse update_result = 8;
+  }
+  
+  OperationMetadata metadata = 9;
+}
+
+// Bulk inspect request/response
+message BulkInspectNetworkRequest {
+  repeated string networks = 1;
+  string namespace = 2;
+  bool verbose = 3;
+  bool include_containers = 4;
+  bool include_metrics = 5;
+  repeated string fields = 6;
+}
+
+message BulkInspectNetworkResponse {
+  repeated NetworkInspectResult results = 1;
+  int32 total_count = 2;
+  int32 success_count = 3;
+  int32 error_count = 4;
+  repeated string warnings = 5;
+  OperationMetadata metadata = 6;
+}
+
+message NetworkInspectResult {
+  string network = 1;
+  bool success = 2;
+  string error_message = 3;
+  NetworkInfoExtended network_info = 4;
+}
+
+// List network drivers request/response
+message ListNetworkDriversRequest {
+  string namespace = 1;
+  bool include_plugin_info = 2;
+}
+
+message ListNetworkDriversResponse {
+  repeated NetworkDriver drivers = 1;
+  repeated string warnings = 2;
+}
+
+message NetworkDriver {
+  string name = 1;
+  string version = 2;
+  string description = 3;
+  repeated string capabilities = 4;
+  map<string, string> options = 5;
+  bool is_available = 6;
+  bool is_default = 7;
+  
+  // Plugin information
+  string plugin_path = 8;
+  map<string, string> plugin_config = 9;
+}
+
+// Get network config request/response
+message GetNetworkConfigRequest {
+  string network = 1;
+  string namespace = 2;
+  string format = 3;  // json, yaml, raw
+}
+
+message GetNetworkConfigResponse {
+  string config = 1;
+  string format = 2;
+  string config_path = 3;
+  repeated string warnings = 4;
+}
+
+// Validate network config request/response
+message ValidateNetworkConfigRequest {
+  string config = 1;
+  string config_path = 2;
+  string format = 3;  // json, yaml
+  bool strict_validation = 4;
+}
+
+message ValidateNetworkConfigResponse {
+  bool valid = 1;
+  repeated string errors = 2;
+  repeated string warnings = 3;
+  repeated ValidationIssue issues = 4;
+}
+
+message ValidationIssue {
+  string severity = 1;  // error, warning, info
+  string field = 2;
+  string message = 3;
+  string suggestion = 4;
+}
+
+// Diagnose network request/response
+message DiagnoseNetworkRequest {
+  string network = 1;
+  string namespace = 2;
+  bool deep_inspection = 3;
+  bool check_connectivity = 4;
+  bool check_dns = 5;
+  repeated string target_containers = 6;
+}
+
+message DiagnoseNetworkResponse {
+  string network_id = 1;
+  string network_name = 2;
+  string overall_status = 3;  // healthy, degraded, unhealthy
+  
+  repeated DiagnosticResult results = 4;
+  repeated string recommendations = 5;
+  map<string, string> debug_info = 6;
+}
+
+message DiagnosticResult {
+  string test_name = 1;
+  string status = 2;  // pass, fail, warning, skip
+  string message = 3;
+  map<string, string> details = 4;
+  double execution_time_ms = 5;
+}
+
+// Network connectivity request/response
+message NetworkConnectivityRequest {
+  string source_network = 1;
+  string target_network = 2;
+  string namespace = 3;
+  
+  // Test parameters
+  string source_container = 4;
+  string target_container = 5;
+  repeated string protocols = 6;  // tcp, udp, icmp
+  repeated int32 ports = 7;
+  int32 timeout_seconds = 8;
+  int32 retry_count = 9;
+}
+
+message NetworkConnectivityResponse {
+  bool reachable = 1;
+  repeated ConnectivityResult results = 2;
+  string summary = 3;
+  double average_latency_ms = 4;
+  double packet_loss_rate = 5;
+  repeated string warnings = 6;
+}
+
+message ConnectivityResult {
+  string protocol = 1;
+  int32 port = 2;
+  bool success = 3;
+  double latency_ms = 4;
+  string error_message = 5;
+  int32 attempt_count = 6;
+}
+
+// Get supported features request/response
+message GetNetworkSupportedFeaturesRequest {
+  string namespace = 1;
+}
+
+message GetNetworkSupportedFeaturesResponse {
+  NetworkSupportedFeatures features = 1;
+}
+
+message NetworkSupportedFeatures {
+  repeated string drivers = 1;
+  repeated string ipam_drivers = 2;
+  repeated string cni_plugins = 3;
+  
+  // Feature flags
+  bool supports_ipv6 = 4;
+  bool supports_macvlan = 5;
+  bool supports_overlay = 6;
+  bool supports_encryption = 7;
+  bool supports_multicast = 8;
+  bool supports_vlan = 9;
+  bool supports_bridge_networking = 10;
+  bool supports_host_networking = 11;
+  bool supports_none_networking = 12;
+  
+  // Advanced features
+  bool supports_network_policies = 13;
+  bool supports_service_discovery = 14;
+  bool supports_load_balancing = 15;
+  bool supports_traffic_shaping = 16;
+  bool supports_network_monitoring = 17;
+  bool supports_network_diagnostics = 18;
+  
+  // Version information
+  string cni_version = 19;
+  string min_nerdctl_version = 20;
+  string max_nerdctl_version = 21;
+  
+  map<string, string> capabilities = 22;
+  repeated string experimental_features = 23;
+}
+
+// Common operation result and metadata
+message OperationResult {
+  string id = 1;
+  bool success = 2;
+  string error_message = 3;
+  map<string, string> metadata = 4;
+  google.protobuf.Timestamp timestamp = 5;
+}
+
+message OperationMetadata {
+  string operation_id = 1;
+  google.protobuf.Timestamp started_at = 2;
+  google.protobuf.Timestamp completed_at = 3;
+  double duration_ms = 4;
+  string nerdctl_version = 5;
+  string cni_version = 6;
+  map<string, string> system_info = 7;
+}

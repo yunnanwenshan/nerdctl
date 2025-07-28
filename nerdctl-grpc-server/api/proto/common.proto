@@ -1,0 +1,211 @@
+syntax = "proto3";
+
+package nerdctl.v1;
+
+option go_package = "github.com/containerd/nerdctl-grpc-server/api/proto";
+
+import "google/protobuf/timestamp.proto";
+
+// Common types used across services
+
+// Resource limits and constraints
+message ResourceLimits {
+  int64 memory_bytes = 1;          // Memory limit in bytes
+  int64 memory_swap_bytes = 2;     // Memory + swap limit in bytes  
+  double cpu_quota = 3;            // CPU quota (e.g., 1.5 for 150%)
+  int64 cpu_period = 4;            // CPU period in microseconds
+  int32 cpu_shares = 5;            // CPU shares (relative weight)
+  string cpuset_cpus = 6;          // CPUs in which to allow execution
+  string cpuset_mems = 7;          // Memory nodes in which to allow execution
+  int64 blkio_weight = 8;          // Block IO weight
+  repeated BlkioDevice blkio_weight_device = 9;  // Per-device weight
+  repeated BlkioDevice blkio_device_read_bps = 10;   // Per-device read rate
+  repeated BlkioDevice blkio_device_write_bps = 11;  // Per-device write rate
+  int64 kernel_memory = 12;        // Kernel memory limit (deprecated)
+  int64 memory_reservation = 13;   // Memory soft limit
+  int32 memory_swappiness = 14;    // Memory swappiness (0-100)
+  bool oom_kill_disable = 15;      // Disable OOM killer
+  int32 pids_limit = 16;           // PIDs limit
+  repeated UlimitSpec ulimits = 17; // Ulimit specifications
+}
+
+message BlkioDevice {
+  string path = 1;    // Device path
+  int64 rate = 2;     // Rate limit
+}
+
+message UlimitSpec {
+  string name = 1;    // Ulimit name (e.g., "nofile", "nproc")
+  int64 soft = 2;     // Soft limit
+  int64 hard = 3;     // Hard limit
+}
+
+// Network configuration
+message NetworkConfig {
+  string mode = 1;                           // Network mode: "bridge", "host", "none", "container"
+  repeated string networks = 2;              // Network names to connect
+  repeated PortMapping ports = 3;            // Port mappings
+  repeated string dns_servers = 4;           // Custom DNS servers
+  repeated string dns_search = 5;            // DNS search domains
+  repeated string dns_options = 6;           // DNS options
+  string hostname = 7;                       // Container hostname
+  string domainname = 8;                     // Container domain name
+  string ip = 9;                            // IPv4 address
+  string ip6 = 10;                          // IPv6 address
+  string mac_address = 11;                  // MAC address
+  repeated string extra_hosts = 12;         // Extra hosts entries
+  string network_mode = 13;                 // Network mode details
+}
+
+message PortMapping {
+  string host_ip = 1;        // Host IP to bind to
+  int32 host_port = 2;       // Host port
+  int32 container_port = 3;  // Container port
+  string protocol = 4;       // Protocol: "tcp", "udp", "sctp"
+  int32 host_port_end = 5;   // End of host port range
+  int32 container_port_end = 6; // End of container port range
+}
+
+// Volume and mount configuration
+message VolumeMount {
+  string source = 1;           // Source path (host) or volume name
+  string destination = 2;      // Destination path in container
+  string type = 3;            // Mount type: "bind", "volume", "tmpfs"
+  bool read_only = 4;         // Read-only mount
+  string bind_propagation = 5; // Bind propagation: "private", "rprivate", "shared", "rshared", "slave", "rslave"
+  string tmpfs_mode = 6;      // Tmpfs mode for tmpfs mounts
+  int64 tmpfs_size = 7;       // Tmpfs size in bytes
+  repeated string mount_options = 8; // Additional mount options
+}
+
+// Security options
+message SecurityOptions {
+  string user = 1;                    // User specification (user:group)
+  repeated string groups = 2;         // Additional groups
+  repeated string cap_add = 3;        // Capabilities to add
+  repeated string cap_drop = 4;       // Capabilities to drop
+  bool privileged = 5;               // Run in privileged mode
+  string security_opt = 6;           // Security options (e.g., apparmor, selinux)
+  repeated string security_opts = 7;  // Multiple security options
+  bool no_new_privileges = 8;        // Prevent escalation
+  string userns_mode = 9;            // User namespace mode
+}
+
+// Container state and status
+enum ContainerStatus {
+  CONTAINER_STATUS_UNSPECIFIED = 0;
+  CONTAINER_STATUS_CREATED = 1;
+  CONTAINER_STATUS_RUNNING = 2;
+  CONTAINER_STATUS_PAUSED = 3;
+  CONTAINER_STATUS_RESTARTING = 4;
+  CONTAINER_STATUS_REMOVING = 5;
+  CONTAINER_STATUS_EXITED = 6;
+  CONTAINER_STATUS_DEAD = 7;
+}
+
+// Image information
+message ImageInfo {
+  string id = 1;                              // Image ID
+  string digest = 2;                          // Image digest
+  repeated string repo_tags = 3;              // Repository tags
+  repeated string repo_digests = 4;           // Repository digests
+  int64 size = 5;                            // Image size in bytes
+  google.protobuf.Timestamp created = 6;      // Creation time
+  string architecture = 7;                    // Architecture
+  string os = 8;                             // Operating system
+  map<string, string> labels = 9;           // Image labels
+  repeated string env = 10;                  // Environment variables
+  repeated string cmd = 11;                  // Default command
+  repeated string entrypoint = 12;           // Entrypoint
+  repeated string exposed_ports = 13;        // Exposed ports
+  repeated string volumes = 14;              // Volume mount points
+  string working_dir = 15;                   // Working directory
+  string user = 16;                          // Default user
+}
+
+// Container information
+message ContainerInfo {
+  string id = 1;                              // Container ID (full)
+  string short_id = 2;                        // Container ID (short)
+  string name = 3;                            // Container name
+  string image = 4;                          // Image reference
+  string image_id = 5;                       // Image ID
+  string platform = 6;                      // Platform
+  ContainerStatus status = 7;                // Current status
+  int32 exit_code = 8;                       // Exit code (if exited)
+  google.protobuf.Timestamp created = 9;     // Creation time
+  google.protobuf.Timestamp started = 10;   // Start time
+  google.protobuf.Timestamp finished = 11;  // Finish time
+  repeated string command = 12;              // Command and args
+  map<string, string> labels = 13;          // Container labels
+  NetworkConfig network_config = 14;        // Network configuration
+  repeated VolumeMount mounts = 15;         // Volume mounts
+  ResourceLimits resources = 16;            // Resource limits
+  SecurityOptions security = 17;            // Security options
+}
+
+// Operation status for long-running operations
+enum OperationStatus {
+  OPERATION_STATUS_UNSPECIFIED = 0;
+  OPERATION_STATUS_PENDING = 1;
+  OPERATION_STATUS_RUNNING = 2;
+  OPERATION_STATUS_COMPLETED = 3;
+  OPERATION_STATUS_FAILED = 4;
+  OPERATION_STATUS_CANCELLED = 5;
+}
+
+message OperationProgress {
+  string operation_id = 1;                    // Unique operation ID
+  OperationStatus status = 2;                // Operation status
+  string message = 3;                        // Progress message
+  double progress = 4;                       // Progress percentage (0.0-1.0)
+  google.protobuf.Timestamp updated_at = 5;  // Last update time
+  map<string, string> metadata = 6;         // Additional metadata
+}
+
+// Error details
+message ErrorDetail {
+  string code = 1;                           // Error code
+  string message = 2;                        // Error message
+  string component = 3;                      // Component that generated error
+  map<string, string> metadata = 4;         // Additional context
+  repeated string suggestions = 5;           // Suggested fixes
+}
+
+// Health check configuration
+message HealthCheck {
+  repeated string test = 1;                  // Health check command
+  int32 interval_seconds = 2;               // Check interval in seconds
+  int32 timeout_seconds = 3;                // Check timeout in seconds
+  int32 start_period_seconds = 4;           // Start period in seconds
+  int32 retries = 5;                        // Number of retries
+}
+
+// Log configuration
+message LogConfig {
+  string driver = 1;                        // Log driver
+  map<string, string> options = 2;         // Log driver options
+}
+
+// Restart policy
+message RestartPolicy {
+  string name = 1;                          // Policy name: "no", "always", "unless-stopped", "on-failure"
+  int32 maximum_retry_count = 2;           // Maximum retry count for "on-failure"
+}
+
+// Platform specification
+message Platform {
+  string architecture = 1;                 // CPU architecture
+  string os = 2;                           // Operating system
+  string variant = 3;                      // Architecture variant
+  string os_version = 4;                   // OS version
+}
+
+// Registry authentication
+message RegistryAuth {
+  string username = 1;                     // Registry username
+  string password = 2;                     // Registry password
+  string server_address = 3;               // Registry server address
+  string identity_token = 4;               // Identity token
+  string registry_token = 5;               // Registry token
+}

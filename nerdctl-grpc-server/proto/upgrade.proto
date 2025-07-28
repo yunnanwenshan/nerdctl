@@ -1,0 +1,316 @@
+syntax = "proto3";
+
+package nerdctl.upgrade;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/containerd/nerdctl-grpc-server/proto/gen;pb";
+
+// UpgradeService manages version upgrades and hot updates
+service UpgradeService {
+  // Get current version information
+  rpc GetVersionInfo(GetVersionInfoRequest) returns (GetVersionInfoResponse);
+  
+  // Check for available updates
+  rpc CheckForUpdates(CheckForUpdatesRequest) returns (CheckForUpdatesResponse);
+  
+  // Trigger an upgrade to a specific version
+  rpc TriggerUpgrade(TriggerUpgradeRequest) returns (TriggerUpgradeResponse);
+  
+  // Get current upgrade status
+  rpc GetUpgradeStatus(GetUpgradeStatusRequest) returns (GetUpgradeStatusResponse);
+  
+  // Rollback to previous version
+  rpc RollbackUpgrade(RollbackUpgradeRequest) returns (RollbackUpgradeResponse);
+  
+  // Get upgrade history
+  rpc GetUpgradeHistory(GetUpgradeHistoryRequest) returns (GetUpgradeHistoryResponse);
+  
+  // Set upgrade policy
+  rpc SetUpgradePolicy(SetUpgradePolicyRequest) returns (SetUpgradePolicyResponse);
+  
+  // Get current upgrade policy
+  rpc GetUpgradePolicy(GetUpgradePolicyRequest) returns (GetUpgradePolicyResponse);
+  
+  // Watch upgrade status changes (streaming)
+  rpc WatchUpgradeStatus(WatchUpgradeStatusRequest) returns (stream UpgradeStatusEvent);
+}
+
+// Upgrade strategy enumeration
+enum UpgradeStrategy {
+  UNKNOWN_STRATEGY = 0;
+  IMMEDIATE = 1;        // Hot swap without waiting
+  GRACEFUL = 2;         // Wait for graceful moment
+  SCHEDULED = 3;        // Execute at scheduled time
+}
+
+// Version information messages
+
+message GetVersionInfoRequest {}
+
+message GetVersionInfoResponse {
+  string current_version = 1;
+  string target_version = 2;
+  string previous_version = 3;
+  google.protobuf.Timestamp last_check = 4;
+  google.protobuf.Timestamp last_upgrade = 5;
+  bool upgrade_in_progress = 6;
+  bool rollback_available = 7;
+  int64 adapter_generation = 8;
+}
+
+// Update checking messages
+
+message CheckForUpdatesRequest {
+  bool force_check = 1;
+}
+
+message CheckForUpdatesResponse {
+  bool update_available = 1;
+  string current_version = 2;
+  string available_version = 3;
+  google.protobuf.Timestamp last_check = 4;
+  repeated string available_versions = 5;
+  map<string, string> version_metadata = 6;
+}
+
+// Upgrade triggering messages
+
+message TriggerUpgradeRequest {
+  string target_version = 1;
+  string strategy = 2;  // For backward compatibility
+  UpgradeStrategy strategy_enum = 3;
+  bool force = 4;
+  bool dry_run = 5;
+  google.protobuf.Timestamp scheduled_time = 6;  // For scheduled strategy
+  int32 graceful_timeout_seconds = 7;             // For graceful strategy
+  map<string, string> options = 8;
+}
+
+message TriggerUpgradeResponse {
+  bool success = 1;
+  string update_id = 2;
+  string error = 3;
+  map<string, string> metadata = 4;
+}
+
+// Status monitoring messages
+
+message GetUpgradeStatusRequest {}
+
+message GetUpgradeStatusResponse {
+  int64 current_generation = 1;
+  bool is_healthy = 2;
+  map<string, string> health_status = 3;
+  PendingUpgrade pending_update = 4;
+  UpdateRecord last_update = 5;
+}
+
+message PendingUpgrade {
+  string id = 1;
+  string from_version = 2;
+  string to_version = 3;
+  string strategy = 4;
+  google.protobuf.Timestamp start_time = 5;
+  float progress = 6;  // 0.0 to 100.0
+  string status = 7;
+  google.protobuf.Timestamp last_heartbeat = 8;
+  map<string, string> metadata = 9;
+}
+
+message UpdateRecord {
+  string id = 1;
+  string from_version = 2;
+  string to_version = 3;
+  string strategy = 4;
+  google.protobuf.Timestamp start_time = 5;
+  google.protobuf.Timestamp end_time = 6;
+  int64 duration = 7;  // Duration in seconds
+  bool success = 8;
+  string error = 9;
+}
+
+// Rollback messages
+
+message RollbackUpgradeRequest {
+  string target_version = 1;  // Optional: specific version to rollback to
+  bool force = 2;
+}
+
+message RollbackUpgradeResponse {
+  bool success = 1;
+  string error = 2;
+  string new_version = 3;
+  int64 generation = 4;
+}
+
+// History messages
+
+message GetUpgradeHistoryRequest {
+  int32 limit = 1;     // Max number of records to return
+  int32 offset = 2;    // Offset for pagination
+  bool include_failed = 3;  // Include failed upgrades
+}
+
+message GetUpgradeHistoryResponse {
+  repeated UpdateRecord updates = 1;
+  int32 total_count = 2;
+  bool has_more = 3;
+}
+
+// Policy configuration messages
+
+message SetUpgradePolicyRequest {
+  bool auto_upgrade = 1;
+  int64 check_interval = 2;  // Seconds between checks
+  string strategy = 3;
+  int64 graceful_timeout = 4;  // Seconds
+  bool rollback_on_failure = 5;
+  map<string, string> version_constraints = 6;
+  repeated string allowed_hours = 7;  // Hours when upgrades are allowed (e.g., "02:00-04:00")
+  repeated string blocked_days = 8;   // Days when upgrades are blocked (e.g., "friday", "saturday")
+}
+
+message SetUpgradePolicyResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message GetUpgradePolicyRequest {}
+
+message GetUpgradePolicyResponse {
+  bool auto_upgrade = 1;
+  int64 check_interval = 2;
+  string strategy = 3;
+  int64 graceful_timeout = 4;
+  bool rollback_on_failure = 5;
+  map<string, string> version_constraints = 6;
+  repeated string allowed_hours = 7;
+  repeated string blocked_days = 8;
+}
+
+// Streaming messages
+
+message WatchUpgradeStatusRequest {
+  bool include_heartbeat = 1;  // Include periodic heartbeat events
+  int32 heartbeat_interval = 2; // Seconds between heartbeats
+}
+
+message UpgradeStatusEvent {
+  google.protobuf.Timestamp timestamp = 1;
+  string event_type = 2;  // "status_update", "upgrade_started", "upgrade_completed", "upgrade_failed", "heartbeat"
+  int64 current_generation = 3;
+  bool is_healthy = 4;
+  PendingUpgrade pending_update = 5;
+  UpdateRecord completed_update = 6;
+  string message = 7;
+  map<string, string> metadata = 8;
+}
+
+// Advanced upgrade features
+
+message CanaryUpgradeRequest {
+  string target_version = 1;
+  float traffic_percentage = 2;  // Percentage of traffic to route to new version
+  int32 duration_minutes = 3;    // How long to run canary
+  repeated string health_checks = 4;
+}
+
+message CanaryUpgradeResponse {
+  bool success = 1;
+  string canary_id = 2;
+  string error = 3;
+}
+
+message BlueGreenUpgradeRequest {
+  string target_version = 1;
+  bool auto_switch = 2;          // Automatically switch after validation
+  int32 validation_timeout = 3;   // Seconds to wait for validation
+}
+
+message BlueGreenUpgradeResponse {
+  bool success = 1;
+  string deployment_id = 2;
+  string error = 3;
+  string blue_version = 4;   // Current live version
+  string green_version = 5;  // New staged version
+}
+
+// Health and validation
+
+message HealthCheckRequest {
+  string version = 1;  // Check health of specific version
+  bool deep_check = 2; // Perform deep health validation
+}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  map<string, string> checks = 2;  // Individual check results
+  repeated string warnings = 3;
+  repeated string errors = 4;
+  google.protobuf.Timestamp last_check = 5;
+}
+
+// Version compatibility and constraints
+
+message ValidateUpgradeRequest {
+  string from_version = 1;
+  string to_version = 2;
+  string strategy = 3;
+}
+
+message ValidateUpgradeResponse {
+  bool valid = 1;
+  repeated string warnings = 2;
+  repeated string errors = 3;
+  repeated string requirements = 4;
+  bool breaking_changes = 5;
+  map<string, string> migration_info = 6;
+}
+
+// Configuration and feature flags
+
+message UpgradeFeatureFlags {
+  bool enable_hot_updates = 1;
+  bool enable_auto_rollback = 2;
+  bool enable_health_checks = 3;
+  bool enable_canary_deployments = 4;
+  bool enable_blue_green_deployments = 5;
+  bool enable_scheduled_upgrades = 6;
+  int32 max_concurrent_upgrades = 7;
+  int32 upgrade_timeout_minutes = 8;
+}
+
+message UpdateFeatureFlagsRequest {
+  UpgradeFeatureFlags flags = 1;
+}
+
+message UpdateFeatureFlagsResponse {
+  bool success = 1;
+  string error = 2;
+  UpgradeFeatureFlags current_flags = 3;
+}
+
+// Metrics and monitoring
+
+message UpgradeMetrics {
+  int64 total_upgrades = 1;
+  int64 successful_upgrades = 2;
+  int64 failed_upgrades = 3;
+  int64 rollbacks = 4;
+  double average_upgrade_time = 5;  // Average time in seconds
+  double uptime_percentage = 6;
+  google.protobuf.Timestamp last_upgrade = 7;
+  map<string, int64> upgrade_strategies_used = 8;
+  map<string, int64> version_distribution = 9;
+}
+
+message GetUpgradeMetricsRequest {
+  google.protobuf.Timestamp start_time = 1;
+  google.protobuf.Timestamp end_time = 2;
+}
+
+message GetUpgradeMetricsResponse {
+  UpgradeMetrics metrics = 1;
+  repeated UpgradeMetrics historical_metrics = 2;  // Time series data
+}
