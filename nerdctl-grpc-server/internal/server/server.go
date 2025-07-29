@@ -49,6 +49,7 @@ type Server struct {
 	containerService *ContainerServiceServer
 	imageService     *ImageServiceServer
 	networkService   *NetworkServiceServer
+	systemService    *SystemServiceServer
 	healthService    *health.Server
 	
 	// Server state
@@ -116,6 +117,7 @@ func (s *Server) Initialize(ctx context.Context) error {
 	s.containerService = NewContainerServiceServer(s.containerManager)
 	s.imageService = NewImageServiceServer(s.imageManager)
 	s.networkService = NewNetworkServiceServer(s.networkManager)
+	s.systemService = NewSystemServiceServer(s.adapterFactory)
 	s.healthService = health.NewServer()
 
 	// Initialize gRPC server
@@ -162,6 +164,7 @@ func (s *Server) initializeGRPCServer() error {
 	pb.RegisterContainerServiceServer(s.grpcServer, s.containerService)
 	pb.RegisterImageServiceServer(s.grpcServer, s.imageService)
 	pb.RegisterNetworkServiceServer(s.grpcServer, s.networkService)
+	pb.RegisterSystemServiceServer(s.grpcServer, s.systemService)
 	grpc_health_v1.RegisterHealthServer(s.grpcServer, s.healthService)
 
 	// Enable reflection for development
