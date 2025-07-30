@@ -6,6 +6,7 @@ import (
 	imagev1 "dsagent/api/image/v1"
 	ecrv1 "dsagent/api/ecr/v1"
 	containerv1 "dsagent/api/container/v1"
+	nydusifyv1 "dsagent/api/nydusify/v1"
 	"dsagent/internal/conf"
 	"dsagent/internal/service"
 
@@ -15,7 +16,7 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, health *service.HealthService, imageService *service.ImageServiceV2, ecrService *service.ECRService, containerService *service.ContainerService, eventsService *service.EventsService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, health *service.HealthService, imageService *service.ImageServiceV2, ecrService *service.ECRService, containerService *service.ContainerService, eventsService *service.EventsService, nydusifyService *service.NydusifyService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
@@ -36,5 +37,6 @@ func NewHTTPServer(c *conf.Server, health *service.HealthService, imageService *
 	imagev1.RegisterImageServiceHTTPServer(srv, imageService)
 	ecrv1.RegisterECRServiceHTTPServer(srv, ecrService)
 	containerv1.RegisterContainerServiceHTTPServer(srv, containerService)
+	nydusifyv1.RegisterNydusifyServiceHTTPServer(srv, nydusifyService)
 	return srv
 }

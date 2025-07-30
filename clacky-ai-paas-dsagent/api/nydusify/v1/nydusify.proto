@@ -1,0 +1,405 @@
+syntax = "proto3";
+
+package nydusify.v1;
+
+option go_package = "dsagent/api/nydusify/v1;v1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "validate/validate.proto";
+
+// NydusifyService provides asynchronous execution of nydusify commands
+service NydusifyService {
+  // Submit nydusify commit task for async execution
+  rpc SubmitCommitTask (SubmitCommitTaskRequest) returns (SubmitCommitTaskResponse) {
+    option (google.api.http) = {
+      post: "/v1/nydusify/commit"
+      body: "*"
+    };
+  }
+  
+  // Get task execution status and results
+  rpc GetTaskStatus (GetTaskStatusRequest) returns (GetTaskStatusResponse) {
+    option (google.api.http) = {
+      get: "/v1/nydusify/tasks/{task_id}"
+    };
+  }
+  
+  // List all tasks with optional filtering
+  rpc ListTasks (ListTasksRequest) returns (ListTasksResponse) {
+    option (google.api.http) = {
+      get: "/v1/nydusify/tasks"
+    };
+  }
+  
+  // Cancel a running task
+  rpc CancelTask (CancelTaskRequest) returns (CancelTaskResponse) {
+    option (google.api.http) = {
+      delete: "/v1/nydusify/tasks/{task_id}"
+    };
+  }
+
+  // Retry callback notification for a completed task
+  rpc RetryCallback (RetryCallbackRequest) returns (RetryCallbackResponse) {
+    option (google.api.http) = {
+      post: "/v1/nydusify/tasks/{task_id}/retry-callback"
+    };
+  }
+}
+
+// Request to submit a nydusify commit task
+message SubmitCommitTaskRequest {
+  // Container ID or name to commit
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+  
+  // Target repository URL for the nydus image
+  string target_repo = 2 [(validate.rules).string.min_len = 1];
+  
+  // Optional callback configuration
+  CallbackConfig callback = 3;
+  
+  // Optional task metadata
+  map<string, string> metadata = 4;
+  
+  // Task priority (1-10, where 10 is highest priority)
+  int32 priority = 5;
+  
+  // Task timeout in seconds (default: 3600)
+  int32 timeout_seconds = 6;
+}
+
+// Response for task submission
+message SubmitCommitTaskResponse {
+  // Unique task ID
+  string task_id = 1;
+  
+  // Task status
+  TaskStatus status = 2;
+  
+  // Task creation timestamp
+  google.protobuf.Timestamp created_at = 3;
+  
+  // Estimated start time (if queued)
+  google.protobuf.Timestamp estimated_start_time = 4;
+}
+
+// Request to get task status
+message GetTaskStatusRequest {
+  // Task ID
+  string task_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+// Response with task status and results
+message GetTaskStatusResponse {
+  // Task information
+  TaskInfo task = 1;
+}
+
+// Request to list tasks
+message ListTasksRequest {
+  // Page size (default: 20, max: 100)
+  int32 page_size = 1;
+  
+  // Page token for pagination
+  string page_token = 2;
+  
+  // Filter by task status
+  repeated TaskStatus status_filter = 3;
+  
+  // Filter by container ID
+  string container_id = 4;
+  
+  // Filter tasks created after this timestamp
+  google.protobuf.Timestamp created_after = 5;
+  
+  // Filter tasks created before this timestamp
+  google.protobuf.Timestamp created_before = 6;
+}
+
+// Response with list of tasks
+message ListTasksResponse {
+  // List of tasks
+  repeated TaskInfo tasks = 1;
+  
+  // Next page token
+  string next_page_token = 2;
+  
+  // Total count of tasks (if available)
+  int32 total_count = 3;
+}
+
+// Request to cancel a task
+message CancelTaskRequest {
+  // Task ID
+  string task_id = 1 [(validate.rules).string.min_len = 1];
+  
+  // Reason for cancellation
+  string reason = 2;
+}
+
+// Response for task cancellation
+message CancelTaskResponse {
+  // Success flag
+  bool success = 1;
+  
+  // Message
+  string message = 2;
+  
+  // Updated task status
+  TaskStatus status = 3;
+}
+
+// Request to retry callback notification
+message RetryCallbackRequest {
+  // Task ID
+  string task_id = 1 [(validate.rules).string.min_len = 1];
+  
+  // Force retry even if max attempts reached
+  bool force = 2;
+}
+
+// Response for callback retry
+message RetryCallbackResponse {
+  // Success flag
+  bool success = 1;
+  
+  // Message
+  string message = 2;
+  
+  // Current retry count
+  int32 retry_count = 3;
+}
+
+// Task information structure
+message TaskInfo {
+  // Task ID
+  string task_id = 1;
+  
+  // Task type (always "commit" for now)
+  string task_type = 2;
+  
+  // Task status
+  TaskStatus status = 3;
+  
+  // Container ID
+  string container_id = 4;
+  
+  // Target repository
+  string target_repo = 5;
+  
+  // Task creation timestamp
+  google.protobuf.Timestamp created_at = 6;
+  
+  // Task start timestamp
+  google.protobuf.Timestamp started_at = 7;
+  
+  // Task completion timestamp
+  google.protobuf.Timestamp completed_at = 8;
+  
+  // Task execution duration in seconds
+  int32 duration_seconds = 9;
+  
+  // Task priority
+  int32 priority = 10;
+  
+  // Task timeout
+  int32 timeout_seconds = 11;
+  
+  // Task execution results
+  TaskResult result = 12;
+  
+  // Callback configuration
+  CallbackConfig callback = 13;
+  
+  // Callback status
+  CallbackStatus callback_status = 14;
+  
+  // Task metadata
+  map<string, string> metadata = 15;
+  
+  // Error message (if failed)
+  string error_message = 16;
+}
+
+// Task execution results
+message TaskResult {
+  // Exit code of nydusify command
+  int32 exit_code = 1;
+  
+  // Standard output
+  string stdout = 2;
+  
+  // Standard error
+  string stderr = 3;
+  
+  // Generated nydus image digest
+  string image_digest = 4;
+  
+  // Target repository URL
+  string target_url = 5;
+  
+  // Image size information
+  ImageSizeInfo size_info = 6;
+  
+  // Execution metrics
+  ExecutionMetrics metrics = 7;
+}
+
+// Image size information
+message ImageSizeInfo {
+  // Original image size in bytes
+  int64 original_size = 1;
+  
+  // Nydus image size in bytes
+  int64 nydus_size = 2;
+  
+  // Compression ratio
+  float compression_ratio = 3;
+  
+  // Size reduction in bytes
+  int64 size_reduction = 4;
+}
+
+// Execution metrics
+message ExecutionMetrics {
+  // CPU usage percentage
+  float cpu_usage = 1;
+  
+  // Memory usage in bytes
+  int64 memory_usage = 2;
+  
+  // Disk I/O read bytes
+  int64 disk_read_bytes = 3;
+  
+  // Disk I/O write bytes
+  int64 disk_write_bytes = 4;
+  
+  // Network I/O bytes
+  int64 network_io_bytes = 5;
+}
+
+// Callback configuration
+message CallbackConfig {
+  // Callback URL
+  string url = 1 [(validate.rules).string.uri = true];
+  
+  // HTTP method (default: POST)
+  string method = 2;
+  
+  // Custom headers
+  map<string, string> headers = 3;
+  
+  // Authentication configuration
+  CallbackAuth auth = 4;
+  
+  // Retry configuration
+  RetryConfig retry = 5;
+  
+  // Timeout for callback request in seconds
+  int32 timeout_seconds = 6;
+}
+
+// Callback authentication
+message CallbackAuth {
+  // Auth type (bearer, basic, api_key)
+  string type = 1;
+  
+  // Bearer token
+  string token = 2;
+  
+  // Basic auth username
+  string username = 3;
+  
+  // Basic auth password
+  string password = 4;
+  
+  // API key
+  string api_key = 5;
+  
+  // API key header name
+  string api_key_header = 6;
+}
+
+// Retry configuration
+message RetryConfig {
+  // Maximum retry attempts (default: 3)
+  int32 max_attempts = 1;
+  
+  // Initial delay in seconds (default: 1)
+  int32 initial_delay = 2;
+  
+  // Maximum delay in seconds (default: 60)
+  int32 max_delay = 3;
+  
+  // Backoff multiplier (default: 2.0)
+  float backoff_multiplier = 4;
+}
+
+// Callback status information
+message CallbackStatus {
+  // Last callback attempt timestamp
+  google.protobuf.Timestamp last_attempt = 1;
+  
+  // Number of callback attempts made
+  int32 attempts = 2;
+  
+  // Last callback HTTP status code
+  int32 last_status_code = 3;
+  
+  // Last callback response
+  string last_response = 4;
+  
+  // Last callback error message
+  string last_error = 5;
+  
+  // Next retry timestamp
+  google.protobuf.Timestamp next_retry = 6;
+  
+  // Callback success flag
+  bool success = 7;
+}
+
+// Task status enumeration
+enum TaskStatus {
+  TASK_STATUS_UNSPECIFIED = 0;
+  TASK_STATUS_PENDING = 1;     // Task submitted, waiting to start
+  TASK_STATUS_RUNNING = 2;     // Task is currently executing
+  TASK_STATUS_SUCCESS = 3;     // Task completed successfully
+  TASK_STATUS_FAILED = 4;      // Task failed
+  TASK_STATUS_CANCELLED = 5;   // Task was cancelled
+  TASK_STATUS_TIMEOUT = 6;     // Task timed out
+}
+
+// Callback payload sent to the callback URL
+message CallbackPayload {
+  // Task ID
+  string task_id = 1;
+  
+  // Task status
+  TaskStatus status = 2;
+  
+  // Container ID
+  string container_id = 3;
+  
+  // Target repository
+  string target_repo = 4;
+  
+  // Task completion timestamp
+  google.protobuf.Timestamp completed_at = 5;
+  
+  // Task execution duration in seconds
+  int32 duration_seconds = 6;
+  
+  // Task execution results (if successful)
+  TaskResult result = 7;
+  
+  // Error message (if failed)
+  string error_message = 8;
+  
+  // Task metadata
+  map<string, string> metadata = 9;
+  
+  // Callback attempt number
+  int32 callback_attempt = 10;
+}

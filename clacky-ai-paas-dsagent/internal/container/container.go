@@ -60,6 +60,8 @@ func (c *Container) registerServiceProviders() {
 	c.container.Provide(service.NewContainerService)
 	// Register events service
 	c.container.Provide(service.NewEventsService)
+	// Register nydusify service
+	c.container.Provide(service.NewNydusifyService)
 }
 
 // registerServerProviders registers all server providers

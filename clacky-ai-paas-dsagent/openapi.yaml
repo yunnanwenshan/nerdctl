@@ -943,6 +943,144 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/image.v1.TagImageResponse'
+    /v1/nydusify/commit:
+        post:
+            tags:
+                - NydusifyService
+            description: Submit nydusify commit task for async execution
+            operationId: NydusifyService_SubmitCommitTask
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/nydusify.v1.SubmitCommitTaskRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/nydusify.v1.SubmitCommitTaskResponse'
+    /v1/nydusify/tasks:
+        get:
+            tags:
+                - NydusifyService
+            description: List all tasks with optional filtering
+            operationId: NydusifyService_ListTasks
+            parameters:
+                - name: pageSize
+                  in: query
+                  description: 'Page size (default: 20, max: 100)'
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  description: Page token for pagination
+                  schema:
+                    type: string
+                - name: statusFilter
+                  in: query
+                  description: Filter by task status
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                - name: containerId
+                  in: query
+                  description: Filter by container ID
+                  schema:
+                    type: string
+                - name: createdAfter
+                  in: query
+                  description: Filter tasks created after this timestamp
+                  schema:
+                    type: string
+                    format: date-time
+                - name: createdBefore
+                  in: query
+                  description: Filter tasks created before this timestamp
+                  schema:
+                    type: string
+                    format: date-time
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/nydusify.v1.ListTasksResponse'
+    /v1/nydusify/tasks/{taskId}:
+        get:
+            tags:
+                - NydusifyService
+            description: Get task execution status and results
+            operationId: NydusifyService_GetTaskStatus
+            parameters:
+                - name: taskId
+                  in: path
+                  description: Task ID
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/nydusify.v1.GetTaskStatusResponse'
+        delete:
+            tags:
+                - NydusifyService
+            description: Cancel a running task
+            operationId: NydusifyService_CancelTask
+            parameters:
+                - name: taskId
+                  in: path
+                  description: Task ID
+                  required: true
+                  schema:
+                    type: string
+                - name: reason
+                  in: query
+                  description: Reason for cancellation
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/nydusify.v1.CancelTaskResponse'
+    /v1/nydusify/tasks/{taskId}/retry-callback:
+        post:
+            tags:
+                - NydusifyService
+            description: Retry callback notification for a completed task
+            operationId: NydusifyService_RetryCallback
+            parameters:
+                - name: taskId
+                  in: path
+                  description: Task ID
+                  required: true
+                  schema:
+                    type: string
+                - name: force
+                  in: query
+                  description: Force retry even if max attempts reached
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/nydusify.v1.RetryCallbackResponse'
 components:
     schemas:
         container.v1.BindOptions:
@@ -2482,6 +2620,331 @@ components:
                 status:
                     type: string
             description: Tag image response
+        nydusify.v1.CallbackAuth:
+            type: object
+            properties:
+                type:
+                    type: string
+                    description: Auth type (bearer, basic, api_key)
+                token:
+                    type: string
+                    description: Bearer token
+                username:
+                    type: string
+                    description: Basic auth username
+                password:
+                    type: string
+                    description: Basic auth password
+                apiKey:
+                    type: string
+                    description: API key
+                apiKeyHeader:
+                    type: string
+                    description: API key header name
+            description: Callback authentication
+        nydusify.v1.CallbackConfig:
+            type: object
+            properties:
+                url:
+                    type: string
+                    description: Callback URL
+                method:
+                    type: string
+                    description: 'HTTP method (default: POST)'
+                headers:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Custom headers
+                auth:
+                    allOf:
+                        - $ref: '#/components/schemas/nydusify.v1.CallbackAuth'
+                    description: Authentication configuration
+                retry:
+                    allOf:
+                        - $ref: '#/components/schemas/nydusify.v1.RetryConfig'
+                    description: Retry configuration
+                timeoutSeconds:
+                    type: integer
+                    description: Timeout for callback request in seconds
+                    format: int32
+            description: Callback configuration
+        nydusify.v1.CallbackStatus:
+            type: object
+            properties:
+                lastAttempt:
+                    type: string
+                    description: Last callback attempt timestamp
+                    format: date-time
+                attempts:
+                    type: integer
+                    description: Number of callback attempts made
+                    format: int32
+                lastStatusCode:
+                    type: integer
+                    description: Last callback HTTP status code
+                    format: int32
+                lastResponse:
+                    type: string
+                    description: Last callback response
+                lastError:
+                    type: string
+                    description: Last callback error message
+                nextRetry:
+                    type: string
+                    description: Next retry timestamp
+                    format: date-time
+                success:
+                    type: boolean
+                    description: Callback success flag
+            description: Callback status information
+        nydusify.v1.CancelTaskResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: Success flag
+                message:
+                    type: string
+                    description: Message
+                status:
+                    type: integer
+                    description: Updated task status
+                    format: enum
+            description: Response for task cancellation
+        nydusify.v1.ExecutionMetrics:
+            type: object
+            properties:
+                cpuUsage:
+                    type: number
+                    description: CPU usage percentage
+                    format: float
+                memoryUsage:
+                    type: string
+                    description: Memory usage in bytes
+                diskReadBytes:
+                    type: string
+                    description: Disk I/O read bytes
+                diskWriteBytes:
+                    type: string
+                    description: Disk I/O write bytes
+                networkIoBytes:
+                    type: string
+                    description: Network I/O bytes
+            description: Execution metrics
+        nydusify.v1.GetTaskStatusResponse:
+            type: object
+            properties:
+                task:
+                    allOf:
+                        - $ref: '#/components/schemas/nydusify.v1.TaskInfo'
+                    description: Task information
+            description: Response with task status and results
+        nydusify.v1.ImageSizeInfo:
+            type: object
+            properties:
+                originalSize:
+                    type: string
+                    description: Original image size in bytes
+                nydusSize:
+                    type: string
+                    description: Nydus image size in bytes
+                compressionRatio:
+                    type: number
+                    description: Compression ratio
+                    format: float
+                sizeReduction:
+                    type: string
+                    description: Size reduction in bytes
+            description: Image size information
+        nydusify.v1.ListTasksResponse:
+            type: object
+            properties:
+                tasks:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/nydusify.v1.TaskInfo'
+                    description: List of tasks
+                nextPageToken:
+                    type: string
+                    description: Next page token
+                totalCount:
+                    type: integer
+                    description: Total count of tasks (if available)
+                    format: int32
+            description: Response with list of tasks
+        nydusify.v1.RetryCallbackResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: Success flag
+                message:
+                    type: string
+                    description: Message
+                retryCount:
+                    type: integer
+                    description: Current retry count
+                    format: int32
+            description: Response for callback retry
+        nydusify.v1.RetryConfig:
+            type: object
+            properties:
+                maxAttempts:
+                    type: integer
+                    description: 'Maximum retry attempts (default: 3)'
+                    format: int32
+                initialDelay:
+                    type: integer
+                    description: 'Initial delay in seconds (default: 1)'
+                    format: int32
+                maxDelay:
+                    type: integer
+                    description: 'Maximum delay in seconds (default: 60)'
+                    format: int32
+                backoffMultiplier:
+                    type: number
+                    description: 'Backoff multiplier (default: 2.0)'
+                    format: float
+            description: Retry configuration
+        nydusify.v1.SubmitCommitTaskRequest:
+            type: object
+            properties:
+                containerId:
+                    type: string
+                    description: Container ID or name to commit
+                targetRepo:
+                    type: string
+                    description: Target repository URL for the nydus image
+                callback:
+                    allOf:
+                        - $ref: '#/components/schemas/nydusify.v1.CallbackConfig'
+                    description: Optional callback configuration
+                metadata:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Optional task metadata
+                priority:
+                    type: integer
+                    description: Task priority (1-10, where 10 is highest priority)
+                    format: int32
+                timeoutSeconds:
+                    type: integer
+                    description: 'Task timeout in seconds (default: 3600)'
+                    format: int32
+            description: Request to submit a nydusify commit task
+        nydusify.v1.SubmitCommitTaskResponse:
+            type: object
+            properties:
+                taskId:
+                    type: string
+                    description: Unique task ID
+                status:
+                    type: integer
+                    description: Task status
+                    format: enum
+                createdAt:
+                    type: string
+                    description: Task creation timestamp
+                    format: date-time
+                estimatedStartTime:
+                    type: string
+                    description: Estimated start time (if queued)
+                    format: date-time
+            description: Response for task submission
+        nydusify.v1.TaskInfo:
+            type: object
+            properties:
+                taskId:
+                    type: string
+                    description: Task ID
+                taskType:
+                    type: string
+                    description: Task type (always "commit" for now)
+                status:
+                    type: integer
+                    description: Task status
+                    format: enum
+                containerId:
+                    type: string
+                    description: Container ID
+                targetRepo:
+                    type: string
+                    description: Target repository
+                createdAt:
+                    type: string
+                    description: Task creation timestamp
+                    format: date-time
+                startedAt:
+                    type: string
+                    description: Task start timestamp
+                    format: date-time
+                completedAt:
+                    type: string
+                    description: Task completion timestamp
+                    format: date-time
+                durationSeconds:
+                    type: integer
+                    description: Task execution duration in seconds
+                    format: int32
+                priority:
+                    type: integer
+                    description: Task priority
+                    format: int32
+                timeoutSeconds:
+                    type: integer
+                    description: Task timeout
+                    format: int32
+                result:
+                    allOf:
+                        - $ref: '#/components/schemas/nydusify.v1.TaskResult'
+                    description: Task execution results
+                callback:
+                    allOf:
+                        - $ref: '#/components/schemas/nydusify.v1.CallbackConfig'
+                    description: Callback configuration
+                callbackStatus:
+                    allOf:
+                        - $ref: '#/components/schemas/nydusify.v1.CallbackStatus'
+                    description: Callback status
+                metadata:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Task metadata
+                errorMessage:
+                    type: string
+                    description: Error message (if failed)
+            description: Task information structure
+        nydusify.v1.TaskResult:
+            type: object
+            properties:
+                exitCode:
+                    type: integer
+                    description: Exit code of nydusify command
+                    format: int32
+                stdout:
+                    type: string
+                    description: Standard output
+                stderr:
+                    type: string
+                    description: Standard error
+                imageDigest:
+                    type: string
+                    description: Generated nydus image digest
+                targetUrl:
+                    type: string
+                    description: Target repository URL
+                sizeInfo:
+                    allOf:
+                        - $ref: '#/components/schemas/nydusify.v1.ImageSizeInfo'
+                    description: Image size information
+                metrics:
+                    allOf:
+                        - $ref: '#/components/schemas/nydusify.v1.ExecutionMetrics'
+                    description: Execution metrics
+            description: Task execution results
 tags:
     - name: ContainerService
       description: Container service provides container management operations
@@ -2493,3 +2956,5 @@ tags:
       description: The health service definition.
     - name: ImageService
       description: The image management service definition
+    - name: NydusifyService
+      description: NydusifyService provides asynchronous execution of nydusify commands
