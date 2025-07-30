@@ -1,0 +1,232 @@
+syntax = "proto3";
+
+package image.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "dsagent/api/image/v1;v1";
+option java_multiple_files = true;
+option java_package = "dev.kratos.api.image.v1";
+option java_outer_classname = "ImageProtoV1";
+
+// The image management service definition
+service ImageService {
+  // List images (equivalent to nerdctl images)
+  rpc ListImages (ListImagesRequest) returns (ListImagesResponse) {
+    option (google.api.http) = {
+      get: "/v1/images"
+    };
+  }
+
+  // Pull an image (equivalent to nerdctl pull)
+  rpc PullImage (PullImageRequest) returns (PullImageResponse) {
+    option (google.api.http) = {
+      post: "/v1/images/pull"
+      body: "*"
+    };
+  }
+
+  // Push an image (equivalent to nerdctl push)
+  rpc PushImage (PushImageRequest) returns (PushImageResponse) {
+    option (google.api.http) = {
+      post: "/v1/images/push"
+      body: "*"
+    };
+  }
+
+  // Remove images (equivalent to nerdctl rmi)
+  rpc RemoveImage (RemoveImageRequest) returns (RemoveImageResponse) {
+    option (google.api.http) = {
+      delete: "/v1/images/{name}"
+    };
+  }
+
+  // Tag an image (equivalent to nerdctl tag)
+  rpc TagImage (TagImageRequest) returns (TagImageResponse) {
+    option (google.api.http) = {
+      post: "/v1/images/{source_image}/tag"
+      body: "*"
+    };
+  }
+
+  // Save images to tar archive (equivalent to nerdctl save)
+  rpc SaveImage (SaveImageRequest) returns (SaveImageResponse) {
+    option (google.api.http) = {
+      post: "/v1/images/save"
+      body: "*"
+    };
+  }
+
+  // Load images from tar archive (equivalent to nerdctl load)
+  rpc LoadImage (LoadImageRequest) returns (LoadImageResponse) {
+    option (google.api.http) = {
+      post: "/v1/images/load"
+      body: "*"
+    };
+  }
+
+  // Show image history (equivalent to nerdctl history)
+  rpc ImageHistory (ImageHistoryRequest) returns (ImageHistoryResponse) {
+    option (google.api.http) = {
+      get: "/v1/images/{name}/history"
+    };
+  }
+
+  // Get image details (equivalent to nerdctl inspect on images)
+  rpc InspectImage (InspectImageRequest) returns (InspectImageResponse) {
+    option (google.api.http) = {
+      get: "/v1/images/{name}/inspect"
+    };
+  }
+}
+
+// ========================= Request Messages =========================
+
+// List images request
+message ListImagesRequest {
+  bool all = 1;           // Show all images (default shows only tagged images)
+  bool quiet = 2;         // Only show image IDs
+  bool no_trunc = 3;      // Don't truncate output
+  string filter = 4;      // Filter output based on conditions provided
+  string format = 5;      // Pretty-print images using a Go template
+  bool digests = 6;       // Show digests
+}
+
+// Pull image request
+message PullImageRequest {
+  string name = 1;                    // Image name to pull
+  string platform = 2;                // Target platform in the format os[/arch[/variant]]
+  bool all_platforms = 3;             // Pull content for all platforms
+  bool quiet = 4;                     // Suppress verbose output
+  string verify = 5;                  // Verify the image (none|cosign|notation)
+  string cosign_key = 6;             // Path to the public key file for cosign verification
+  string unpack = 7;                 // Unpack the image for the current single platform (auto/true/false)
+}
+
+// Push image request
+message PushImageRequest {
+  string name = 1;                    // Image name to push
+  bool all_platforms = 2;             // Push content for all platforms
+  bool quiet = 3;                     // Suppress verbose output
+  string sign = 4;                    // Sign the image (cosign|notation)
+  string cosign_key = 5;             // Path to the private key file for cosign signing
+}
+
+// Remove image request
+message RemoveImageRequest {
+  string name = 1;                    // Image name to remove
+  bool force = 2;                     // Force removal of the image
+  bool no_prune = 3;                  // Do not delete untagged parents
+}
+
+// Tag image request
+message TagImageRequest {
+  string source_image = 1;            // Source image name
+  string target_image = 2;            // Target image name and tag
+}
+
+// Save image request
+message SaveImageRequest {
+  repeated string names = 1;          // Image names to save
+  string output = 2;                  // Write to a file, instead of STDOUT
+  string format = 3;                  // Format of the saved image (docker-archive|oci-archive|oci-dir)
+}
+
+// Load image request
+message LoadImageRequest {
+  string input = 1;                   // Read from tar archive file, instead of STDIN
+  bool quiet = 2;                     // Suppress the load output
+  string platform = 3;                // Import content for a specific platform
+  bool all_platforms = 4;             // Import content for all platforms
+}
+
+// Image history request
+message ImageHistoryRequest {
+  string name = 1;                    // Image name
+  bool no_trunc = 2;                  // Don't truncate output
+  bool quiet = 3;                     // Only show image IDs
+  string format = 4;                  // Pretty-print history using a Go template
+  bool human = 5;                     // Print sizes in human readable format (default true)
+}
+
+// Inspect image request
+message InspectImageRequest {
+  string name = 1;                    // Image name
+  string format = 2;                  // Format the output using the given Go template
+  string mode = 3;                    // Specify inspect mode (dockercompat for Docker-compatible output)
+}
+
+// ========================= Response Messages =========================
+
+// List images response
+message ListImagesResponse {
+  repeated ImageInfo images = 1;
+}
+
+// Pull image response
+message PullImageResponse {
+  string digest = 1;                  // Image digest
+  string status = 2;                  // Pull status message
+}
+
+// Push image response
+message PushImageResponse {
+  string digest = 1;                  // Image digest
+  string status = 2;                  // Push status message
+}
+
+// Remove image response
+message RemoveImageResponse {
+  repeated string removed = 1;        // List of removed image references
+  repeated string untagged = 2;       // List of untagged image references
+}
+
+// Tag image response
+message TagImageResponse {
+  string status = 1;                  // Tag operation status
+}
+
+// Save image response
+message SaveImageResponse {
+  string output_path = 1;             // Path where the image was saved
+  int64 size = 2;                     // Size of the saved archive
+}
+
+// Load image response
+message LoadImageResponse {
+  repeated string loaded = 1;         // List of loaded image references
+}
+
+// Image history response
+message ImageHistoryResponse {
+  repeated HistoryLayer layers = 1;
+}
+
+// Inspect image response
+message InspectImageResponse {
+  string content = 1;                 // JSON representation of image details
+}
+
+// ========================= Common Types =========================
+
+// Image information
+message ImageInfo {
+  string repository = 1;              // Repository name
+  string tag = 2;                     // Tag name
+  string id = 3;                      // Image ID
+  string digest = 4;                  // Image digest
+  string created = 5;                 // Creation time
+  string size = 6;                    // Image size
+  string platform = 7;                // Platform information
+}
+
+// History layer information
+message HistoryLayer {
+  string id = 1;                      // Layer ID
+  string created = 2;                 // Creation time
+  string created_by = 3;              // Command that created the layer
+  string size = 4;                    // Layer size
+  string comment = 5;                 // Comment
+  bool missing = 6;                   // Whether the layer is missing
+}

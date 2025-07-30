@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package health.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "dsagent/api/health/v1;v1";
+option java_multiple_files = true;
+option java_package = "dev.kratos.api.health.v1";
+option java_outer_classname = "HealthProtoV1";
+
+// The health service definition.
+service Health {
+  // Check health/heartbeat status
+  rpc Check (HealthRequest) returns (HealthResponse) {
+    option (google.api.http) = {
+      get: "/health"
+    };
+  }
+  
+  // Heartbeat endpoint
+  rpc Heartbeat (HeartbeatRequest) returns (HeartbeatResponse) {
+    option (google.api.http) = {
+      get: "/heartbeat"
+    };
+  }
+}
+
+// The health check request message.
+message HealthRequest {
+  string service = 1;
+}
+
+// The health check response message.
+message HealthResponse {
+  enum Status {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+    SERVICE_UNKNOWN = 3;
+  }
+  Status status = 1;
+  string message = 2;
+  int64 timestamp = 3;
+}
+
+// The heartbeat request message.
+message HeartbeatRequest {
+  string client_id = 1;
+}
+
+// The heartbeat response message.
+message HeartbeatResponse {
+  string status = 1;
+  int64 timestamp = 2;
+  string server_id = 3;
+}
