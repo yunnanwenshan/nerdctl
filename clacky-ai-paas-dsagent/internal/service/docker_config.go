@@ -1,7 +1,6 @@
 package service
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -10,20 +9,17 @@ import (
 	"strings"
 
 	"github.com/containerd/nerdctl/v2/pkg/api/types"
-	loginCmd "github.com/containerd/nerdctl/v2/pkg/cmd/login"
 	pb "dsagent/api/image/v1"
 )
 
 // DockerConfigManager manages Docker registry authentication
 type DockerConfigManager struct {
-	ecrAuthService *ECRAuthService
+	// Removed ECRAuthService reference since ECR is now a separate service
 }
 
 // NewDockerConfigManager creates a new Docker config manager
 func NewDockerConfigManager() *DockerConfigManager {
-	return &DockerConfigManager{
-		ecrAuthService: NewECRAuthService(),
-	}
+	return &DockerConfigManager{}
 }
 
 // DockerAuthConfig represents the Docker config.json structure
@@ -38,38 +34,12 @@ type DockerAuthEntry struct {
 	Password string `json:"password,omitempty"`
 }
 
-// LoginToECR performs ECR login and stores credentials
+// LoginToECR has been moved to the dedicated ECR service
+// This method is deprecated and should not be used
 func (dcm *DockerConfigManager) LoginToECR(ctx context.Context, authConfig *pb.ECRAuthConfig, globalOpts *types.GlobalCommandOptions) error {
-	// Validate ECR config
-	if err := dcm.ecrAuthService.ValidateECRConfig(authConfig); err != nil {
-		return fmt.Errorf("invalid ECR config: %w", err)
-	}
-
-	// Get ECR authorization token
-	loginResp, err := dcm.ecrAuthService.GetECRAuthorizationToken(ctx, authConfig)
-	if err != nil {
-		return fmt.Errorf("failed to get ECR token: %w", err)
-	}
-
-	// Note: nerdctl login doesn't need containerd client directly
-
-	// Use nerdctl's login functionality
-	loginOpts := types.LoginCommandOptions{
-		GOptions: *globalOpts,
-		Username: loginResp.Username,
-		Password: loginResp.Token,
-		ServerAddress: loginResp.RegistryUrl,
-	}
-
-	// Create stdout buffer for login output
-	var loginOutput bytes.Buffer
-
-	// Perform the login
-	if err := loginCmd.Login(ctx, loginOpts, &loginOutput); err != nil {
-		return fmt.Errorf("failed to login to ECR via nerdctl: %w", err)
-	}
-
-	return nil
+	// ECR functionality has been moved to the dedicated ECR service
+	// Use the ECRService for ECR-related operations
+	return fmt.Errorf("ECR functionality has been moved to dedicated ECR service. Use ECRService.Login instead")
 }
 
 // GetDockerConfigPath returns the Docker config file path
@@ -145,45 +115,12 @@ func (dcm *DockerConfigManager) RemoveRegistryAuth(registryUrl string) error {
 	return nil
 }
 
-// AutoDetectECRAndLogin automatically detects if an image is from ECR and performs login
+// AutoDetectECRAndLogin has been moved to the dedicated ECR service
+// This method is deprecated and should not be used
 func (dcm *DockerConfigManager) AutoDetectECRAndLogin(ctx context.Context, imageName string, ecrAuth *pb.ECRAuthConfig, globalOpts *types.GlobalCommandOptions) error {
-	if ecrAuth == nil {
-		return nil // No ECR config provided
-	}
-
-	// Extract registry from image name
-	registryUrl := dcm.ExtractRegistryFromImageName(imageName)
-	if registryUrl == "" {
-		return nil // Not a fully qualified image name
-	}
-
-	// Check if it's an ECR registry
-	if !dcm.ecrAuthService.IsECRRegistry(registryUrl) {
-		return nil // Not an ECR registry
-	}
-
-	// Check if already logged in
-	loggedIn, err := dcm.IsLoggedInToRegistry(registryUrl)
-	if err != nil {
-		return fmt.Errorf("failed to check login status: %w", err)
-	}
-
-	if loggedIn && !ecrAuth.AutoRefresh {
-		return nil // Already logged in and no auto-refresh requested
-	}
-
-	// Auto-detect region if not provided
-	if ecrAuth.Region == "" {
-		ecrAuth.Region = dcm.ecrAuthService.ExtractECRRegion(registryUrl)
-	}
-
-	// Auto-detect registry ID if not provided
-	if ecrAuth.RegistryId == "" {
-		ecrAuth.RegistryId = dcm.ecrAuthService.ExtractAccountIDFromRegistry(registryUrl)
-	}
-
-	// Perform ECR login
-	return dcm.LoginToECR(ctx, ecrAuth, globalOpts)
+	// ECR functionality has been moved to the dedicated ECR service
+	// Use the ECRService for ECR-related operations
+	return fmt.Errorf("ECR functionality has been moved to dedicated ECR service. Use ECRService.Login instead")
 }
 
 // ExtractRegistryFromImageName extracts the registry URL from an image name

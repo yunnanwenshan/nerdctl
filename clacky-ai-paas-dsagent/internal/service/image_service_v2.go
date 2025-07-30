@@ -420,37 +420,4 @@ func (s *ImageServiceV2) InspectImage(ctx context.Context, req *pb.InspectImageR
 	}, nil
 }
 
-// ECRLogin provides ECR login functionality
-func (s *ImageServiceV2) ECRLogin(ctx context.Context, req *pb.ECRLoginRequest) (*pb.ECRLoginResponse, error) {
-	if err := s.initializeInterceptor(); err != nil {
-		return nil, fmt.Errorf("failed to initialize auth interceptor: %w", err)
-	}
-
-	// Configure the interceptor with the provided ECR auth
-	if err := s.configureAuthInterceptor(req.EcrAuth); err != nil {
-		return nil, fmt.Errorf("failed to configure auth interceptor: %w", err)
-	}
-
-	// Trigger a login by attempting to authenticate a dummy ECR registry URL
-	// This is a bit of a hack - in a real implementation, you'd want a more direct method
-	registryURL := fmt.Sprintf("123456789012.dkr.ecr.%s.amazonaws.com", req.EcrAuth.Region)
-	if err := s.authInterceptor.BeforeOperation(ctx, auth.OperationPull, registryURL); err != nil {
-		return nil, fmt.Errorf("ECR login failed: %w", err)
-	}
-
-	return &pb.ECRLoginResponse{
-		Status:      "ECR login successful",
-		RegistryUrl: registryURL,
-		Username:    "AWS",
-		Token:       "***", // Don't expose the actual token
-		ExpiresAt:   0, // Would be filled with actual expiry timestamp
-	}, nil
-}
-
-// ECRLogout provides ECR logout functionality
-func (s *ImageServiceV2) ECRLogout(ctx context.Context, req *pb.ECRLogoutRequest) (*pb.ECRLogoutResponse, error) {
-	// For now, just return success
-	return &pb.ECRLogoutResponse{
-		Status: fmt.Sprintf("Successfully logged out from %s", req.RegistryUrl),
-	}, nil
-}
+// Note: ECR login/logout methods have been moved to separate ECRService

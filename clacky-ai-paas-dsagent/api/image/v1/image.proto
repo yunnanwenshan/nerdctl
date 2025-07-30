@@ -80,21 +80,7 @@ service ImageService {
     };
   }
   
-  // Login to ECR registry
-  rpc ECRLogin (ECRLoginRequest) returns (ECRLoginResponse) {
-    option (google.api.http) = {
-      post: "/v1/ecr/login"
-      body: "*"
-    };
-  }
-  
-  // Logout from ECR registry
-  rpc ECRLogout (ECRLogoutRequest) returns (ECRLogoutResponse) {
-    option (google.api.http) = {
-      post: "/v1/ecr/logout"
-      body: "*"
-    };
-  }
+  // Note: ECR login/logout methods are now in separate ECRService
 }
 
 // ========================= Request Messages =========================
@@ -297,28 +283,4 @@ message AWSECSTaskRoleCredentials {
   // No additional fields required
 }
 
-// ========================= ECR Authentication Requests/Responses =========================
-
-// ECR login request
-message ECRLoginRequest {
-  ECRAuthConfig ecr_auth = 1;         // ECR authentication configuration
-}
-
-// ECR login response
-message ECRLoginResponse {
-  string status = 1;                  // Login status message
-  string registry_url = 2;            // ECR registry URL
-  string username = 3;                // Username for registry auth
-  string token = 4;                   // Authentication token
-  int64 expires_at = 5;               // Token expiration timestamp
-}
-
-// ECR logout request
-message ECRLogoutRequest {
-  string registry_url = 1;            // ECR registry URL to logout from
-}
-
-// ECR logout response
-message ECRLogoutResponse {
-  string status = 1;                  // Logout status message
-}
+// Note: ECR login/logout messages are now in separate ecr/v1/ecr.proto

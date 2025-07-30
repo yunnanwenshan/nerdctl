@@ -1687,218 +1687,6 @@ func (*AWSECSTaskRoleCredentials) Descriptor() ([]byte, []int) {
 	return file_image_v1_image_proto_rawDescGZIP(), []int{25}
 }
 
-// ECR login request
-type ECRLoginRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	EcrAuth       *ECRAuthConfig         `protobuf:"bytes,1,opt,name=ecr_auth,json=ecrAuth,proto3" json:"ecr_auth,omitempty"` // ECR authentication configuration
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ECRLoginRequest) Reset() {
-	*x = ECRLoginRequest{}
-	mi := &file_image_v1_image_proto_msgTypes[26]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ECRLoginRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ECRLoginRequest) ProtoMessage() {}
-
-func (x *ECRLoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[26]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ECRLoginRequest.ProtoReflect.Descriptor instead.
-func (*ECRLoginRequest) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{26}
-}
-
-func (x *ECRLoginRequest) GetEcrAuth() *ECRAuthConfig {
-	if x != nil {
-		return x.EcrAuth
-	}
-	return nil
-}
-
-// ECR login response
-type ECRLoginResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`                              // Login status message
-	RegistryUrl   string                 `protobuf:"bytes,2,opt,name=registry_url,json=registryUrl,proto3" json:"registry_url,omitempty"` // ECR registry URL
-	Username      string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`                          // Username for registry auth
-	Token         string                 `protobuf:"bytes,4,opt,name=token,proto3" json:"token,omitempty"`                                // Authentication token
-	ExpiresAt     int64                  `protobuf:"varint,5,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`      // Token expiration timestamp
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ECRLoginResponse) Reset() {
-	*x = ECRLoginResponse{}
-	mi := &file_image_v1_image_proto_msgTypes[27]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ECRLoginResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ECRLoginResponse) ProtoMessage() {}
-
-func (x *ECRLoginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[27]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ECRLoginResponse.ProtoReflect.Descriptor instead.
-func (*ECRLoginResponse) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{27}
-}
-
-func (x *ECRLoginResponse) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
-func (x *ECRLoginResponse) GetRegistryUrl() string {
-	if x != nil {
-		return x.RegistryUrl
-	}
-	return ""
-}
-
-func (x *ECRLoginResponse) GetUsername() string {
-	if x != nil {
-		return x.Username
-	}
-	return ""
-}
-
-func (x *ECRLoginResponse) GetToken() string {
-	if x != nil {
-		return x.Token
-	}
-	return ""
-}
-
-func (x *ECRLoginResponse) GetExpiresAt() int64 {
-	if x != nil {
-		return x.ExpiresAt
-	}
-	return 0
-}
-
-// ECR logout request
-type ECRLogoutRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RegistryUrl   string                 `protobuf:"bytes,1,opt,name=registry_url,json=registryUrl,proto3" json:"registry_url,omitempty"` // ECR registry URL to logout from
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ECRLogoutRequest) Reset() {
-	*x = ECRLogoutRequest{}
-	mi := &file_image_v1_image_proto_msgTypes[28]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ECRLogoutRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ECRLogoutRequest) ProtoMessage() {}
-
-func (x *ECRLogoutRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[28]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ECRLogoutRequest.ProtoReflect.Descriptor instead.
-func (*ECRLogoutRequest) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{28}
-}
-
-func (x *ECRLogoutRequest) GetRegistryUrl() string {
-	if x != nil {
-		return x.RegistryUrl
-	}
-	return ""
-}
-
-// ECR logout response
-type ECRLogoutResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"` // Logout status message
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ECRLogoutResponse) Reset() {
-	*x = ECRLogoutResponse{}
-	mi := &file_image_v1_image_proto_msgTypes[29]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ECRLogoutResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ECRLogoutResponse) ProtoMessage() {}
-
-func (x *ECRLogoutResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[29]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ECRLogoutResponse.ProtoReflect.Descriptor instead.
-func (*ECRLogoutResponse) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{29}
-}
-
-func (x *ECRLogoutResponse) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
 var File_image_v1_image_proto protoreflect.FileDescriptor
 
 const file_image_v1_image_proto_rawDesc = "" +
@@ -2022,20 +1810,7 @@ const file_image_v1_image_proto_rawDesc = "" +
 	"\x10duration_seconds\x18\x04 \x01(\x05R\x0fdurationSeconds\x12G\n" +
 	"\x12source_credentials\x18\x05 \x01(\v2\x18.image.v1.AWSCredentialsR\x11sourceCredentials\"\x1f\n" +
 	"\x1dAWSInstanceProfileCredentials\"\x1b\n" +
-	"\x19AWSECSTaskRoleCredentials\"E\n" +
-	"\x0fECRLoginRequest\x122\n" +
-	"\becr_auth\x18\x01 \x01(\v2\x17.image.v1.ECRAuthConfigR\aecrAuth\"\x9e\x01\n" +
-	"\x10ECRLoginResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status\x12!\n" +
-	"\fregistry_url\x18\x02 \x01(\tR\vregistryUrl\x12\x1a\n" +
-	"\busername\x18\x03 \x01(\tR\busername\x12\x14\n" +
-	"\x05token\x18\x04 \x01(\tR\x05token\x12\x1d\n" +
-	"\n" +
-	"expires_at\x18\x05 \x01(\x03R\texpiresAt\"5\n" +
-	"\x10ECRLogoutRequest\x12!\n" +
-	"\fregistry_url\x18\x01 \x01(\tR\vregistryUrl\"+\n" +
-	"\x11ECRLogoutResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status2\xe9\b\n" +
+	"\x19AWSECSTaskRoleCredentials2\xab\a\n" +
 	"\fImageService\x12[\n" +
 	"\n" +
 	"ListImages\x12\x1b.image.v1.ListImagesRequest\x1a\x1c.image.v1.ListImagesResponse\"\x12\x82\xd3\xe4\x93\x02\f\x12\n" +
@@ -2047,9 +1822,7 @@ const file_image_v1_image_proto_rawDesc = "" +
 	"\tSaveImage\x12\x1a.image.v1.SaveImageRequest\x1a\x1b.image.v1.SaveImageResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/images/save\x12`\n" +
 	"\tLoadImage\x12\x1a.image.v1.LoadImageRequest\x1a\x1b.image.v1.LoadImageResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/images/load\x12p\n" +
 	"\fImageHistory\x12\x1d.image.v1.ImageHistoryRequest\x1a\x1e.image.v1.ImageHistoryResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/images/{name}/history\x12p\n" +
-	"\fInspectImage\x12\x1d.image.v1.InspectImageRequest\x1a\x1e.image.v1.InspectImageResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/images/{name}/inspect\x12[\n" +
-	"\bECRLogin\x12\x19.image.v1.ECRLoginRequest\x1a\x1a.image.v1.ECRLoginResponse\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/v1/ecr/login\x12_\n" +
-	"\tECRLogout\x12\x1a.image.v1.ECRLogoutRequest\x1a\x1b.image.v1.ECRLogoutResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/ecr/logoutBB\n" +
+	"\fInspectImage\x12\x1d.image.v1.InspectImageRequest\x1a\x1e.image.v1.InspectImageResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/images/{name}/inspectBB\n" +
 	"\x17dev.kratos.api.image.v1B\fImageProtoV1P\x01Z\x17dsagent/api/image/v1;v1b\x06proto3"
 
 var (
@@ -2064,7 +1837,7 @@ func file_image_v1_image_proto_rawDescGZIP() []byte {
 	return file_image_v1_image_proto_rawDescData
 }
 
-var file_image_v1_image_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
+var file_image_v1_image_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_image_v1_image_proto_goTypes = []any{
 	(*ListImagesRequest)(nil),             // 0: image.v1.ListImagesRequest
 	(*PullImageRequest)(nil),              // 1: image.v1.PullImageRequest
@@ -2092,10 +1865,6 @@ var file_image_v1_image_proto_goTypes = []any{
 	(*AWSAssumeRoleCredentials)(nil),      // 23: image.v1.AWSAssumeRoleCredentials
 	(*AWSInstanceProfileCredentials)(nil), // 24: image.v1.AWSInstanceProfileCredentials
 	(*AWSECSTaskRoleCredentials)(nil),     // 25: image.v1.AWSECSTaskRoleCredentials
-	(*ECRLoginRequest)(nil),               // 26: image.v1.ECRLoginRequest
-	(*ECRLoginResponse)(nil),              // 27: image.v1.ECRLoginResponse
-	(*ECRLogoutRequest)(nil),              // 28: image.v1.ECRLogoutRequest
-	(*ECRLogoutResponse)(nil),             // 29: image.v1.ECRLogoutResponse
 }
 var file_image_v1_image_proto_depIdxs = []int32{
 	20, // 0: image.v1.PullImageRequest.ecr_auth:type_name -> image.v1.ECRAuthConfig
@@ -2108,34 +1877,29 @@ var file_image_v1_image_proto_depIdxs = []int32{
 	24, // 7: image.v1.AWSCredentials.instance_profile:type_name -> image.v1.AWSInstanceProfileCredentials
 	25, // 8: image.v1.AWSCredentials.ecs_task_role:type_name -> image.v1.AWSECSTaskRoleCredentials
 	21, // 9: image.v1.AWSAssumeRoleCredentials.source_credentials:type_name -> image.v1.AWSCredentials
-	20, // 10: image.v1.ECRLoginRequest.ecr_auth:type_name -> image.v1.ECRAuthConfig
-	0,  // 11: image.v1.ImageService.ListImages:input_type -> image.v1.ListImagesRequest
-	1,  // 12: image.v1.ImageService.PullImage:input_type -> image.v1.PullImageRequest
-	2,  // 13: image.v1.ImageService.PushImage:input_type -> image.v1.PushImageRequest
-	3,  // 14: image.v1.ImageService.RemoveImage:input_type -> image.v1.RemoveImageRequest
-	4,  // 15: image.v1.ImageService.TagImage:input_type -> image.v1.TagImageRequest
-	5,  // 16: image.v1.ImageService.SaveImage:input_type -> image.v1.SaveImageRequest
-	6,  // 17: image.v1.ImageService.LoadImage:input_type -> image.v1.LoadImageRequest
-	7,  // 18: image.v1.ImageService.ImageHistory:input_type -> image.v1.ImageHistoryRequest
-	8,  // 19: image.v1.ImageService.InspectImage:input_type -> image.v1.InspectImageRequest
-	26, // 20: image.v1.ImageService.ECRLogin:input_type -> image.v1.ECRLoginRequest
-	28, // 21: image.v1.ImageService.ECRLogout:input_type -> image.v1.ECRLogoutRequest
-	9,  // 22: image.v1.ImageService.ListImages:output_type -> image.v1.ListImagesResponse
-	10, // 23: image.v1.ImageService.PullImage:output_type -> image.v1.PullImageResponse
-	11, // 24: image.v1.ImageService.PushImage:output_type -> image.v1.PushImageResponse
-	12, // 25: image.v1.ImageService.RemoveImage:output_type -> image.v1.RemoveImageResponse
-	13, // 26: image.v1.ImageService.TagImage:output_type -> image.v1.TagImageResponse
-	14, // 27: image.v1.ImageService.SaveImage:output_type -> image.v1.SaveImageResponse
-	15, // 28: image.v1.ImageService.LoadImage:output_type -> image.v1.LoadImageResponse
-	16, // 29: image.v1.ImageService.ImageHistory:output_type -> image.v1.ImageHistoryResponse
-	17, // 30: image.v1.ImageService.InspectImage:output_type -> image.v1.InspectImageResponse
-	27, // 31: image.v1.ImageService.ECRLogin:output_type -> image.v1.ECRLoginResponse
-	29, // 32: image.v1.ImageService.ECRLogout:output_type -> image.v1.ECRLogoutResponse
-	22, // [22:33] is the sub-list for method output_type
-	11, // [11:22] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	0,  // 10: image.v1.ImageService.ListImages:input_type -> image.v1.ListImagesRequest
+	1,  // 11: image.v1.ImageService.PullImage:input_type -> image.v1.PullImageRequest
+	2,  // 12: image.v1.ImageService.PushImage:input_type -> image.v1.PushImageRequest
+	3,  // 13: image.v1.ImageService.RemoveImage:input_type -> image.v1.RemoveImageRequest
+	4,  // 14: image.v1.ImageService.TagImage:input_type -> image.v1.TagImageRequest
+	5,  // 15: image.v1.ImageService.SaveImage:input_type -> image.v1.SaveImageRequest
+	6,  // 16: image.v1.ImageService.LoadImage:input_type -> image.v1.LoadImageRequest
+	7,  // 17: image.v1.ImageService.ImageHistory:input_type -> image.v1.ImageHistoryRequest
+	8,  // 18: image.v1.ImageService.InspectImage:input_type -> image.v1.InspectImageRequest
+	9,  // 19: image.v1.ImageService.ListImages:output_type -> image.v1.ListImagesResponse
+	10, // 20: image.v1.ImageService.PullImage:output_type -> image.v1.PullImageResponse
+	11, // 21: image.v1.ImageService.PushImage:output_type -> image.v1.PushImageResponse
+	12, // 22: image.v1.ImageService.RemoveImage:output_type -> image.v1.RemoveImageResponse
+	13, // 23: image.v1.ImageService.TagImage:output_type -> image.v1.TagImageResponse
+	14, // 24: image.v1.ImageService.SaveImage:output_type -> image.v1.SaveImageResponse
+	15, // 25: image.v1.ImageService.LoadImage:output_type -> image.v1.LoadImageResponse
+	16, // 26: image.v1.ImageService.ImageHistory:output_type -> image.v1.ImageHistoryResponse
+	17, // 27: image.v1.ImageService.InspectImage:output_type -> image.v1.InspectImageResponse
+	19, // [19:28] is the sub-list for method output_type
+	10, // [10:19] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_image_v1_image_proto_init() }
@@ -2155,7 +1919,7 @@ func file_image_v1_image_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_image_v1_image_proto_rawDesc), len(file_image_v1_image_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   30,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

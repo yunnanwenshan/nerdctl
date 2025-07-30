@@ -54,6 +54,8 @@ func (c *Container) registerServiceProviders() {
 	c.container.Provide(service.NewHealthService)
 	// Use the new ImageServiceV2 with auto-ECR authentication
 	c.container.Provide(service.NewImageServiceV2)
+	// Register independent ECR authentication service
+	c.container.Provide(service.NewECRService)
 }
 
 // registerServerProviders registers all server providers

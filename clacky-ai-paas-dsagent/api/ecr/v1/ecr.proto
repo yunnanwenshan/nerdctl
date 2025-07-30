@@ -1,0 +1,184 @@
+syntax = "proto3";
+
+package ecr.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "dsagent/api/ecr/v1;v1";
+
+// ECR authentication service for managing AWS Elastic Container Registry authentication
+service ECRService {
+  // Login to ECR registry
+  rpc Login (ECRLoginRequest) returns (ECRLoginResponse) {
+    option (google.api.http) = {
+      post: "/v1/ecr/login"
+      body: "*"
+    };
+  }
+  
+  // Logout from ECR registry
+  rpc Logout (ECRLogoutRequest) returns (ECRLogoutResponse) {
+    option (google.api.http) = {
+      post: "/v1/ecr/logout"
+      body: "*"
+    };
+  }
+  
+  // Get ECR login status for a registry
+  rpc GetStatus (ECRStatusRequest) returns (ECRStatusResponse) {
+    option (google.api.http) = {
+      get: "/v1/ecr/status"
+    };
+  }
+  
+  // List configured ECR profiles
+  rpc ListProfiles (google.protobuf.Empty) returns (ECRProfilesResponse) {
+    option (google.api.http) = {
+      get: "/v1/ecr/profiles"
+    };
+  }
+  
+  // Create or update ECR profile
+  rpc SetProfile (ECRSetProfileRequest) returns (ECRSetProfileResponse) {
+    option (google.api.http) = {
+      post: "/v1/ecr/profiles/{name}"
+      body: "*"
+    };
+  }
+  
+  // Delete ECR profile
+  rpc DeleteProfile (ECRDeleteProfileRequest) returns (ECRDeleteProfileResponse) {
+    option (google.api.http) = {
+      delete: "/v1/ecr/profiles/{name}"
+    };
+  }
+}
+
+// ========================= Request Messages =========================
+
+// ECR login request
+message ECRLoginRequest {
+  ECRAuthConfig ecr_auth = 1;         // ECR authentication configuration
+}
+
+// ECR logout request
+message ECRLogoutRequest {
+  string registry_url = 1;            // ECR registry URL to logout from
+}
+
+// ECR status request
+message ECRStatusRequest {
+  string registry_url = 1;            // ECR registry URL to check status for
+}
+
+// ECR set profile request
+message ECRSetProfileRequest {
+  string name = 1;                    // Profile name
+  ECRProfile profile = 2;             // Profile configuration
+}
+
+// ECR delete profile request
+message ECRDeleteProfileRequest {
+  string name = 1;                    // Profile name to delete
+}
+
+// ========================= Response Messages =========================
+
+// ECR login response
+message ECRLoginResponse {
+  string status = 1;                  // Login status message
+  string registry_url = 2;            // ECR registry URL
+  string username = 3;                // Username for registry auth (typically "AWS")
+  string token = 4;                   // Authentication token (masked for security)
+  int64 expires_at = 5;               // Token expiration timestamp
+}
+
+// ECR logout response
+message ECRLogoutResponse {
+  string status = 1;                  // Logout status message
+}
+
+// ECR status response
+message ECRStatusResponse {
+  bool authenticated = 1;             // Whether currently authenticated
+  string registry_url = 2;            // ECR registry URL
+  string username = 3;                // Current username (if authenticated)
+  int64 expires_at = 4;               // Token expiration timestamp
+  int64 expires_in_seconds = 5;       // Seconds until token expires
+}
+
+// ECR profiles list response
+message ECRProfilesResponse {
+  repeated ECRProfile profiles = 1;    // List of configured profiles
+}
+
+// ECR set profile response
+message ECRSetProfileResponse {
+  string status = 1;                  // Operation status
+  ECRProfile profile = 2;             // Created/updated profile
+}
+
+// ECR delete profile response
+message ECRDeleteProfileResponse {
+  string status = 1;                  // Operation status
+}
+
+// ========================= Core Types =========================
+
+// ECR authentication configuration
+message ECRAuthConfig {
+  string region = 1;                  // AWS region (e.g., us-west-2)
+  string registry_id = 2;             // AWS account ID (optional, auto-detected from URL)
+  AWSCredentials aws_credentials = 3; // AWS credentials configuration
+  bool auto_refresh = 4;              // Whether to auto-refresh tokens
+}
+
+// AWS credentials configuration
+message AWSCredentials {
+  oneof credential_type {
+    AWSAccessKeyCredentials access_key = 1;     // Access Key and Secret Key
+    AWSAssumeRoleCredentials assume_role = 2;   // STS Assume Role
+    AWSInstanceProfileCredentials instance_profile = 3; // EC2 Instance Profile
+    AWSECSTaskRoleCredentials ecs_task_role = 4; // ECS Task Role
+  }
+}
+
+// AWS Access Key credentials
+message AWSAccessKeyCredentials {
+  string access_key_id = 1;           // AWS Access Key ID
+  string secret_access_key = 2;       // AWS Secret Access Key
+  string session_token = 3;           // AWS Session Token (optional)
+}
+
+// AWS STS Assume Role credentials
+message AWSAssumeRoleCredentials {
+  string role_arn = 1;                // ARN of the role to assume
+  string session_name = 2;            // Session name for the assumed role
+  string external_id = 3;             // External ID (optional)
+  int32 duration_seconds = 4;         // Duration of the assumed role session
+  AWSCredentials source_credentials = 5; // Source credentials to assume the role
+}
+
+// AWS Instance Profile credentials
+message AWSInstanceProfileCredentials {
+  // Uses EC2 instance metadata service to get credentials
+  // No additional fields required
+}
+
+// AWS ECS Task Role credentials
+message AWSECSTaskRoleCredentials {
+  // Uses ECS task metadata service to get credentials
+  // No additional fields required
+}
+
+// ECR profile configuration
+message ECRProfile {
+  string name = 1;                    // Profile name
+  string registry_url = 2;            // ECR registry URL
+  ECRAuthConfig auth_config = 3;      // Authentication configuration
+  bool enabled = 4;                   // Whether profile is enabled
+  string description = 5;             // Profile description
+  int64 created_at = 6;               // Creation timestamp
+  int64 updated_at = 7;               // Last update timestamp
+}

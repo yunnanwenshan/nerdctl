@@ -64,14 +64,14 @@ paths:
     /v1/ecr/login:
         post:
             tags:
-                - ImageService
+                - ECRService
             description: Login to ECR registry
-            operationId: ImageService_ECRLogin
+            operationId: ECRService_Login
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/image.v1.ECRLoginRequest'
+                            $ref: '#/components/schemas/ecr.v1.ECRLoginRequest'
                 required: true
             responses:
                 "200":
@@ -79,18 +79,18 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/image.v1.ECRLoginResponse'
+                                $ref: '#/components/schemas/ecr.v1.ECRLoginResponse'
     /v1/ecr/logout:
         post:
             tags:
-                - ImageService
+                - ECRService
             description: Logout from ECR registry
-            operationId: ImageService_ECRLogout
+            operationId: ECRService_Logout
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/image.v1.ECRLogoutRequest'
+                            $ref: '#/components/schemas/ecr.v1.ECRLogoutRequest'
                 required: true
             responses:
                 "200":
@@ -98,7 +98,81 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/image.v1.ECRLogoutResponse'
+                                $ref: '#/components/schemas/ecr.v1.ECRLogoutResponse'
+    /v1/ecr/profiles:
+        get:
+            tags:
+                - ECRService
+            description: List configured ECR profiles
+            operationId: ECRService_ListProfiles
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ecr.v1.ECRProfilesResponse'
+    /v1/ecr/profiles/{name}:
+        post:
+            tags:
+                - ECRService
+            description: Create or update ECR profile
+            operationId: ECRService_SetProfile
+            parameters:
+                - name: name
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ecr.v1.ECRSetProfileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ecr.v1.ECRSetProfileResponse'
+        delete:
+            tags:
+                - ECRService
+            description: Delete ECR profile
+            operationId: ECRService_DeleteProfile
+            parameters:
+                - name: name
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ecr.v1.ECRDeleteProfileResponse'
+    /v1/ecr/status:
+        get:
+            tags:
+                - ECRService
+            description: Get ECR login status for a registry
+            operationId: ECRService_GetStatus
+            parameters:
+                - name: registryUrl
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ecr.v1.ECRStatusResponse'
     /v1/images:
         get:
             tags:
@@ -329,6 +403,157 @@ paths:
                                 $ref: '#/components/schemas/image.v1.TagImageResponse'
 components:
     schemas:
+        ecr.v1.AWSAccessKeyCredentials:
+            type: object
+            properties:
+                accessKeyId:
+                    type: string
+                secretAccessKey:
+                    type: string
+                sessionToken:
+                    type: string
+            description: AWS Access Key credentials
+        ecr.v1.AWSAssumeRoleCredentials:
+            type: object
+            properties:
+                roleArn:
+                    type: string
+                sessionName:
+                    type: string
+                externalId:
+                    type: string
+                durationSeconds:
+                    type: integer
+                    format: int32
+                sourceCredentials:
+                    $ref: '#/components/schemas/ecr.v1.AWSCredentials'
+            description: AWS STS Assume Role credentials
+        ecr.v1.AWSCredentials:
+            type: object
+            properties:
+                accessKey:
+                    $ref: '#/components/schemas/ecr.v1.AWSAccessKeyCredentials'
+                assumeRole:
+                    $ref: '#/components/schemas/ecr.v1.AWSAssumeRoleCredentials'
+                instanceProfile:
+                    $ref: '#/components/schemas/ecr.v1.AWSInstanceProfileCredentials'
+                ecsTaskRole:
+                    $ref: '#/components/schemas/ecr.v1.AWSECSTaskRoleCredentials'
+            description: AWS credentials configuration
+        ecr.v1.AWSECSTaskRoleCredentials:
+            type: object
+            properties: {}
+            description: AWS ECS Task Role credentials
+        ecr.v1.AWSInstanceProfileCredentials:
+            type: object
+            properties: {}
+            description: AWS Instance Profile credentials
+        ecr.v1.ECRAuthConfig:
+            type: object
+            properties:
+                region:
+                    type: string
+                registryId:
+                    type: string
+                awsCredentials:
+                    $ref: '#/components/schemas/ecr.v1.AWSCredentials'
+                autoRefresh:
+                    type: boolean
+            description: ECR authentication configuration
+        ecr.v1.ECRDeleteProfileResponse:
+            type: object
+            properties:
+                status:
+                    type: string
+            description: ECR delete profile response
+        ecr.v1.ECRLoginRequest:
+            type: object
+            properties:
+                ecrAuth:
+                    $ref: '#/components/schemas/ecr.v1.ECRAuthConfig'
+            description: ECR login request
+        ecr.v1.ECRLoginResponse:
+            type: object
+            properties:
+                status:
+                    type: string
+                registryUrl:
+                    type: string
+                username:
+                    type: string
+                token:
+                    type: string
+                expiresAt:
+                    type: string
+            description: ECR login response
+        ecr.v1.ECRLogoutRequest:
+            type: object
+            properties:
+                registryUrl:
+                    type: string
+            description: ECR logout request
+        ecr.v1.ECRLogoutResponse:
+            type: object
+            properties:
+                status:
+                    type: string
+            description: ECR logout response
+        ecr.v1.ECRProfile:
+            type: object
+            properties:
+                name:
+                    type: string
+                registryUrl:
+                    type: string
+                authConfig:
+                    $ref: '#/components/schemas/ecr.v1.ECRAuthConfig'
+                enabled:
+                    type: boolean
+                description:
+                    type: string
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+            description: ECR profile configuration
+        ecr.v1.ECRProfilesResponse:
+            type: object
+            properties:
+                profiles:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ecr.v1.ECRProfile'
+            description: ECR profiles list response
+        ecr.v1.ECRSetProfileRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                profile:
+                    $ref: '#/components/schemas/ecr.v1.ECRProfile'
+            description: ECR set profile request
+        ecr.v1.ECRSetProfileResponse:
+            type: object
+            properties:
+                status:
+                    type: string
+                profile:
+                    $ref: '#/components/schemas/ecr.v1.ECRProfile'
+            description: ECR set profile response
+        ecr.v1.ECRStatusResponse:
+            type: object
+            properties:
+                authenticated:
+                    type: boolean
+                registryUrl:
+                    type: string
+                username:
+                    type: string
+                expiresAt:
+                    type: string
+                expiresInSeconds:
+                    type: string
+            description: ECR status response
         health.v1.HealthResponse:
             type: object
             properties:
@@ -413,38 +638,6 @@ components:
                 autoRefresh:
                     type: boolean
             description: ECR authentication configuration
-        image.v1.ECRLoginRequest:
-            type: object
-            properties:
-                ecrAuth:
-                    $ref: '#/components/schemas/image.v1.ECRAuthConfig'
-            description: ECR login request
-        image.v1.ECRLoginResponse:
-            type: object
-            properties:
-                status:
-                    type: string
-                registryUrl:
-                    type: string
-                username:
-                    type: string
-                token:
-                    type: string
-                expiresAt:
-                    type: string
-            description: ECR login response
-        image.v1.ECRLogoutRequest:
-            type: object
-            properties:
-                registryUrl:
-                    type: string
-            description: ECR logout request
-        image.v1.ECRLogoutResponse:
-            type: object
-            properties:
-                status:
-                    type: string
-            description: ECR logout response
         image.v1.HistoryLayer:
             type: object
             properties:
@@ -620,6 +813,8 @@ components:
                     type: string
             description: Tag image response
 tags:
+    - name: ECRService
+      description: ECR authentication service for managing AWS Elastic Container Registry authentication
     - name: Greeter
       description: The greeting service definition.
     - name: Health
