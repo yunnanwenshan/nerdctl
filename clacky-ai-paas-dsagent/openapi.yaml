@@ -42,6 +42,133 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/health.v1.HeartbeatResponse'
+    /v1/containers:
+        get:
+            tags:
+                - ContainerService
+            description: List containers
+            operationId: ContainerService_ListContainers
+            parameters:
+                - name: all
+                  in: query
+                  description: All containers
+                  schema:
+                    type: boolean
+                - name: limit
+                  in: query
+                  description: Limit
+                  schema:
+                    type: integer
+                    format: int32
+                - name: size
+                  in: query
+                  description: Size
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.ListContainersResponse'
+        post:
+            tags:
+                - ContainerService
+            description: Create a container
+            operationId: ContainerService_CreateContainer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/container.v1.CreateContainerRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.CreateContainerResponse'
+    /v1/containers/run:
+        post:
+            tags:
+                - ContainerService
+            description: Run a command in a new container
+            operationId: ContainerService_RunContainer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/container.v1.RunContainerRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.RunContainerResponse'
+    /v1/containers/{containerId}:
+        delete:
+            tags:
+                - ContainerService
+            description: Remove one or more containers
+            operationId: ContainerService_RemoveContainer
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+                - name: force
+                  in: query
+                  description: Force removal
+                  schema:
+                    type: boolean
+                - name: volumes
+                  in: query
+                  description: Remove volumes
+                  schema:
+                    type: boolean
+                - name: link
+                  in: query
+                  description: Remove links
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.RemoveContainerResponse'
+        patch:
+            tags:
+                - ContainerService
+            description: Update container configuration
+            operationId: ContainerService_UpdateContainer
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/container.v1.UpdateContainerRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.UpdateContainerResponse'
     /v1/containers/{containerId}/commit:
         post:
             tags:
@@ -67,6 +194,377 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/image.v1.CommitContainerResponse'
+    /v1/containers/{containerId}/exec:
+        post:
+            tags:
+                - ContainerService
+            description: Execute a command in a running container
+            operationId: ContainerService_ExecContainer
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/container.v1.ExecContainerRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.ExecContainerResponse'
+    /v1/containers/{containerId}/healthcheck:
+        post:
+            tags:
+                - ContainerService
+            description: Run health check on container
+            operationId: ContainerService_HealthCheck
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.HealthCheckResponse'
+    /v1/containers/{containerId}/inspect:
+        get:
+            tags:
+                - ContainerService
+            description: Inspect one or more containers
+            operationId: ContainerService_InspectContainer
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+                - name: size
+                  in: query
+                  description: Size
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.InspectContainerResponse'
+    /v1/containers/{containerId}/kill:
+        post:
+            tags:
+                - ContainerService
+            description: Kill one or more containers
+            operationId: ContainerService_KillContainer
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/container.v1.KillContainerRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.KillContainerResponse'
+    /v1/containers/{containerId}/logs:
+        get:
+            tags:
+                - ContainerService
+            description: Get container logs
+            operationId: ContainerService_GetContainerLogs
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+                - name: follow
+                  in: query
+                  description: Follow
+                  schema:
+                    type: boolean
+                - name: stdout
+                  in: query
+                  description: Show stdout
+                  schema:
+                    type: boolean
+                - name: stderr
+                  in: query
+                  description: Show stderr
+                  schema:
+                    type: boolean
+                - name: since
+                  in: query
+                  description: Since timestamp
+                  schema:
+                    type: string
+                - name: until
+                  in: query
+                  description: Until timestamp
+                  schema:
+                    type: string
+                - name: timestamps
+                  in: query
+                  description: Timestamps
+                  schema:
+                    type: boolean
+                - name: tail
+                  in: query
+                  description: Tail
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.GetContainerLogsResponse'
+    /v1/containers/{containerId}/pause:
+        post:
+            tags:
+                - ContainerService
+            description: Pause one or more containers
+            operationId: ContainerService_PauseContainer
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.PauseContainerResponse'
+    /v1/containers/{containerId}/port:
+        get:
+            tags:
+                - ContainerService
+            description: Get container port mappings
+            operationId: ContainerService_GetContainerPort
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+                - name: privatePort
+                  in: query
+                  description: Private port
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.GetContainerPortResponse'
+    /v1/containers/{containerId}/rename:
+        put:
+            tags:
+                - ContainerService
+            description: Rename a container
+            operationId: ContainerService_RenameContainer
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/container.v1.RenameContainerRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.RenameContainerResponse'
+    /v1/containers/{containerId}/restart:
+        post:
+            tags:
+                - ContainerService
+            description: Restart one or more containers
+            operationId: ContainerService_RestartContainer
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+                - name: timeout
+                  in: query
+                  description: Timeout
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.RestartContainerResponse'
+    /v1/containers/{containerId}/start:
+        post:
+            tags:
+                - ContainerService
+            description: Start one or more containers
+            operationId: ContainerService_StartContainer
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+                - name: detachKeys
+                  in: query
+                  description: Detach keys
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.StartContainerResponse'
+    /v1/containers/{containerId}/stats:
+        get:
+            tags:
+                - ContainerService
+            description: Get container statistics
+            operationId: ContainerService_GetContainerStats
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+                - name: stream
+                  in: query
+                  description: Stream stats
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.GetContainerStatsResponse'
+    /v1/containers/{containerId}/stop:
+        post:
+            tags:
+                - ContainerService
+            description: Stop one or more containers
+            operationId: ContainerService_StopContainer
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+                - name: timeout
+                  in: query
+                  description: Timeout
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.StopContainerResponse'
+    /v1/containers/{containerId}/unpause:
+        post:
+            tags:
+                - ContainerService
+            description: Unpause one or more containers
+            operationId: ContainerService_UnpauseContainer
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.UnpauseContainerResponse'
+    /v1/containers/{containerId}/wait:
+        post:
+            tags:
+                - ContainerService
+            description: Wait for container to stop
+            operationId: ContainerService_WaitContainer
+            parameters:
+                - name: containerId
+                  in: path
+                  description: Container ID or name
+                  required: true
+                  schema:
+                    type: string
+                - name: condition
+                  in: query
+                  description: Condition (not-running, next-exit, removed)
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/container.v1.WaitContainerResponse'
     /v1/ecr/login:
         post:
             tags:
@@ -409,6 +907,1043 @@ paths:
                                 $ref: '#/components/schemas/image.v1.TagImageResponse'
 components:
     schemas:
+        container.v1.BindOptions:
+            type: object
+            properties:
+                propagation:
+                    type: string
+                    description: Propagation
+            description: Bind options
+        container.v1.BlkioStatEntry:
+            type: object
+            properties:
+                major:
+                    type: string
+                    description: Major
+                minor:
+                    type: string
+                    description: Minor
+                op:
+                    type: string
+                    description: Operation
+                value:
+                    type: string
+                    description: Value
+            description: Block I/O statistics entry
+        container.v1.BlockIOStats:
+            type: object
+            properties:
+                ioServiceBytesRecursive:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.BlkioStatEntry'
+                    description: I/O service bytes recursive
+                ioServicedRecursive:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.BlkioStatEntry'
+                    description: I/O serviced recursive
+                ioQueueRecursive:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.BlkioStatEntry'
+                    description: I/O queue recursive
+                ioServiceTimeRecursive:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.BlkioStatEntry'
+                    description: I/O service time recursive
+                ioWaitTimeRecursive:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.BlkioStatEntry'
+                    description: I/O wait time recursive
+                ioMergedRecursive:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.BlkioStatEntry'
+                    description: I/O merged recursive
+                ioTimeRecursive:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.BlkioStatEntry'
+                    description: I/O time recursive
+                sectorsRecursive:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.BlkioStatEntry'
+                    description: Sectors recursive
+            description: Block I/O statistics
+        container.v1.CPUStats:
+            type: object
+            properties:
+                cpuUsage:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.CPUUsage'
+                    description: CPU usage
+                systemCpuUsage:
+                    type: string
+                    description: System CPU usage
+                onlineCpus:
+                    type: integer
+                    description: Online CPUs
+                    format: uint32
+                throttlingData:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.ThrottlingData'
+                    description: Throttling data
+            description: CPU statistics
+        container.v1.CPUUsage:
+            type: object
+            properties:
+                totalUsage:
+                    type: string
+                    description: Total usage
+                usageInUsermode:
+                    type: string
+                    description: Usage in user mode
+                usageInKernelmode:
+                    type: string
+                    description: Usage in kernel mode
+                percpuUsage:
+                    type: array
+                    items:
+                        type: string
+                    description: Per CPU usage
+            description: CPU usage
+        container.v1.Container:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ID
+                names:
+                    type: array
+                    items:
+                        type: string
+                    description: Names
+                image:
+                    type: string
+                    description: Image
+                imageId:
+                    type: string
+                    description: Image ID
+                command:
+                    type: string
+                    description: Command
+                created:
+                    type: string
+                    description: Created
+                    format: date-time
+                ports:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.ContainerPort'
+                    description: Ports
+                sizeRw:
+                    type: string
+                    description: Size RW
+                sizeRootFs:
+                    type: string
+                    description: Size root fs
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Labels
+                state:
+                    type: string
+                    description: State
+                status:
+                    type: string
+                    description: Status
+                hostConfig:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.HostConfig'
+                    description: Host config
+                networkSettings:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.NetworkConfig'
+                    description: Network settings
+                mounts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.Mount'
+                    description: Mounts
+            description: Container information
+        container.v1.ContainerConfig:
+            type: object
+            properties:
+                image:
+                    type: string
+                    description: Image name
+                command:
+                    type: array
+                    items:
+                        type: string
+                    description: Command to run
+                args:
+                    type: array
+                    items:
+                        type: string
+                    description: Arguments to the command
+                workingDir:
+                    type: string
+                    description: Working directory
+                env:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Environment variables
+                exposedPorts:
+                    type: array
+                    items:
+                        type: string
+                    description: Exposed ports
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Labels
+                entrypoint:
+                    type: array
+                    items:
+                        type: string
+                    description: Entrypoint
+                user:
+                    type: string
+                    description: User
+                hostname:
+                    type: string
+                    description: Hostname
+                domainname:
+                    type: string
+                    description: Domain name
+                stopSignal:
+                    type: string
+                    description: Stop signal
+                stopTimeout:
+                    type: integer
+                    description: Stop timeout
+                    format: int32
+                healthConfig:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.HealthConfig'
+                    description: Health check
+                restartPolicy:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.RestartPolicy'
+                    description: Restart policy
+            description: Container configuration for create/run operations
+        container.v1.ContainerPort:
+            type: object
+            properties:
+                ip:
+                    type: string
+                    description: IP
+                privatePort:
+                    type: integer
+                    description: Private port
+                    format: int32
+                publicPort:
+                    type: integer
+                    description: Public port
+                    format: int32
+                type:
+                    type: string
+                    description: Type
+            description: Container port information
+        container.v1.ContainerStats:
+            type: object
+            properties:
+                containerId:
+                    type: string
+                    description: Container ID
+                name:
+                    type: string
+                    description: Name
+                cpuStats:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.CPUStats'
+                    description: CPU stats
+                memoryStats:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.MemoryStats'
+                    description: Memory stats
+                networkStats:
+                    type: object
+                    additionalProperties:
+                        $ref: '#/components/schemas/container.v1.NetworkStats'
+                    description: Network stats
+                blockIoStats:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.BlockIOStats'
+                    description: Block I/O stats
+                pidStats:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.PIDStats'
+                    description: PID stats
+                read:
+                    type: string
+                    description: Read timestamp
+                    format: date-time
+            description: Container statistics
+        container.v1.CreateContainerRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Container name
+                config:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.ContainerConfig'
+                    description: Container config
+                hostConfig:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.HostConfig'
+                    description: Host config
+                networkConfig:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.NetworkConfig'
+                    description: Network config
+                platform:
+                    type: string
+                    description: Platform
+            description: Request and response messages
+        container.v1.CreateContainerResponse:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Container ID
+                warnings:
+                    type: array
+                    items:
+                        type: string
+                    description: Warnings
+        container.v1.DeviceMapping:
+            type: object
+            properties:
+                pathOnHost:
+                    type: string
+                    description: Path on host
+                pathInContainer:
+                    type: string
+                    description: Path in container
+                cgroupPermissions:
+                    type: string
+                    description: Cgroup permissions
+            description: Device mapping
+        container.v1.EndpointConfig:
+            type: object
+            properties:
+                ipAddress:
+                    type: string
+                    description: IP address
+                ipPrefixLen:
+                    type: integer
+                    description: IP prefix length
+                    format: int32
+                ipv6Gateway:
+                    type: string
+                    description: IPv6 gateway
+                macAddress:
+                    type: string
+                    description: Mac address
+                networkId:
+                    type: string
+                    description: Network ID
+                endpointId:
+                    type: string
+                    description: Endpoint ID
+            description: Endpoint configuration
+        container.v1.ExecContainerRequest:
+            type: object
+            properties:
+                containerId:
+                    type: string
+                    description: Container ID or name
+                command:
+                    type: array
+                    items:
+                        type: string
+                    description: Command to execute
+                detach:
+                    type: boolean
+                    description: Detach
+                interactive:
+                    type: boolean
+                    description: Interactive
+                tty:
+                    type: boolean
+                    description: TTY
+                user:
+                    type: string
+                    description: User
+                workdir:
+                    type: string
+                    description: Workdir
+                env:
+                    type: array
+                    items:
+                        type: string
+                    description: Environment variables
+        container.v1.ExecContainerResponse:
+            type: object
+            properties:
+                execId:
+                    type: string
+                    description: Exec ID
+                exitCode:
+                    type: integer
+                    description: Exit code (only for non-detached execs)
+                    format: int32
+                output:
+                    type: string
+                    description: Output (only for non-detached execs)
+        container.v1.GetContainerLogsResponse:
+            type: object
+            properties:
+                data:
+                    type: string
+                    description: Log data
+                    format: bytes
+                stream:
+                    type: string
+                    description: Stream (stdout/stderr)
+                timestamp:
+                    type: string
+                    description: Timestamp
+                    format: date-time
+        container.v1.GetContainerPortResponse:
+            type: object
+            properties:
+                portBindings:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.PortBinding'
+                    description: Port bindings
+        container.v1.GetContainerStatsResponse:
+            type: object
+            properties:
+                stats:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.ContainerStats'
+                    description: Stats
+        container.v1.HealthCheckResponse:
+            type: object
+            properties:
+                status:
+                    type: string
+                    description: Status (healthy, unhealthy, starting)
+                failingStreak:
+                    type: integer
+                    description: Failed streak
+                    format: int32
+                log:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.HealthCheckResult'
+                    description: Log
+        container.v1.HealthCheckResult:
+            type: object
+            properties:
+                start:
+                    type: string
+                    description: Start
+                    format: date-time
+                end:
+                    type: string
+                    description: End
+                    format: date-time
+                exitCode:
+                    type: integer
+                    description: Exit code
+                    format: int32
+                output:
+                    type: string
+                    description: Output
+        container.v1.HealthConfig:
+            type: object
+            properties:
+                test:
+                    type: array
+                    items:
+                        type: string
+                    description: Test command
+                interval:
+                    type: string
+                    description: Interval
+                timeout:
+                    type: string
+                    description: Timeout
+                startPeriod:
+                    type: string
+                    description: Start period
+                retries:
+                    type: integer
+                    description: Retries
+                    format: int32
+            description: Health check configuration
+        container.v1.HostConfig:
+            type: object
+            properties:
+                autoRemove:
+                    type: boolean
+                    description: Auto remove
+                privileged:
+                    type: boolean
+                    description: Privileged mode
+                readOnlyRootfs:
+                    type: boolean
+                    description: Read only root filesystem
+                cpuShares:
+                    type: string
+                    description: CPU shares
+                cpuPeriod:
+                    type: string
+                    description: CPU period
+                cpuQuota:
+                    type: string
+                    description: CPU quota
+                cpus:
+                    type: string
+                    description: CPUs
+                cpusetCpus:
+                    type: string
+                    description: CPU set CPUs
+                cpusetMems:
+                    type: string
+                    description: CPU set MEMs
+                memory:
+                    type: string
+                    description: Memory limit
+                memorySwap:
+                    type: string
+                    description: Memory swap
+                memorySwappiness:
+                    type: string
+                    description: Memory swappiness
+                memoryReservation:
+                    type: string
+                    description: Memory reservation
+                kernelMemory:
+                    type: string
+                    description: Kernel memory
+                oomKillDisable:
+                    type: boolean
+                    description: OOM kill disable
+                pidMode:
+                    type: string
+                    description: PID mode
+                ipcMode:
+                    type: string
+                    description: IPC mode
+                utsMode:
+                    type: string
+                    description: UTS mode
+                networkMode:
+                    type: string
+                    description: Network mode
+                portBindings:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.PortBinding'
+                    description: Port bindings
+                mounts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.Mount'
+                    description: Bind mounts
+                binds:
+                    type: array
+                    items:
+                        type: string
+                    description: Volume binds
+                volumeDriver:
+                    type: string
+                    description: Volume driver
+                volumesFrom:
+                    type: array
+                    items:
+                        type: string
+                    description: Volumes from
+                capAdd:
+                    type: array
+                    items:
+                        type: string
+                    description: Cap add
+                capDrop:
+                    type: array
+                    items:
+                        type: string
+                    description: Cap drop
+                securityOpt:
+                    type: array
+                    items:
+                        type: string
+                    description: Security opt
+                devices:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.DeviceMapping'
+                    description: Devices
+                dns:
+                    type: array
+                    items:
+                        type: string
+                    description: DNS
+                dnsSearch:
+                    type: array
+                    items:
+                        type: string
+                    description: DNS search
+                dnsOptions:
+                    type: array
+                    items:
+                        type: string
+                    description: DNS options
+                extraHosts:
+                    type: array
+                    items:
+                        type: string
+                    description: Extra hosts
+                links:
+                    type: array
+                    items:
+                        type: string
+                    description: Links
+                logConfig:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.LogConfig'
+                    description: Log config
+                restartPolicy:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.RestartPolicy'
+                    description: Restart policy
+                ulimits:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.Ulimit'
+                    description: Ulimits
+                tmpfs:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Tmpfs
+                shmSize:
+                    type: string
+                    description: SHM size
+                platform:
+                    type: string
+                    description: Platform
+                runtime:
+                    type: string
+                    description: Runtime
+            description: Host configuration for container runtime
+        container.v1.InspectContainerResponse:
+            type: object
+            properties:
+                container:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.Container'
+                    description: Container details
+        container.v1.KillContainerRequest:
+            type: object
+            properties:
+                containerId:
+                    type: string
+                    description: Container ID or name
+                signal:
+                    type: string
+                    description: Signal
+        container.v1.KillContainerResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: Success
+                message:
+                    type: string
+                    description: Message
+        container.v1.ListContainersResponse:
+            type: object
+            properties:
+                containers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/container.v1.Container'
+                    description: Containers
+        container.v1.LogConfig:
+            type: object
+            properties:
+                type:
+                    type: string
+                    description: Type
+                config:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Config
+            description: Log configuration
+        container.v1.MemoryStats:
+            type: object
+            properties:
+                usage:
+                    type: string
+                    description: Usage
+                maxUsage:
+                    type: string
+                    description: Max usage
+                stats:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Stats
+                failcnt:
+                    type: string
+                    description: Failcnt
+                limit:
+                    type: string
+                    description: Limit
+            description: Memory statistics
+        container.v1.Mount:
+            type: object
+            properties:
+                source:
+                    type: string
+                    description: Source
+                target:
+                    type: string
+                    description: Target
+                type:
+                    type: string
+                    description: Type
+                readOnly:
+                    type: boolean
+                    description: Read only
+                bindOptions:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.BindOptions'
+                    description: Bind options
+                volumeOptions:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.VolumeOptions'
+                    description: Volume options
+                tmpfsOptions:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.TmpfsOptions'
+                    description: Tmpfs options
+            description: Mount configuration
+        container.v1.NetworkConfig:
+            type: object
+            properties:
+                endpointsConfig:
+                    type: object
+                    additionalProperties:
+                        $ref: '#/components/schemas/container.v1.EndpointConfig'
+                    description: End points config
+            description: Network configuration
+        container.v1.NetworkStats:
+            type: object
+            properties:
+                rxBytes:
+                    type: string
+                    description: RX bytes
+                rxPackets:
+                    type: string
+                    description: RX packets
+                rxErrors:
+                    type: string
+                    description: RX errors
+                rxDropped:
+                    type: string
+                    description: RX dropped
+                txBytes:
+                    type: string
+                    description: TX bytes
+                txPackets:
+                    type: string
+                    description: TX packets
+                txErrors:
+                    type: string
+                    description: TX errors
+                txDropped:
+                    type: string
+                    description: TX dropped
+            description: Network statistics
+        container.v1.PIDStats:
+            type: object
+            properties:
+                current:
+                    type: string
+                    description: Current
+                limit:
+                    type: string
+                    description: Limit
+            description: PID statistics
+        container.v1.PauseContainerResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: Success
+                message:
+                    type: string
+                    description: Message
+        container.v1.PortBinding:
+            type: object
+            properties:
+                containerPort:
+                    type: string
+                    description: Container port
+                hostIp:
+                    type: string
+                    description: Host IP
+                hostPort:
+                    type: string
+                    description: Host port
+                protocol:
+                    type: string
+                    description: Protocol
+            description: Port binding configuration
+        container.v1.RemoveContainerResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: Success
+                message:
+                    type: string
+                    description: Message
+        container.v1.RenameContainerRequest:
+            type: object
+            properties:
+                containerId:
+                    type: string
+                    description: Container ID or name
+                newName:
+                    type: string
+                    description: New name
+        container.v1.RenameContainerResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: Success
+                message:
+                    type: string
+                    description: Message
+        container.v1.RestartContainerResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: Success
+                message:
+                    type: string
+                    description: Message
+        container.v1.RestartPolicy:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Name
+                maximumRetryCount:
+                    type: integer
+                    description: Maximum retry count
+                    format: int32
+            description: Restart policy
+        container.v1.RunContainerRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Container name
+                config:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.ContainerConfig'
+                    description: Container config
+                hostConfig:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.HostConfig'
+                    description: Host config
+                networkConfig:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.NetworkConfig'
+                    description: Network config
+                platform:
+                    type: string
+                    description: Platform
+                detach:
+                    type: boolean
+                    description: Detach
+                interactive:
+                    type: boolean
+                    description: Interactive
+                tty:
+                    type: boolean
+                    description: TTY
+        container.v1.RunContainerResponse:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Container ID
+                exitCode:
+                    type: integer
+                    description: Exit code (only for non-detached runs)
+                    format: int32
+                output:
+                    type: string
+                    description: Output (only for non-detached runs)
+        container.v1.StartContainerResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: Success
+                message:
+                    type: string
+                    description: Message
+        container.v1.StopContainerResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: Success
+                message:
+                    type: string
+                    description: Message
+        container.v1.ThrottlingData:
+            type: object
+            properties:
+                periods:
+                    type: string
+                    description: Periods
+                throttledPeriods:
+                    type: string
+                    description: Throttled periods
+                throttledTime:
+                    type: string
+                    description: Throttled time
+            description: Throttling data
+        container.v1.TmpfsOptions:
+            type: object
+            properties:
+                sizeBytes:
+                    type: string
+                    description: Size bytes
+                mode:
+                    type: integer
+                    description: Mode
+                    format: int32
+            description: Tmpfs options
+        container.v1.Ulimit:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Name
+                soft:
+                    type: string
+                    description: Soft limit
+                hard:
+                    type: string
+                    description: Hard limit
+            description: Ulimit configuration
+        container.v1.UnpauseContainerResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: Success
+                message:
+                    type: string
+                    description: Message
+        container.v1.UpdateContainerRequest:
+            type: object
+            properties:
+                containerId:
+                    type: string
+                    description: Container ID or name
+                updateSpec:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.UpdateSpec'
+                    description: Resources to update
+        container.v1.UpdateContainerResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: Success
+                message:
+                    type: string
+                    description: Message
+                warnings:
+                    type: array
+                    items:
+                        type: string
+                    description: Warnings
+        container.v1.UpdateSpec:
+            type: object
+            properties:
+                cpuShares:
+                    type: string
+                    description: CPU shares
+                cpuPeriod:
+                    type: string
+                    description: CPU period
+                cpuQuota:
+                    type: string
+                    description: CPU quota
+                cpus:
+                    type: string
+                    description: CPUs
+                cpusetCpus:
+                    type: string
+                    description: CPU set CPUs
+                cpusetMems:
+                    type: string
+                    description: CPU set MEMs
+                memory:
+                    type: string
+                    description: Memory
+                memorySwap:
+                    type: string
+                    description: Memory swap
+                memoryReservation:
+                    type: string
+                    description: Memory reservation
+                kernelMemory:
+                    type: string
+                    description: Kernel memory
+                restartPolicy:
+                    allOf:
+                        - $ref: '#/components/schemas/container.v1.RestartPolicy'
+                    description: Restart policy
+        container.v1.VolumeOptions:
+            type: object
+            properties:
+                noCopy:
+                    type: boolean
+                    description: No copy
+                driverConfig:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Driver config
+            description: Volume options
+        container.v1.WaitContainerResponse:
+            type: object
+            properties:
+                exitCode:
+                    type: integer
+                    description: Exit code
+                    format: int32
+                error:
+                    type: string
+                    description: Error
         ecr.v1.AWSAccessKeyCredentials:
             type: object
             properties:
@@ -864,6 +2399,8 @@ components:
                     type: string
             description: Tag image response
 tags:
+    - name: ContainerService
+      description: Container service provides container management operations
     - name: ECRService
       description: ECR authentication service for managing AWS Elastic Container Registry authentication
     - name: Health

@@ -12,3 +12,9 @@ clacky-ai-paas-dsagent项目通过在源代码级别包装nerdctl的各级子命
 clacky-ai-paas-dsagent项目通过在源代码级别包装nerdctl的各级子命令实现；
 在clacky-ai-paas-dsagent项目下开发对外的接口；
 实现下面几个镜像相关的命令：nerdctl commit 、nerdctl rmi，nerdctl tag
+
+2. 将cmd/nerdctl/main.go的容器操作相关的命令封装为clacky-ai-paas-dsagent项目下的grpc接口。
+要求不改变nerdctl本身的逻辑；
+clacky-ai-paas-dsagent项目通过在源代码级别包装nerdctl的各级子命令实现；
+在clacky-ai-paas-dsagent项目下开发对外的接口；
+实现下面几个容器操作相关的命令：nerdctl create，nerdctl exec, nerdctl healthcheck, nerdctl kill, nerdctl logs, nerdctl pause , nerdctlport, nerdctl ps, nerdctl rename, nerdctl restart, nerdctl rm, nerdctl run , nerdctl start, nerdctl stats, nerdctl stop, nerdctl unpause, nerdctl update, nerdctl wait

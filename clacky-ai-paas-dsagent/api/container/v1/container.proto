@@ -1,0 +1,946 @@
+syntax = "proto3";
+
+package container.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
+
+option go_package = "dsagent/api/container/v1;v1";
+option java_multiple_files = true;
+option java_package = "dev.kratos.api.container.v1";
+option java_outer_classname = "ContainerProtoV1";
+
+// Container service provides container management operations
+service ContainerService {
+  // Create a container
+  rpc CreateContainer (CreateContainerRequest) returns (CreateContainerResponse) {
+    option (google.api.http) = {
+      post: "/v1/containers"
+      body: "*"
+    };
+  }
+  
+  // Start one or more containers
+  rpc StartContainer (StartContainerRequest) returns (StartContainerResponse) {
+    option (google.api.http) = {
+      post: "/v1/containers/{container_id}/start"
+    };
+  }
+  
+  // Stop one or more containers
+  rpc StopContainer (StopContainerRequest) returns (StopContainerResponse) {
+    option (google.api.http) = {
+      post: "/v1/containers/{container_id}/stop"
+    };
+  }
+  
+  // Restart one or more containers
+  rpc RestartContainer (RestartContainerRequest) returns (RestartContainerResponse) {
+    option (google.api.http) = {
+      post: "/v1/containers/{container_id}/restart"
+    };
+  }
+  
+  // Remove one or more containers
+  rpc RemoveContainer (RemoveContainerRequest) returns (RemoveContainerResponse) {
+    option (google.api.http) = {
+      delete: "/v1/containers/{container_id}"
+    };
+  }
+  
+  // Run a command in a new container
+  rpc RunContainer (RunContainerRequest) returns (RunContainerResponse) {
+    option (google.api.http) = {
+      post: "/v1/containers/run"
+      body: "*"
+    };
+  }
+  
+  // Execute a command in a running container
+  rpc ExecContainer (ExecContainerRequest) returns (ExecContainerResponse) {
+    option (google.api.http) = {
+      post: "/v1/containers/{container_id}/exec"
+      body: "*"
+    };
+  }
+  
+  // Pause one or more containers
+  rpc PauseContainer (PauseContainerRequest) returns (PauseContainerResponse) {
+    option (google.api.http) = {
+      post: "/v1/containers/{container_id}/pause"
+    };
+  }
+  
+  // Unpause one or more containers
+  rpc UnpauseContainer (UnpauseContainerRequest) returns (UnpauseContainerResponse) {
+    option (google.api.http) = {
+      post: "/v1/containers/{container_id}/unpause"
+    };
+  }
+  
+  // List containers
+  rpc ListContainers (ListContainersRequest) returns (ListContainersResponse) {
+    option (google.api.http) = {
+      get: "/v1/containers"
+    };
+  }
+  
+  // Get container logs
+  rpc GetContainerLogs (GetContainerLogsRequest) returns (stream GetContainerLogsResponse) {
+    option (google.api.http) = {
+      get: "/v1/containers/{container_id}/logs"
+    };
+  }
+  
+  // Get container statistics
+  rpc GetContainerStats (GetContainerStatsRequest) returns (stream GetContainerStatsResponse) {
+    option (google.api.http) = {
+      get: "/v1/containers/{container_id}/stats"
+    };
+  }
+  
+  // Run health check on container
+  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse) {
+    option (google.api.http) = {
+      post: "/v1/containers/{container_id}/healthcheck"
+    };
+  }
+  
+  // Rename a container
+  rpc RenameContainer (RenameContainerRequest) returns (RenameContainerResponse) {
+    option (google.api.http) = {
+      put: "/v1/containers/{container_id}/rename"
+      body: "*"
+    };
+  }
+  
+  // Kill one or more containers
+  rpc KillContainer (KillContainerRequest) returns (KillContainerResponse) {
+    option (google.api.http) = {
+      post: "/v1/containers/{container_id}/kill"
+      body: "*"
+    };
+  }
+  
+  // Get container port mappings
+  rpc GetContainerPort (GetContainerPortRequest) returns (GetContainerPortResponse) {
+    option (google.api.http) = {
+      get: "/v1/containers/{container_id}/port"
+    };
+  }
+  
+  // Wait for container to stop
+  rpc WaitContainer (WaitContainerRequest) returns (WaitContainerResponse) {
+    option (google.api.http) = {
+      post: "/v1/containers/{container_id}/wait"
+    };
+  }
+  
+  // Update container configuration
+  rpc UpdateContainer (UpdateContainerRequest) returns (UpdateContainerResponse) {
+    option (google.api.http) = {
+      patch: "/v1/containers/{container_id}"
+      body: "*"
+    };
+  }
+
+  // Inspect one or more containers
+  rpc InspectContainer (InspectContainerRequest) returns (InspectContainerResponse) {
+    option (google.api.http) = {
+      get: "/v1/containers/{container_id}/inspect"
+    };
+  }
+}
+
+// Container configuration for create/run operations
+message ContainerConfig {
+  // Image name
+  string image = 1 [(validate.rules).string.min_len = 1];
+  // Command to run
+  repeated string command = 2;
+  // Arguments to the command
+  repeated string args = 3;
+  // Working directory
+  string working_dir = 4;
+  // Environment variables
+  map<string, string> env = 5;
+  // Exposed ports
+  repeated string exposed_ports = 6;
+  // Labels
+  map<string, string> labels = 7;
+  // Entrypoint
+  repeated string entrypoint = 8;
+  // User
+  string user = 9;
+  // Hostname
+  string hostname = 10;
+  // Domain name
+  string domainname = 11;
+  // Stop signal
+  string stop_signal = 12;
+  // Stop timeout
+  int32 stop_timeout = 13;
+  // Health check
+  HealthConfig health_config = 14;
+  // Restart policy
+  RestartPolicy restart_policy = 15;
+}
+
+// Host configuration for container runtime
+message HostConfig {
+  // Auto remove
+  bool auto_remove = 1;
+  // Privileged mode
+  bool privileged = 2;
+  // Read only root filesystem
+  bool read_only_rootfs = 3;
+  // CPU shares
+  int64 cpu_shares = 4;
+  // CPU period
+  int64 cpu_period = 5;
+  // CPU quota
+  int64 cpu_quota = 6;
+  // CPUs
+  string cpus = 7;
+  // CPU set CPUs
+  string cpuset_cpus = 8;
+  // CPU set MEMs
+  string cpuset_mems = 9;
+  // Memory limit
+  int64 memory = 10;
+  // Memory swap
+  int64 memory_swap = 11;
+  // Memory swappiness
+  int64 memory_swappiness = 12;
+  // Memory reservation
+  int64 memory_reservation = 13;
+  // Kernel memory
+  int64 kernel_memory = 14;
+  // OOM kill disable
+  bool oom_kill_disable = 15;
+  // PID mode
+  string pid_mode = 16;
+  // IPC mode
+  string ipc_mode = 17;
+  // UTS mode
+  string uts_mode = 18;
+  // Network mode
+  string network_mode = 19;
+  // Port bindings
+  repeated PortBinding port_bindings = 20;
+  // Bind mounts
+  repeated Mount mounts = 21;
+  // Volume binds
+  repeated string binds = 22;
+  // Volume driver
+  string volume_driver = 23;
+  // Volumes from
+  repeated string volumes_from = 24;
+  // Cap add
+  repeated string cap_add = 25;
+  // Cap drop
+  repeated string cap_drop = 26;
+  // Security opt
+  repeated string security_opt = 27;
+  // Devices
+  repeated DeviceMapping devices = 28;
+  // DNS
+  repeated string dns = 29;
+  // DNS search
+  repeated string dns_search = 30;
+  // DNS options
+  repeated string dns_options = 31;
+  // Extra hosts
+  repeated string extra_hosts = 32;
+  // Links
+  repeated string links = 33;
+  // Log config
+  LogConfig log_config = 34;
+  // Restart policy
+  RestartPolicy restart_policy = 35;
+  // Ulimits
+  repeated Ulimit ulimits = 36;
+  // Tmpfs
+  map<string, string> tmpfs = 37;
+  // SHM size
+  int64 shm_size = 38;
+  // Platform
+  string platform = 39;
+  // Runtime
+  string runtime = 40;
+}
+
+// Network configuration
+message NetworkConfig {
+  // End points config
+  map<string, EndpointConfig> endpoints_config = 1;
+}
+
+// Endpoint configuration
+message EndpointConfig {
+  // IP address
+  string ip_address = 1;
+  // IP prefix length
+  int32 ip_prefix_len = 2;
+  // IPv6 gateway
+  string ipv6_gateway = 3;
+  // Mac address
+  string mac_address = 4;
+  // Network ID
+  string network_id = 5;
+  // Endpoint ID
+  string endpoint_id = 6;
+}
+
+// Port binding configuration
+message PortBinding {
+  // Container port
+  string container_port = 1;
+  // Host IP
+  string host_ip = 2;
+  // Host port
+  string host_port = 3;
+  // Protocol
+  string protocol = 4;
+}
+
+// Mount configuration
+message Mount {
+  // Source
+  string source = 1;
+  // Target
+  string target = 2;
+  // Type
+  string type = 3;
+  // Read only
+  bool read_only = 4;
+  // Bind options
+  BindOptions bind_options = 5;
+  // Volume options
+  VolumeOptions volume_options = 6;
+  // Tmpfs options
+  TmpfsOptions tmpfs_options = 7;
+}
+
+// Bind options
+message BindOptions {
+  // Propagation
+  string propagation = 1;
+}
+
+// Volume options
+message VolumeOptions {
+  // No copy
+  bool no_copy = 1;
+  // Driver config
+  map<string, string> driver_config = 2;
+}
+
+// Tmpfs options
+message TmpfsOptions {
+  // Size bytes
+  int64 size_bytes = 1;
+  // Mode
+  int32 mode = 2;
+}
+
+// Device mapping
+message DeviceMapping {
+  // Path on host
+  string path_on_host = 1;
+  // Path in container
+  string path_in_container = 2;
+  // Cgroup permissions
+  string cgroup_permissions = 3;
+}
+
+// Log configuration
+message LogConfig {
+  // Type
+  string type = 1;
+  // Config
+  map<string, string> config = 2;
+}
+
+// Restart policy
+message RestartPolicy {
+  // Name
+  string name = 1;
+  // Maximum retry count
+  int32 maximum_retry_count = 2;
+}
+
+// Health check configuration
+message HealthConfig {
+  // Test command
+  repeated string test = 1;
+  // Interval
+  string interval = 2;
+  // Timeout
+  string timeout = 3;
+  // Start period
+  string start_period = 4;
+  // Retries
+  int32 retries = 5;
+}
+
+// Ulimit configuration
+message Ulimit {
+  // Name
+  string name = 1;
+  // Soft limit
+  int64 soft = 2;
+  // Hard limit
+  int64 hard = 3;
+}
+
+// Container state information
+message ContainerState {
+  // Status
+  string status = 1;
+  // Running
+  bool running = 2;
+  // Paused
+  bool paused = 3;
+  // Restarting
+  bool restarting = 4;
+  // OOM killed
+  bool oom_killed = 5;
+  // Dead
+  bool dead = 6;
+  // PID
+  int32 pid = 7;
+  // Exit code
+  int32 exit_code = 8;
+  // Error
+  string error = 9;
+  // Started at
+  google.protobuf.Timestamp started_at = 10;
+  // Finished at
+  google.protobuf.Timestamp finished_at = 11;
+}
+
+// Container information
+message Container {
+  // ID
+  string id = 1;
+  // Names
+  repeated string names = 2;
+  // Image
+  string image = 3;
+  // Image ID
+  string image_id = 4;
+  // Command
+  string command = 5;
+  // Created
+  google.protobuf.Timestamp created = 6;
+  // Ports
+  repeated ContainerPort ports = 7;
+  // Size RW
+  int64 size_rw = 8;
+  // Size root fs
+  int64 size_root_fs = 9;
+  // Labels
+  map<string, string> labels = 10;
+  // State
+  string state = 11;
+  // Status
+  string status = 12;
+  // Host config
+  HostConfig host_config = 13;
+  // Network settings
+  NetworkConfig network_settings = 14;
+  // Mounts
+  repeated Mount mounts = 15;
+}
+
+// Container port information
+message ContainerPort {
+  // IP
+  string ip = 1;
+  // Private port
+  int32 private_port = 2;
+  // Public port
+  int32 public_port = 3;
+  // Type
+  string type = 4;
+}
+
+// Container statistics
+message ContainerStats {
+  // Container ID
+  string container_id = 1;
+  // Name
+  string name = 2;
+  // CPU stats
+  CPUStats cpu_stats = 3;
+  // Memory stats
+  MemoryStats memory_stats = 4;
+  // Network stats
+  map<string, NetworkStats> network_stats = 5;
+  // Block I/O stats
+  BlockIOStats block_io_stats = 6;
+  // PID stats
+  PIDStats pid_stats = 7;
+  // Read timestamp
+  google.protobuf.Timestamp read = 8;
+}
+
+// CPU statistics
+message CPUStats {
+  // CPU usage
+  CPUUsage cpu_usage = 1;
+  // System CPU usage
+  uint64 system_cpu_usage = 2;
+  // Online CPUs
+  uint32 online_cpus = 3;
+  // Throttling data
+  ThrottlingData throttling_data = 4;
+}
+
+// CPU usage
+message CPUUsage {
+  // Total usage
+  uint64 total_usage = 1;
+  // Usage in user mode
+  uint64 usage_in_usermode = 2;
+  // Usage in kernel mode
+  uint64 usage_in_kernelmode = 3;
+  // Per CPU usage
+  repeated uint64 percpu_usage = 4;
+}
+
+// Throttling data
+message ThrottlingData {
+  // Periods
+  uint64 periods = 1;
+  // Throttled periods
+  uint64 throttled_periods = 2;
+  // Throttled time
+  uint64 throttled_time = 3;
+}
+
+// Memory statistics
+message MemoryStats {
+  // Usage
+  uint64 usage = 1;
+  // Max usage
+  uint64 max_usage = 2;
+  // Stats
+  map<string, uint64> stats = 3;
+  // Failcnt
+  uint64 failcnt = 4;
+  // Limit
+  uint64 limit = 5;
+}
+
+// Network statistics
+message NetworkStats {
+  // RX bytes
+  uint64 rx_bytes = 1;
+  // RX packets
+  uint64 rx_packets = 2;
+  // RX errors
+  uint64 rx_errors = 3;
+  // RX dropped
+  uint64 rx_dropped = 4;
+  // TX bytes
+  uint64 tx_bytes = 5;
+  // TX packets
+  uint64 tx_packets = 6;
+  // TX errors
+  uint64 tx_errors = 7;
+  // TX dropped
+  uint64 tx_dropped = 8;
+}
+
+// Block I/O statistics
+message BlockIOStats {
+  // I/O service bytes recursive
+  repeated BlkioStatEntry io_service_bytes_recursive = 1;
+  // I/O serviced recursive
+  repeated BlkioStatEntry io_serviced_recursive = 2;
+  // I/O queue recursive
+  repeated BlkioStatEntry io_queue_recursive = 3;
+  // I/O service time recursive
+  repeated BlkioStatEntry io_service_time_recursive = 4;
+  // I/O wait time recursive
+  repeated BlkioStatEntry io_wait_time_recursive = 5;
+  // I/O merged recursive
+  repeated BlkioStatEntry io_merged_recursive = 6;
+  // I/O time recursive
+  repeated BlkioStatEntry io_time_recursive = 7;
+  // Sectors recursive
+  repeated BlkioStatEntry sectors_recursive = 8;
+}
+
+// Block I/O statistics entry
+message BlkioStatEntry {
+  // Major
+  uint64 major = 1;
+  // Minor
+  uint64 minor = 2;
+  // Operation
+  string op = 3;
+  // Value
+  uint64 value = 4;
+}
+
+// PID statistics
+message PIDStats {
+  // Current
+  uint64 current = 1;
+  // Limit
+  uint64 limit = 2;
+}
+
+// Request and response messages
+message CreateContainerRequest {
+  // Container name
+  string name = 1;
+  // Container config
+  ContainerConfig config = 2 [(validate.rules).message.required = true];
+  // Host config
+  HostConfig host_config = 3;
+  // Network config
+  NetworkConfig network_config = 4;
+  // Platform
+  string platform = 5;
+}
+
+message CreateContainerResponse {
+  // Container ID
+  string id = 1;
+  // Warnings
+  repeated string warnings = 2;
+}
+
+message StartContainerRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+  // Detach keys
+  string detach_keys = 2;
+}
+
+message StartContainerResponse {
+  // Success
+  bool success = 1;
+  // Message
+  string message = 2;
+}
+
+message StopContainerRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+  // Timeout
+  int32 timeout = 2;
+}
+
+message StopContainerResponse {
+  // Success
+  bool success = 1;
+  // Message
+  string message = 2;
+}
+
+message RestartContainerRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+  // Timeout
+  int32 timeout = 2;
+}
+
+message RestartContainerResponse {
+  // Success
+  bool success = 1;
+  // Message
+  string message = 2;
+}
+
+message RemoveContainerRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+  // Force removal
+  bool force = 2;
+  // Remove volumes
+  bool volumes = 3;
+  // Remove links
+  bool link = 4;
+}
+
+message RemoveContainerResponse {
+  // Success
+  bool success = 1;
+  // Message
+  string message = 2;
+}
+
+message RunContainerRequest {
+  // Container name
+  string name = 1;
+  // Container config
+  ContainerConfig config = 2 [(validate.rules).message.required = true];
+  // Host config
+  HostConfig host_config = 3;
+  // Network config
+  NetworkConfig network_config = 4;
+  // Platform
+  string platform = 5;
+  // Detach
+  bool detach = 6;
+  // Interactive
+  bool interactive = 7;
+  // TTY
+  bool tty = 8;
+}
+
+message RunContainerResponse {
+  // Container ID
+  string id = 1;
+  // Exit code (only for non-detached runs)
+  int32 exit_code = 2;
+  // Output (only for non-detached runs)
+  string output = 3;
+}
+
+message ExecContainerRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+  // Command to execute
+  repeated string command = 2 [(validate.rules).repeated.min_items = 1];
+  // Detach
+  bool detach = 3;
+  // Interactive
+  bool interactive = 4;
+  // TTY
+  bool tty = 5;
+  // User
+  string user = 6;
+  // Workdir
+  string workdir = 7;
+  // Environment variables
+  repeated string env = 8;
+}
+
+message ExecContainerResponse {
+  // Exec ID
+  string exec_id = 1;
+  // Exit code (only for non-detached execs)
+  int32 exit_code = 2;
+  // Output (only for non-detached execs)
+  string output = 3;
+}
+
+message PauseContainerRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message PauseContainerResponse {
+  // Success
+  bool success = 1;
+  // Message
+  string message = 2;
+}
+
+message UnpauseContainerRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message UnpauseContainerResponse {
+  // Success
+  bool success = 1;
+  // Message
+  string message = 2;
+}
+
+message ListContainersRequest {
+  // All containers
+  bool all = 1;
+  // Limit
+  int32 limit = 2;
+  // Size
+  bool size = 3;
+  // Filters
+  map<string, string> filters = 4;
+}
+
+message ListContainersResponse {
+  // Containers
+  repeated Container containers = 1;
+}
+
+message GetContainerLogsRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+  // Follow
+  bool follow = 2;
+  // Show stdout
+  bool stdout = 3;
+  // Show stderr
+  bool stderr = 4;
+  // Since timestamp
+  string since = 5;
+  // Until timestamp
+  string until = 6;
+  // Timestamps
+  bool timestamps = 7;
+  // Tail
+  string tail = 8;
+}
+
+message GetContainerLogsResponse {
+  // Log data
+  bytes data = 1;
+  // Stream (stdout/stderr)
+  string stream = 2;
+  // Timestamp
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+message GetContainerStatsRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+  // Stream stats
+  bool stream = 2;
+}
+
+message GetContainerStatsResponse {
+  // Stats
+  ContainerStats stats = 1;
+}
+
+message HealthCheckRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message HealthCheckResponse {
+  // Status (healthy, unhealthy, starting)
+  string status = 1;
+  // Failed streak
+  int32 failing_streak = 2;
+  // Log
+  repeated HealthCheckResult log = 3;
+}
+
+message HealthCheckResult {
+  // Start
+  google.protobuf.Timestamp start = 1;
+  // End
+  google.protobuf.Timestamp end = 2;
+  // Exit code
+  int32 exit_code = 3;
+  // Output
+  string output = 4;
+}
+
+message RenameContainerRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+  // New name
+  string new_name = 2 [(validate.rules).string.min_len = 1];
+}
+
+message RenameContainerResponse {
+  // Success
+  bool success = 1;
+  // Message
+  string message = 2;
+}
+
+message KillContainerRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+  // Signal
+  string signal = 2;
+}
+
+message KillContainerResponse {
+  // Success
+  bool success = 1;
+  // Message
+  string message = 2;
+}
+
+message GetContainerPortRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+  // Private port
+  int32 private_port = 2;
+}
+
+message GetContainerPortResponse {
+  // Port bindings
+  repeated PortBinding port_bindings = 1;
+}
+
+message WaitContainerRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+  // Condition (not-running, next-exit, removed)
+  string condition = 2;
+}
+
+message WaitContainerResponse {
+  // Exit code
+  int32 exit_code = 1;
+  // Error
+  string error = 2;
+}
+
+message UpdateContainerRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+  // Resources to update
+  UpdateSpec update_spec = 2;
+}
+
+message UpdateSpec {
+  // CPU shares
+  int64 cpu_shares = 1;
+  // CPU period
+  int64 cpu_period = 2;
+  // CPU quota
+  int64 cpu_quota = 3;
+  // CPUs
+  string cpus = 4;
+  // CPU set CPUs
+  string cpuset_cpus = 5;
+  // CPU set MEMs
+  string cpuset_mems = 6;
+  // Memory
+  int64 memory = 7;
+  // Memory swap
+  int64 memory_swap = 8;
+  // Memory reservation
+  int64 memory_reservation = 9;
+  // Kernel memory
+  int64 kernel_memory = 10;
+  // Restart policy
+  RestartPolicy restart_policy = 11;
+}
+
+message UpdateContainerResponse {
+  // Success
+  bool success = 1;
+  // Message
+  string message = 2;
+  // Warnings
+  repeated string warnings = 3;
+}
+
+message InspectContainerRequest {
+  // Container ID or name
+  string container_id = 1 [(validate.rules).string.min_len = 1];
+  // Size
+  bool size = 2;
+}
+
+message InspectContainerResponse {
+  // Container details
+  Container container = 1;
+}

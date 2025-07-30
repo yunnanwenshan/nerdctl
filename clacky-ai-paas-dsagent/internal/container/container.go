@@ -56,6 +56,8 @@ func (c *Container) registerServiceProviders() {
 	c.container.Provide(service.NewImageServiceV2)
 	// Register independent ECR authentication service
 	c.container.Provide(service.NewECRService)
+	// Register container service
+	c.container.Provide(service.NewContainerService)
 }
 
 // registerServerProviders registers all server providers
