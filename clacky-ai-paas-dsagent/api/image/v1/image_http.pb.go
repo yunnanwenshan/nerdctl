@@ -19,6 +19,7 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationImageServiceCommitContainer = "/image.v1.ImageService/CommitContainer"
 const OperationImageServiceImageHistory = "/image.v1.ImageService/ImageHistory"
 const OperationImageServiceInspectImage = "/image.v1.ImageService/InspectImage"
 const OperationImageServiceListImages = "/image.v1.ImageService/ListImages"
@@ -30,6 +31,8 @@ const OperationImageServiceSaveImage = "/image.v1.ImageService/SaveImage"
 const OperationImageServiceTagImage = "/image.v1.ImageService/TagImage"
 
 type ImageServiceHTTPServer interface {
+	// CommitContainer Commit container changes to create a new image (equivalent to nerdctl commit)
+	CommitContainer(context.Context, *CommitContainerRequest) (*CommitContainerResponse, error)
 	// ImageHistory Show image history (equivalent to nerdctl history)
 	ImageHistory(context.Context, *ImageHistoryRequest) (*ImageHistoryResponse, error)
 	// InspectImage Get image details (equivalent to nerdctl inspect on images)
@@ -61,6 +64,7 @@ func RegisterImageServiceHTTPServer(s *http.Server, srv ImageServiceHTTPServer) 
 	r.POST("/v1/images/load", _ImageService_LoadImage0_HTTP_Handler(srv))
 	r.GET("/v1/images/{name}/history", _ImageService_ImageHistory0_HTTP_Handler(srv))
 	r.GET("/v1/images/{name}/inspect", _ImageService_InspectImage0_HTTP_Handler(srv))
+	r.POST("/v1/containers/{container_id}/commit", _ImageService_CommitContainer0_HTTP_Handler(srv))
 }
 
 func _ImageService_ListImages0_HTTP_Handler(srv ImageServiceHTTPServer) func(ctx http.Context) error {
@@ -261,7 +265,33 @@ func _ImageService_InspectImage0_HTTP_Handler(srv ImageServiceHTTPServer) func(c
 	}
 }
 
+func _ImageService_CommitContainer0_HTTP_Handler(srv ImageServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CommitContainerRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationImageServiceCommitContainer)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CommitContainer(ctx, req.(*CommitContainerRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CommitContainerResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type ImageServiceHTTPClient interface {
+	CommitContainer(ctx context.Context, req *CommitContainerRequest, opts ...http.CallOption) (rsp *CommitContainerResponse, err error)
 	ImageHistory(ctx context.Context, req *ImageHistoryRequest, opts ...http.CallOption) (rsp *ImageHistoryResponse, err error)
 	InspectImage(ctx context.Context, req *InspectImageRequest, opts ...http.CallOption) (rsp *InspectImageResponse, err error)
 	ListImages(ctx context.Context, req *ListImagesRequest, opts ...http.CallOption) (rsp *ListImagesResponse, err error)
@@ -279,6 +309,19 @@ type ImageServiceHTTPClientImpl struct {
 
 func NewImageServiceHTTPClient(client *http.Client) ImageServiceHTTPClient {
 	return &ImageServiceHTTPClientImpl{client}
+}
+
+func (c *ImageServiceHTTPClientImpl) CommitContainer(ctx context.Context, in *CommitContainerRequest, opts ...http.CallOption) (*CommitContainerResponse, error) {
+	var out CommitContainerResponse
+	pattern := "/v1/containers/{container_id}/commit"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationImageServiceCommitContainer))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 func (c *ImageServiceHTTPClientImpl) ImageHistory(ctx context.Context, in *ImageHistoryRequest, opts ...http.CallOption) (*ImageHistoryResponse, error) {

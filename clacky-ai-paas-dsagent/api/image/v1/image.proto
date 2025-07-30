@@ -79,6 +79,14 @@ service ImageService {
       get: "/v1/images/{name}/inspect"
     };
   }
+
+  // Commit container changes to create a new image (equivalent to nerdctl commit)
+  rpc CommitContainer (CommitContainerRequest) returns (CommitContainerResponse) {
+    option (google.api.http) = {
+      post: "/v1/containers/{container_id}/commit"
+      body: "*"
+    };
+  }
   
   // Note: ECR login/logout methods are now in separate ECRService
 }
@@ -161,6 +169,26 @@ message InspectImageRequest {
   string mode = 3;                    // Specify inspect mode (dockercompat for Docker-compatible output)
 }
 
+// Commit container request
+message CommitContainerRequest {
+  string container_id = 1;            // Container ID to commit
+  string repository = 2;              // Repository name for the committed image
+  string tag = 3;                     // Tag for the committed image
+  string author = 4;                  // Author (e.g., "nerdctl contributor <nerdctl-dev@example.com>")
+  string message = 5;                 // Commit message
+  repeated string change = 6;         // Apply Dockerfile instruction to the created image
+  bool pause = 7;                     // Pause container during commit (default: true)
+  string compression = 8;             // Compression algorithm (zstd or gzip)
+  string format = 9;                  // Format of the committed image (docker or oci)
+  bool estargz = 10;                  // Convert the committed layer to eStargz
+  int32 estargz_compression_level = 11; // eStargz compression level (1-9)
+  int32 estargz_chunk_size = 12;      // eStargz chunk size
+  int32 estargz_min_chunk_size = 13;  // Minimal number of bytes for one gzip stream
+  bool zstdchunked = 14;              // Convert the committed layer to zstd:chunked
+  int32 zstdchunked_compression_level = 15; // zstd:chunked compression level
+  int32 zstdchunked_chunk_size = 16;  // zstd:chunked chunk size
+}
+
 // ========================= Response Messages =========================
 
 // List images response
@@ -210,6 +238,12 @@ message ImageHistoryResponse {
 // Inspect image response
 message InspectImageResponse {
   string content = 1;                 // JSON representation of image details
+}
+
+// Commit container response
+message CommitContainerResponse {
+  string image_id = 1;                // ID of the committed image
+  string status = 2;                  // Commit operation status message
 }
 
 // ========================= Common Types =========================

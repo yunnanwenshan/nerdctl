@@ -676,6 +676,171 @@ func (x *InspectImageRequest) GetMode() string {
 	return ""
 }
 
+// Commit container request
+type CommitContainerRequest struct {
+	state                       protoimpl.MessageState `protogen:"open.v1"`
+	ContainerId                 string                 `protobuf:"bytes,1,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`                                                     // Container ID to commit
+	Repository                  string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`                                                                          // Repository name for the committed image
+	Tag                         string                 `protobuf:"bytes,3,opt,name=tag,proto3" json:"tag,omitempty"`                                                                                        // Tag for the committed image
+	Author                      string                 `protobuf:"bytes,4,opt,name=author,proto3" json:"author,omitempty"`                                                                                  // Author (e.g., "nerdctl contributor <nerdctl-dev@example.com>")
+	Message                     string                 `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`                                                                                // Commit message
+	Change                      []string               `protobuf:"bytes,6,rep,name=change,proto3" json:"change,omitempty"`                                                                                  // Apply Dockerfile instruction to the created image
+	Pause                       bool                   `protobuf:"varint,7,opt,name=pause,proto3" json:"pause,omitempty"`                                                                                   // Pause container during commit (default: true)
+	Compression                 string                 `protobuf:"bytes,8,opt,name=compression,proto3" json:"compression,omitempty"`                                                                        // Compression algorithm (zstd or gzip)
+	Format                      string                 `protobuf:"bytes,9,opt,name=format,proto3" json:"format,omitempty"`                                                                                  // Format of the committed image (docker or oci)
+	Estargz                     bool                   `protobuf:"varint,10,opt,name=estargz,proto3" json:"estargz,omitempty"`                                                                              // Convert the committed layer to eStargz
+	EstargzCompressionLevel     int32                  `protobuf:"varint,11,opt,name=estargz_compression_level,json=estargzCompressionLevel,proto3" json:"estargz_compression_level,omitempty"`             // eStargz compression level (1-9)
+	EstargzChunkSize            int32                  `protobuf:"varint,12,opt,name=estargz_chunk_size,json=estargzChunkSize,proto3" json:"estargz_chunk_size,omitempty"`                                  // eStargz chunk size
+	EstargzMinChunkSize         int32                  `protobuf:"varint,13,opt,name=estargz_min_chunk_size,json=estargzMinChunkSize,proto3" json:"estargz_min_chunk_size,omitempty"`                       // Minimal number of bytes for one gzip stream
+	Zstdchunked                 bool                   `protobuf:"varint,14,opt,name=zstdchunked,proto3" json:"zstdchunked,omitempty"`                                                                      // Convert the committed layer to zstd:chunked
+	ZstdchunkedCompressionLevel int32                  `protobuf:"varint,15,opt,name=zstdchunked_compression_level,json=zstdchunkedCompressionLevel,proto3" json:"zstdchunked_compression_level,omitempty"` // zstd:chunked compression level
+	ZstdchunkedChunkSize        int32                  `protobuf:"varint,16,opt,name=zstdchunked_chunk_size,json=zstdchunkedChunkSize,proto3" json:"zstdchunked_chunk_size,omitempty"`                      // zstd:chunked chunk size
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
+}
+
+func (x *CommitContainerRequest) Reset() {
+	*x = CommitContainerRequest{}
+	mi := &file_image_v1_image_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CommitContainerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CommitContainerRequest) ProtoMessage() {}
+
+func (x *CommitContainerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_image_v1_image_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CommitContainerRequest.ProtoReflect.Descriptor instead.
+func (*CommitContainerRequest) Descriptor() ([]byte, []int) {
+	return file_image_v1_image_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *CommitContainerRequest) GetContainerId() string {
+	if x != nil {
+		return x.ContainerId
+	}
+	return ""
+}
+
+func (x *CommitContainerRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *CommitContainerRequest) GetTag() string {
+	if x != nil {
+		return x.Tag
+	}
+	return ""
+}
+
+func (x *CommitContainerRequest) GetAuthor() string {
+	if x != nil {
+		return x.Author
+	}
+	return ""
+}
+
+func (x *CommitContainerRequest) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *CommitContainerRequest) GetChange() []string {
+	if x != nil {
+		return x.Change
+	}
+	return nil
+}
+
+func (x *CommitContainerRequest) GetPause() bool {
+	if x != nil {
+		return x.Pause
+	}
+	return false
+}
+
+func (x *CommitContainerRequest) GetCompression() string {
+	if x != nil {
+		return x.Compression
+	}
+	return ""
+}
+
+func (x *CommitContainerRequest) GetFormat() string {
+	if x != nil {
+		return x.Format
+	}
+	return ""
+}
+
+func (x *CommitContainerRequest) GetEstargz() bool {
+	if x != nil {
+		return x.Estargz
+	}
+	return false
+}
+
+func (x *CommitContainerRequest) GetEstargzCompressionLevel() int32 {
+	if x != nil {
+		return x.EstargzCompressionLevel
+	}
+	return 0
+}
+
+func (x *CommitContainerRequest) GetEstargzChunkSize() int32 {
+	if x != nil {
+		return x.EstargzChunkSize
+	}
+	return 0
+}
+
+func (x *CommitContainerRequest) GetEstargzMinChunkSize() int32 {
+	if x != nil {
+		return x.EstargzMinChunkSize
+	}
+	return 0
+}
+
+func (x *CommitContainerRequest) GetZstdchunked() bool {
+	if x != nil {
+		return x.Zstdchunked
+	}
+	return false
+}
+
+func (x *CommitContainerRequest) GetZstdchunkedCompressionLevel() int32 {
+	if x != nil {
+		return x.ZstdchunkedCompressionLevel
+	}
+	return 0
+}
+
+func (x *CommitContainerRequest) GetZstdchunkedChunkSize() int32 {
+	if x != nil {
+		return x.ZstdchunkedChunkSize
+	}
+	return 0
+}
+
 // List images response
 type ListImagesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -686,7 +851,7 @@ type ListImagesResponse struct {
 
 func (x *ListImagesResponse) Reset() {
 	*x = ListImagesResponse{}
-	mi := &file_image_v1_image_proto_msgTypes[9]
+	mi := &file_image_v1_image_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -698,7 +863,7 @@ func (x *ListImagesResponse) String() string {
 func (*ListImagesResponse) ProtoMessage() {}
 
 func (x *ListImagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[9]
+	mi := &file_image_v1_image_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -711,7 +876,7 @@ func (x *ListImagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListImagesResponse.ProtoReflect.Descriptor instead.
 func (*ListImagesResponse) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{9}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListImagesResponse) GetImages() []*ImageInfo {
@@ -732,7 +897,7 @@ type PullImageResponse struct {
 
 func (x *PullImageResponse) Reset() {
 	*x = PullImageResponse{}
-	mi := &file_image_v1_image_proto_msgTypes[10]
+	mi := &file_image_v1_image_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -744,7 +909,7 @@ func (x *PullImageResponse) String() string {
 func (*PullImageResponse) ProtoMessage() {}
 
 func (x *PullImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[10]
+	mi := &file_image_v1_image_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -757,7 +922,7 @@ func (x *PullImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PullImageResponse.ProtoReflect.Descriptor instead.
 func (*PullImageResponse) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{10}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *PullImageResponse) GetDigest() string {
@@ -785,7 +950,7 @@ type PushImageResponse struct {
 
 func (x *PushImageResponse) Reset() {
 	*x = PushImageResponse{}
-	mi := &file_image_v1_image_proto_msgTypes[11]
+	mi := &file_image_v1_image_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -797,7 +962,7 @@ func (x *PushImageResponse) String() string {
 func (*PushImageResponse) ProtoMessage() {}
 
 func (x *PushImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[11]
+	mi := &file_image_v1_image_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -810,7 +975,7 @@ func (x *PushImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PushImageResponse.ProtoReflect.Descriptor instead.
 func (*PushImageResponse) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{11}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *PushImageResponse) GetDigest() string {
@@ -838,7 +1003,7 @@ type RemoveImageResponse struct {
 
 func (x *RemoveImageResponse) Reset() {
 	*x = RemoveImageResponse{}
-	mi := &file_image_v1_image_proto_msgTypes[12]
+	mi := &file_image_v1_image_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -850,7 +1015,7 @@ func (x *RemoveImageResponse) String() string {
 func (*RemoveImageResponse) ProtoMessage() {}
 
 func (x *RemoveImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[12]
+	mi := &file_image_v1_image_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -863,7 +1028,7 @@ func (x *RemoveImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveImageResponse.ProtoReflect.Descriptor instead.
 func (*RemoveImageResponse) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{12}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *RemoveImageResponse) GetRemoved() []string {
@@ -890,7 +1055,7 @@ type TagImageResponse struct {
 
 func (x *TagImageResponse) Reset() {
 	*x = TagImageResponse{}
-	mi := &file_image_v1_image_proto_msgTypes[13]
+	mi := &file_image_v1_image_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -902,7 +1067,7 @@ func (x *TagImageResponse) String() string {
 func (*TagImageResponse) ProtoMessage() {}
 
 func (x *TagImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[13]
+	mi := &file_image_v1_image_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -915,7 +1080,7 @@ func (x *TagImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TagImageResponse.ProtoReflect.Descriptor instead.
 func (*TagImageResponse) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{13}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *TagImageResponse) GetStatus() string {
@@ -936,7 +1101,7 @@ type SaveImageResponse struct {
 
 func (x *SaveImageResponse) Reset() {
 	*x = SaveImageResponse{}
-	mi := &file_image_v1_image_proto_msgTypes[14]
+	mi := &file_image_v1_image_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -948,7 +1113,7 @@ func (x *SaveImageResponse) String() string {
 func (*SaveImageResponse) ProtoMessage() {}
 
 func (x *SaveImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[14]
+	mi := &file_image_v1_image_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -961,7 +1126,7 @@ func (x *SaveImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveImageResponse.ProtoReflect.Descriptor instead.
 func (*SaveImageResponse) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{14}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *SaveImageResponse) GetOutputPath() string {
@@ -988,7 +1153,7 @@ type LoadImageResponse struct {
 
 func (x *LoadImageResponse) Reset() {
 	*x = LoadImageResponse{}
-	mi := &file_image_v1_image_proto_msgTypes[15]
+	mi := &file_image_v1_image_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1000,7 +1165,7 @@ func (x *LoadImageResponse) String() string {
 func (*LoadImageResponse) ProtoMessage() {}
 
 func (x *LoadImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[15]
+	mi := &file_image_v1_image_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1013,7 +1178,7 @@ func (x *LoadImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoadImageResponse.ProtoReflect.Descriptor instead.
 func (*LoadImageResponse) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{15}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *LoadImageResponse) GetLoaded() []string {
@@ -1033,7 +1198,7 @@ type ImageHistoryResponse struct {
 
 func (x *ImageHistoryResponse) Reset() {
 	*x = ImageHistoryResponse{}
-	mi := &file_image_v1_image_proto_msgTypes[16]
+	mi := &file_image_v1_image_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1045,7 +1210,7 @@ func (x *ImageHistoryResponse) String() string {
 func (*ImageHistoryResponse) ProtoMessage() {}
 
 func (x *ImageHistoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[16]
+	mi := &file_image_v1_image_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1058,7 +1223,7 @@ func (x *ImageHistoryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImageHistoryResponse.ProtoReflect.Descriptor instead.
 func (*ImageHistoryResponse) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{16}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ImageHistoryResponse) GetLayers() []*HistoryLayer {
@@ -1078,7 +1243,7 @@ type InspectImageResponse struct {
 
 func (x *InspectImageResponse) Reset() {
 	*x = InspectImageResponse{}
-	mi := &file_image_v1_image_proto_msgTypes[17]
+	mi := &file_image_v1_image_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1090,7 +1255,7 @@ func (x *InspectImageResponse) String() string {
 func (*InspectImageResponse) ProtoMessage() {}
 
 func (x *InspectImageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[17]
+	mi := &file_image_v1_image_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1103,12 +1268,65 @@ func (x *InspectImageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InspectImageResponse.ProtoReflect.Descriptor instead.
 func (*InspectImageResponse) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{17}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *InspectImageResponse) GetContent() string {
 	if x != nil {
 		return x.Content
+	}
+	return ""
+}
+
+// Commit container response
+type CommitContainerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ImageId       string                 `protobuf:"bytes,1,opt,name=image_id,json=imageId,proto3" json:"image_id,omitempty"` // ID of the committed image
+	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`                  // Commit operation status message
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CommitContainerResponse) Reset() {
+	*x = CommitContainerResponse{}
+	mi := &file_image_v1_image_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CommitContainerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CommitContainerResponse) ProtoMessage() {}
+
+func (x *CommitContainerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_image_v1_image_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CommitContainerResponse.ProtoReflect.Descriptor instead.
+func (*CommitContainerResponse) Descriptor() ([]byte, []int) {
+	return file_image_v1_image_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *CommitContainerResponse) GetImageId() string {
+	if x != nil {
+		return x.ImageId
+	}
+	return ""
+}
+
+func (x *CommitContainerResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
 	}
 	return ""
 }
@@ -1129,7 +1347,7 @@ type ImageInfo struct {
 
 func (x *ImageInfo) Reset() {
 	*x = ImageInfo{}
-	mi := &file_image_v1_image_proto_msgTypes[18]
+	mi := &file_image_v1_image_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1141,7 +1359,7 @@ func (x *ImageInfo) String() string {
 func (*ImageInfo) ProtoMessage() {}
 
 func (x *ImageInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[18]
+	mi := &file_image_v1_image_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1154,7 +1372,7 @@ func (x *ImageInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImageInfo.ProtoReflect.Descriptor instead.
 func (*ImageInfo) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{18}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ImageInfo) GetRepository() string {
@@ -1221,7 +1439,7 @@ type HistoryLayer struct {
 
 func (x *HistoryLayer) Reset() {
 	*x = HistoryLayer{}
-	mi := &file_image_v1_image_proto_msgTypes[19]
+	mi := &file_image_v1_image_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1233,7 +1451,7 @@ func (x *HistoryLayer) String() string {
 func (*HistoryLayer) ProtoMessage() {}
 
 func (x *HistoryLayer) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[19]
+	mi := &file_image_v1_image_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1246,7 +1464,7 @@ func (x *HistoryLayer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HistoryLayer.ProtoReflect.Descriptor instead.
 func (*HistoryLayer) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{19}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *HistoryLayer) GetId() string {
@@ -1304,7 +1522,7 @@ type ECRAuthConfig struct {
 
 func (x *ECRAuthConfig) Reset() {
 	*x = ECRAuthConfig{}
-	mi := &file_image_v1_image_proto_msgTypes[20]
+	mi := &file_image_v1_image_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1316,7 +1534,7 @@ func (x *ECRAuthConfig) String() string {
 func (*ECRAuthConfig) ProtoMessage() {}
 
 func (x *ECRAuthConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[20]
+	mi := &file_image_v1_image_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1329,7 +1547,7 @@ func (x *ECRAuthConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ECRAuthConfig.ProtoReflect.Descriptor instead.
 func (*ECRAuthConfig) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{20}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ECRAuthConfig) GetRegion() string {
@@ -1376,7 +1594,7 @@ type AWSCredentials struct {
 
 func (x *AWSCredentials) Reset() {
 	*x = AWSCredentials{}
-	mi := &file_image_v1_image_proto_msgTypes[21]
+	mi := &file_image_v1_image_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1388,7 +1606,7 @@ func (x *AWSCredentials) String() string {
 func (*AWSCredentials) ProtoMessage() {}
 
 func (x *AWSCredentials) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[21]
+	mi := &file_image_v1_image_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1401,7 +1619,7 @@ func (x *AWSCredentials) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AWSCredentials.ProtoReflect.Descriptor instead.
 func (*AWSCredentials) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{21}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *AWSCredentials) GetCredentialType() isAWSCredentials_CredentialType {
@@ -1487,7 +1705,7 @@ type AWSAccessKeyCredentials struct {
 
 func (x *AWSAccessKeyCredentials) Reset() {
 	*x = AWSAccessKeyCredentials{}
-	mi := &file_image_v1_image_proto_msgTypes[22]
+	mi := &file_image_v1_image_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1499,7 +1717,7 @@ func (x *AWSAccessKeyCredentials) String() string {
 func (*AWSAccessKeyCredentials) ProtoMessage() {}
 
 func (x *AWSAccessKeyCredentials) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[22]
+	mi := &file_image_v1_image_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1512,7 +1730,7 @@ func (x *AWSAccessKeyCredentials) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AWSAccessKeyCredentials.ProtoReflect.Descriptor instead.
 func (*AWSAccessKeyCredentials) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{22}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *AWSAccessKeyCredentials) GetAccessKeyId() string {
@@ -1550,7 +1768,7 @@ type AWSAssumeRoleCredentials struct {
 
 func (x *AWSAssumeRoleCredentials) Reset() {
 	*x = AWSAssumeRoleCredentials{}
-	mi := &file_image_v1_image_proto_msgTypes[23]
+	mi := &file_image_v1_image_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1562,7 +1780,7 @@ func (x *AWSAssumeRoleCredentials) String() string {
 func (*AWSAssumeRoleCredentials) ProtoMessage() {}
 
 func (x *AWSAssumeRoleCredentials) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[23]
+	mi := &file_image_v1_image_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1575,7 +1793,7 @@ func (x *AWSAssumeRoleCredentials) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AWSAssumeRoleCredentials.ProtoReflect.Descriptor instead.
 func (*AWSAssumeRoleCredentials) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{23}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *AWSAssumeRoleCredentials) GetRoleArn() string {
@@ -1622,7 +1840,7 @@ type AWSInstanceProfileCredentials struct {
 
 func (x *AWSInstanceProfileCredentials) Reset() {
 	*x = AWSInstanceProfileCredentials{}
-	mi := &file_image_v1_image_proto_msgTypes[24]
+	mi := &file_image_v1_image_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1634,7 +1852,7 @@ func (x *AWSInstanceProfileCredentials) String() string {
 func (*AWSInstanceProfileCredentials) ProtoMessage() {}
 
 func (x *AWSInstanceProfileCredentials) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[24]
+	mi := &file_image_v1_image_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1647,7 +1865,7 @@ func (x *AWSInstanceProfileCredentials) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AWSInstanceProfileCredentials.ProtoReflect.Descriptor instead.
 func (*AWSInstanceProfileCredentials) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{24}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{26}
 }
 
 // AWS ECS Task Role credentials
@@ -1659,7 +1877,7 @@ type AWSECSTaskRoleCredentials struct {
 
 func (x *AWSECSTaskRoleCredentials) Reset() {
 	*x = AWSECSTaskRoleCredentials{}
-	mi := &file_image_v1_image_proto_msgTypes[25]
+	mi := &file_image_v1_image_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1671,7 +1889,7 @@ func (x *AWSECSTaskRoleCredentials) String() string {
 func (*AWSECSTaskRoleCredentials) ProtoMessage() {}
 
 func (x *AWSECSTaskRoleCredentials) ProtoReflect() protoreflect.Message {
-	mi := &file_image_v1_image_proto_msgTypes[25]
+	mi := &file_image_v1_image_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1684,7 +1902,7 @@ func (x *AWSECSTaskRoleCredentials) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AWSECSTaskRoleCredentials.ProtoReflect.Descriptor instead.
 func (*AWSECSTaskRoleCredentials) Descriptor() ([]byte, []int) {
-	return file_image_v1_image_proto_rawDescGZIP(), []int{25}
+	return file_image_v1_image_proto_rawDescGZIP(), []int{27}
 }
 
 var File_image_v1_image_proto protoreflect.FileDescriptor
@@ -1742,7 +1960,27 @@ const file_image_v1_image_proto_rawDesc = "" +
 	"\x13InspectImageRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
 	"\x06format\x18\x02 \x01(\tR\x06format\x12\x12\n" +
-	"\x04mode\x18\x03 \x01(\tR\x04mode\"A\n" +
+	"\x04mode\x18\x03 \x01(\tR\x04mode\"\xdc\x04\n" +
+	"\x16CommitContainerRequest\x12!\n" +
+	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12\x1e\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tR\n" +
+	"repository\x12\x10\n" +
+	"\x03tag\x18\x03 \x01(\tR\x03tag\x12\x16\n" +
+	"\x06author\x18\x04 \x01(\tR\x06author\x12\x18\n" +
+	"\amessage\x18\x05 \x01(\tR\amessage\x12\x16\n" +
+	"\x06change\x18\x06 \x03(\tR\x06change\x12\x14\n" +
+	"\x05pause\x18\a \x01(\bR\x05pause\x12 \n" +
+	"\vcompression\x18\b \x01(\tR\vcompression\x12\x16\n" +
+	"\x06format\x18\t \x01(\tR\x06format\x12\x18\n" +
+	"\aestargz\x18\n" +
+	" \x01(\bR\aestargz\x12:\n" +
+	"\x19estargz_compression_level\x18\v \x01(\x05R\x17estargzCompressionLevel\x12,\n" +
+	"\x12estargz_chunk_size\x18\f \x01(\x05R\x10estargzChunkSize\x123\n" +
+	"\x16estargz_min_chunk_size\x18\r \x01(\x05R\x13estargzMinChunkSize\x12 \n" +
+	"\vzstdchunked\x18\x0e \x01(\bR\vzstdchunked\x12B\n" +
+	"\x1dzstdchunked_compression_level\x18\x0f \x01(\x05R\x1bzstdchunkedCompressionLevel\x124\n" +
+	"\x16zstdchunked_chunk_size\x18\x10 \x01(\x05R\x14zstdchunkedChunkSize\"A\n" +
 	"\x12ListImagesResponse\x12+\n" +
 	"\x06images\x18\x01 \x03(\v2\x13.image.v1.ImageInfoR\x06images\"C\n" +
 	"\x11PullImageResponse\x12\x16\n" +
@@ -1765,7 +2003,10 @@ const file_image_v1_image_proto_rawDesc = "" +
 	"\x14ImageHistoryResponse\x12.\n" +
 	"\x06layers\x18\x01 \x03(\v2\x16.image.v1.HistoryLayerR\x06layers\"0\n" +
 	"\x14InspectImageResponse\x12\x18\n" +
-	"\acontent\x18\x01 \x01(\tR\acontent\"\xaf\x01\n" +
+	"\acontent\x18\x01 \x01(\tR\acontent\"L\n" +
+	"\x17CommitContainerResponse\x12\x19\n" +
+	"\bimage_id\x18\x01 \x01(\tR\aimageId\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\"\xaf\x01\n" +
 	"\tImageInfo\x12\x1e\n" +
 	"\n" +
 	"repository\x18\x01 \x01(\tR\n" +
@@ -1810,7 +2051,7 @@ const file_image_v1_image_proto_rawDesc = "" +
 	"\x10duration_seconds\x18\x04 \x01(\x05R\x0fdurationSeconds\x12G\n" +
 	"\x12source_credentials\x18\x05 \x01(\v2\x18.image.v1.AWSCredentialsR\x11sourceCredentials\"\x1f\n" +
 	"\x1dAWSInstanceProfileCredentials\"\x1b\n" +
-	"\x19AWSECSTaskRoleCredentials2\xab\a\n" +
+	"\x19AWSECSTaskRoleCredentials2\xb5\b\n" +
 	"\fImageService\x12[\n" +
 	"\n" +
 	"ListImages\x12\x1b.image.v1.ListImagesRequest\x1a\x1c.image.v1.ListImagesResponse\"\x12\x82\xd3\xe4\x93\x02\f\x12\n" +
@@ -1822,7 +2063,8 @@ const file_image_v1_image_proto_rawDesc = "" +
 	"\tSaveImage\x12\x1a.image.v1.SaveImageRequest\x1a\x1b.image.v1.SaveImageResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/images/save\x12`\n" +
 	"\tLoadImage\x12\x1a.image.v1.LoadImageRequest\x1a\x1b.image.v1.LoadImageResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/images/load\x12p\n" +
 	"\fImageHistory\x12\x1d.image.v1.ImageHistoryRequest\x1a\x1e.image.v1.ImageHistoryResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/images/{name}/history\x12p\n" +
-	"\fInspectImage\x12\x1d.image.v1.InspectImageRequest\x1a\x1e.image.v1.InspectImageResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/images/{name}/inspectBB\n" +
+	"\fInspectImage\x12\x1d.image.v1.InspectImageRequest\x1a\x1e.image.v1.InspectImageResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/images/{name}/inspect\x12\x87\x01\n" +
+	"\x0fCommitContainer\x12 .image.v1.CommitContainerRequest\x1a!.image.v1.CommitContainerResponse\"/\x82\xd3\xe4\x93\x02):\x01*\"$/v1/containers/{container_id}/commitBB\n" +
 	"\x17dev.kratos.api.image.v1B\fImageProtoV1P\x01Z\x17dsagent/api/image/v1;v1b\x06proto3"
 
 var (
@@ -1837,7 +2079,7 @@ func file_image_v1_image_proto_rawDescGZIP() []byte {
 	return file_image_v1_image_proto_rawDescData
 }
 
-var file_image_v1_image_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_image_v1_image_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_image_v1_image_proto_goTypes = []any{
 	(*ListImagesRequest)(nil),             // 0: image.v1.ListImagesRequest
 	(*PullImageRequest)(nil),              // 1: image.v1.PullImageRequest
@@ -1848,35 +2090,37 @@ var file_image_v1_image_proto_goTypes = []any{
 	(*LoadImageRequest)(nil),              // 6: image.v1.LoadImageRequest
 	(*ImageHistoryRequest)(nil),           // 7: image.v1.ImageHistoryRequest
 	(*InspectImageRequest)(nil),           // 8: image.v1.InspectImageRequest
-	(*ListImagesResponse)(nil),            // 9: image.v1.ListImagesResponse
-	(*PullImageResponse)(nil),             // 10: image.v1.PullImageResponse
-	(*PushImageResponse)(nil),             // 11: image.v1.PushImageResponse
-	(*RemoveImageResponse)(nil),           // 12: image.v1.RemoveImageResponse
-	(*TagImageResponse)(nil),              // 13: image.v1.TagImageResponse
-	(*SaveImageResponse)(nil),             // 14: image.v1.SaveImageResponse
-	(*LoadImageResponse)(nil),             // 15: image.v1.LoadImageResponse
-	(*ImageHistoryResponse)(nil),          // 16: image.v1.ImageHistoryResponse
-	(*InspectImageResponse)(nil),          // 17: image.v1.InspectImageResponse
-	(*ImageInfo)(nil),                     // 18: image.v1.ImageInfo
-	(*HistoryLayer)(nil),                  // 19: image.v1.HistoryLayer
-	(*ECRAuthConfig)(nil),                 // 20: image.v1.ECRAuthConfig
-	(*AWSCredentials)(nil),                // 21: image.v1.AWSCredentials
-	(*AWSAccessKeyCredentials)(nil),       // 22: image.v1.AWSAccessKeyCredentials
-	(*AWSAssumeRoleCredentials)(nil),      // 23: image.v1.AWSAssumeRoleCredentials
-	(*AWSInstanceProfileCredentials)(nil), // 24: image.v1.AWSInstanceProfileCredentials
-	(*AWSECSTaskRoleCredentials)(nil),     // 25: image.v1.AWSECSTaskRoleCredentials
+	(*CommitContainerRequest)(nil),        // 9: image.v1.CommitContainerRequest
+	(*ListImagesResponse)(nil),            // 10: image.v1.ListImagesResponse
+	(*PullImageResponse)(nil),             // 11: image.v1.PullImageResponse
+	(*PushImageResponse)(nil),             // 12: image.v1.PushImageResponse
+	(*RemoveImageResponse)(nil),           // 13: image.v1.RemoveImageResponse
+	(*TagImageResponse)(nil),              // 14: image.v1.TagImageResponse
+	(*SaveImageResponse)(nil),             // 15: image.v1.SaveImageResponse
+	(*LoadImageResponse)(nil),             // 16: image.v1.LoadImageResponse
+	(*ImageHistoryResponse)(nil),          // 17: image.v1.ImageHistoryResponse
+	(*InspectImageResponse)(nil),          // 18: image.v1.InspectImageResponse
+	(*CommitContainerResponse)(nil),       // 19: image.v1.CommitContainerResponse
+	(*ImageInfo)(nil),                     // 20: image.v1.ImageInfo
+	(*HistoryLayer)(nil),                  // 21: image.v1.HistoryLayer
+	(*ECRAuthConfig)(nil),                 // 22: image.v1.ECRAuthConfig
+	(*AWSCredentials)(nil),                // 23: image.v1.AWSCredentials
+	(*AWSAccessKeyCredentials)(nil),       // 24: image.v1.AWSAccessKeyCredentials
+	(*AWSAssumeRoleCredentials)(nil),      // 25: image.v1.AWSAssumeRoleCredentials
+	(*AWSInstanceProfileCredentials)(nil), // 26: image.v1.AWSInstanceProfileCredentials
+	(*AWSECSTaskRoleCredentials)(nil),     // 27: image.v1.AWSECSTaskRoleCredentials
 }
 var file_image_v1_image_proto_depIdxs = []int32{
-	20, // 0: image.v1.PullImageRequest.ecr_auth:type_name -> image.v1.ECRAuthConfig
-	20, // 1: image.v1.PushImageRequest.ecr_auth:type_name -> image.v1.ECRAuthConfig
-	18, // 2: image.v1.ListImagesResponse.images:type_name -> image.v1.ImageInfo
-	19, // 3: image.v1.ImageHistoryResponse.layers:type_name -> image.v1.HistoryLayer
-	21, // 4: image.v1.ECRAuthConfig.aws_credentials:type_name -> image.v1.AWSCredentials
-	22, // 5: image.v1.AWSCredentials.access_key:type_name -> image.v1.AWSAccessKeyCredentials
-	23, // 6: image.v1.AWSCredentials.assume_role:type_name -> image.v1.AWSAssumeRoleCredentials
-	24, // 7: image.v1.AWSCredentials.instance_profile:type_name -> image.v1.AWSInstanceProfileCredentials
-	25, // 8: image.v1.AWSCredentials.ecs_task_role:type_name -> image.v1.AWSECSTaskRoleCredentials
-	21, // 9: image.v1.AWSAssumeRoleCredentials.source_credentials:type_name -> image.v1.AWSCredentials
+	22, // 0: image.v1.PullImageRequest.ecr_auth:type_name -> image.v1.ECRAuthConfig
+	22, // 1: image.v1.PushImageRequest.ecr_auth:type_name -> image.v1.ECRAuthConfig
+	20, // 2: image.v1.ListImagesResponse.images:type_name -> image.v1.ImageInfo
+	21, // 3: image.v1.ImageHistoryResponse.layers:type_name -> image.v1.HistoryLayer
+	23, // 4: image.v1.ECRAuthConfig.aws_credentials:type_name -> image.v1.AWSCredentials
+	24, // 5: image.v1.AWSCredentials.access_key:type_name -> image.v1.AWSAccessKeyCredentials
+	25, // 6: image.v1.AWSCredentials.assume_role:type_name -> image.v1.AWSAssumeRoleCredentials
+	26, // 7: image.v1.AWSCredentials.instance_profile:type_name -> image.v1.AWSInstanceProfileCredentials
+	27, // 8: image.v1.AWSCredentials.ecs_task_role:type_name -> image.v1.AWSECSTaskRoleCredentials
+	23, // 9: image.v1.AWSAssumeRoleCredentials.source_credentials:type_name -> image.v1.AWSCredentials
 	0,  // 10: image.v1.ImageService.ListImages:input_type -> image.v1.ListImagesRequest
 	1,  // 11: image.v1.ImageService.PullImage:input_type -> image.v1.PullImageRequest
 	2,  // 12: image.v1.ImageService.PushImage:input_type -> image.v1.PushImageRequest
@@ -1886,17 +2130,19 @@ var file_image_v1_image_proto_depIdxs = []int32{
 	6,  // 16: image.v1.ImageService.LoadImage:input_type -> image.v1.LoadImageRequest
 	7,  // 17: image.v1.ImageService.ImageHistory:input_type -> image.v1.ImageHistoryRequest
 	8,  // 18: image.v1.ImageService.InspectImage:input_type -> image.v1.InspectImageRequest
-	9,  // 19: image.v1.ImageService.ListImages:output_type -> image.v1.ListImagesResponse
-	10, // 20: image.v1.ImageService.PullImage:output_type -> image.v1.PullImageResponse
-	11, // 21: image.v1.ImageService.PushImage:output_type -> image.v1.PushImageResponse
-	12, // 22: image.v1.ImageService.RemoveImage:output_type -> image.v1.RemoveImageResponse
-	13, // 23: image.v1.ImageService.TagImage:output_type -> image.v1.TagImageResponse
-	14, // 24: image.v1.ImageService.SaveImage:output_type -> image.v1.SaveImageResponse
-	15, // 25: image.v1.ImageService.LoadImage:output_type -> image.v1.LoadImageResponse
-	16, // 26: image.v1.ImageService.ImageHistory:output_type -> image.v1.ImageHistoryResponse
-	17, // 27: image.v1.ImageService.InspectImage:output_type -> image.v1.InspectImageResponse
-	19, // [19:28] is the sub-list for method output_type
-	10, // [10:19] is the sub-list for method input_type
+	9,  // 19: image.v1.ImageService.CommitContainer:input_type -> image.v1.CommitContainerRequest
+	10, // 20: image.v1.ImageService.ListImages:output_type -> image.v1.ListImagesResponse
+	11, // 21: image.v1.ImageService.PullImage:output_type -> image.v1.PullImageResponse
+	12, // 22: image.v1.ImageService.PushImage:output_type -> image.v1.PushImageResponse
+	13, // 23: image.v1.ImageService.RemoveImage:output_type -> image.v1.RemoveImageResponse
+	14, // 24: image.v1.ImageService.TagImage:output_type -> image.v1.TagImageResponse
+	15, // 25: image.v1.ImageService.SaveImage:output_type -> image.v1.SaveImageResponse
+	16, // 26: image.v1.ImageService.LoadImage:output_type -> image.v1.LoadImageResponse
+	17, // 27: image.v1.ImageService.ImageHistory:output_type -> image.v1.ImageHistoryResponse
+	18, // 28: image.v1.ImageService.InspectImage:output_type -> image.v1.InspectImageResponse
+	19, // 29: image.v1.ImageService.CommitContainer:output_type -> image.v1.CommitContainerResponse
+	20, // [20:30] is the sub-list for method output_type
+	10, // [10:20] is the sub-list for method input_type
 	10, // [10:10] is the sub-list for extension type_name
 	10, // [10:10] is the sub-list for extension extendee
 	0,  // [0:10] is the sub-list for field type_name
@@ -1907,7 +2153,7 @@ func file_image_v1_image_proto_init() {
 	if File_image_v1_image_proto != nil {
 		return
 	}
-	file_image_v1_image_proto_msgTypes[21].OneofWrappers = []any{
+	file_image_v1_image_proto_msgTypes[23].OneofWrappers = []any{
 		(*AWSCredentials_AccessKey)(nil),
 		(*AWSCredentials_AssumeRole)(nil),
 		(*AWSCredentials_InstanceProfile)(nil),
@@ -1919,7 +2165,7 @@ func file_image_v1_image_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_image_v1_image_proto_rawDesc), len(file_image_v1_image_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   26,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -10,6 +10,7 @@ import (
 	"github.com/containerd/nerdctl/v2/pkg/api/types"
 	"github.com/containerd/nerdctl/v2/pkg/clientutil"
 	imageCmd "github.com/containerd/nerdctl/v2/pkg/cmd/image"
+	containerCmd "github.com/containerd/nerdctl/v2/pkg/cmd/container"
 	pb "dsagent/api/image/v1"
 	"dsagent/internal/auth"
 
@@ -312,7 +313,7 @@ func (s *ImageServiceV2) executePushImage(ctx context.Context, req *pb.PushImage
 	}, nil
 }
 
-// RemoveImage implements the RemoveImage RPC method
+// RemoveImage implements the RemoveImage RPC method (equivalent to nerdctl rmi)
 func (s *ImageServiceV2) RemoveImage(ctx context.Context, req *pb.RemoveImageRequest) (*pb.RemoveImageResponse, error) {
 	// Create containerd client
 	globalOpts := s.createBaseGlobalOptions()
@@ -322,10 +323,12 @@ func (s *ImageServiceV2) RemoveImage(ctx context.Context, req *pb.RemoveImageReq
 	}
 	defer cancel()
 
-	// Create basic remove options
+	// Create remove options with all nerdctl rmi features
 	removeOpts := types.ImageRemoveOptions{
 		GOptions: *globalOpts,
 		Force:    req.Force,
+		// Note: nerdctl doesn't have explicit no_prune option in current version
+		// This is handled internally by containerd
 	}
 
 	// Set up stdout capture
@@ -337,13 +340,50 @@ func (s *ImageServiceV2) RemoveImage(ctx context.Context, req *pb.RemoveImageReq
 		return nil, fmt.Errorf("failed to remove image %s: %w", req.Name, err)
 	}
 
+	// Parse output to get actual removed and untagged images
+	output := strings.TrimSpace(outBuf.String())
+	lines := strings.Split(output, "\n")
+	
+	var removed []string
+	var untagged []string
+	
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		
+		if strings.HasPrefix(line, "Untagged:") {
+			untagged = append(untagged, strings.TrimPrefix(line, "Untagged: "))
+		} else if strings.HasPrefix(line, "Deleted:") {
+			removed = append(removed, strings.TrimPrefix(line, "Deleted: "))
+		} else {
+			// Default case - treat as removed
+			removed = append(removed, req.Name)
+		}
+	}
+	
+	// If no specific output parsing worked, assume successful removal
+	if len(removed) == 0 && len(untagged) == 0 {
+		removed = []string{req.Name}
+	}
+
 	return &pb.RemoveImageResponse{
-		Removed: []string{req.Name},
+		Removed:   removed,
+		Untagged:  untagged,
 	}, nil
 }
 
-// TagImage implements the TagImage RPC method
+// TagImage implements the TagImage RPC method (equivalent to nerdctl tag)
 func (s *ImageServiceV2) TagImage(ctx context.Context, req *pb.TagImageRequest) (*pb.TagImageResponse, error) {
+	// Validate input parameters
+	if req.SourceImage == "" {
+		return nil, fmt.Errorf("source image is required")
+	}
+	if req.TargetImage == "" {
+		return nil, fmt.Errorf("target image is required")
+	}
+
 	// Create containerd client
 	globalOpts := s.createBaseGlobalOptions()
 	client, ctxClient, cancel, err := clientutil.NewClient(ctx, globalOpts.Namespace, globalOpts.Address)
@@ -352,7 +392,7 @@ func (s *ImageServiceV2) TagImage(ctx context.Context, req *pb.TagImageRequest) 
 	}
 	defer cancel()
 
-	// Create tag options
+	// Create tag options following nerdctl tag command structure
 	tagOpts := types.ImageTagOptions{
 		GOptions: *globalOpts,
 		Source:   req.SourceImage,
@@ -417,6 +457,66 @@ func (s *ImageServiceV2) ImageHistory(ctx context.Context, req *pb.ImageHistoryR
 func (s *ImageServiceV2) InspectImage(ctx context.Context, req *pb.InspectImageRequest) (*pb.InspectImageResponse, error) {
 	return &pb.InspectImageResponse{
 		Content: "inspect functionality not implemented",
+	}, nil
+}
+
+// CommitContainer implements the CommitContainer RPC method
+func (s *ImageServiceV2) CommitContainer(ctx context.Context, req *pb.CommitContainerRequest) (*pb.CommitContainerResponse, error) {
+	// Create containerd client
+	globalOpts := s.createBaseGlobalOptions()
+	client, ctxClient, cancel, err := clientutil.NewClient(ctx, globalOpts.Namespace, globalOpts.Address)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create containerd client: %w", err)
+	}
+	defer cancel()
+
+	// Construct the target image reference
+	var targetRef string
+	if req.Repository != "" && req.Tag != "" {
+		targetRef = req.Repository + ":" + req.Tag
+	} else if req.Repository != "" {
+		targetRef = req.Repository
+	} else {
+		return nil, fmt.Errorf("repository is required for commit operation")
+	}
+
+	// Create commit options
+	commitOpts := types.ContainerCommitOptions{
+		GOptions:    *globalOpts,
+		Author:      req.Author,
+		Message:     req.Message,
+		Pause:       req.Pause,
+		Change:      req.Change,
+		Compression: types.CompressionType(req.Compression),
+		Format:      types.ImageFormat(req.Format),
+		EstargzOptions: types.EstargzOptions{
+			Estargz:                 req.Estargz,
+			EstargzCompressionLevel: int(req.EstargzCompressionLevel),
+			EstargzChunkSize:        int(req.EstargzChunkSize),
+			EstargzMinChunkSize:     int(req.EstargzMinChunkSize),
+		},
+		ZstdChunkedOptions: types.ZstdChunkedOptions{
+			ZstdChunked:                 req.Zstdchunked,
+			ZstdChunkedCompressionLevel: int(req.ZstdchunkedCompressionLevel),
+			ZstdChunkedChunkSize:        int(req.ZstdchunkedChunkSize),
+		},
+	}
+
+	// Set up stdout capture
+	var outBuf bytes.Buffer
+	commitOpts.Stdout = &outBuf
+
+	// Call nerdctl's container commit functionality
+	if err := containerCmd.Commit(ctxClient, client, targetRef, req.ContainerId, commitOpts); err != nil {
+		return nil, fmt.Errorf("failed to commit container %s: %w", req.ContainerId, err)
+	}
+
+	// Extract image ID from output
+	output := strings.TrimSpace(outBuf.String())
+
+	return &pb.CommitContainerResponse{
+		ImageId: output,
+		Status:  fmt.Sprintf("Successfully committed container %s as %s", req.ContainerId, targetRef),
 	}, nil
 }
 

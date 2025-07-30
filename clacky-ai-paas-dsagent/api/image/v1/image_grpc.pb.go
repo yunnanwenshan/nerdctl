@@ -19,15 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ImageService_ListImages_FullMethodName   = "/image.v1.ImageService/ListImages"
-	ImageService_PullImage_FullMethodName    = "/image.v1.ImageService/PullImage"
-	ImageService_PushImage_FullMethodName    = "/image.v1.ImageService/PushImage"
-	ImageService_RemoveImage_FullMethodName  = "/image.v1.ImageService/RemoveImage"
-	ImageService_TagImage_FullMethodName     = "/image.v1.ImageService/TagImage"
-	ImageService_SaveImage_FullMethodName    = "/image.v1.ImageService/SaveImage"
-	ImageService_LoadImage_FullMethodName    = "/image.v1.ImageService/LoadImage"
-	ImageService_ImageHistory_FullMethodName = "/image.v1.ImageService/ImageHistory"
-	ImageService_InspectImage_FullMethodName = "/image.v1.ImageService/InspectImage"
+	ImageService_ListImages_FullMethodName      = "/image.v1.ImageService/ListImages"
+	ImageService_PullImage_FullMethodName       = "/image.v1.ImageService/PullImage"
+	ImageService_PushImage_FullMethodName       = "/image.v1.ImageService/PushImage"
+	ImageService_RemoveImage_FullMethodName     = "/image.v1.ImageService/RemoveImage"
+	ImageService_TagImage_FullMethodName        = "/image.v1.ImageService/TagImage"
+	ImageService_SaveImage_FullMethodName       = "/image.v1.ImageService/SaveImage"
+	ImageService_LoadImage_FullMethodName       = "/image.v1.ImageService/LoadImage"
+	ImageService_ImageHistory_FullMethodName    = "/image.v1.ImageService/ImageHistory"
+	ImageService_InspectImage_FullMethodName    = "/image.v1.ImageService/InspectImage"
+	ImageService_CommitContainer_FullMethodName = "/image.v1.ImageService/CommitContainer"
 )
 
 // ImageServiceClient is the client API for ImageService service.
@@ -54,6 +55,8 @@ type ImageServiceClient interface {
 	ImageHistory(ctx context.Context, in *ImageHistoryRequest, opts ...grpc.CallOption) (*ImageHistoryResponse, error)
 	// Get image details (equivalent to nerdctl inspect on images)
 	InspectImage(ctx context.Context, in *InspectImageRequest, opts ...grpc.CallOption) (*InspectImageResponse, error)
+	// Commit container changes to create a new image (equivalent to nerdctl commit)
+	CommitContainer(ctx context.Context, in *CommitContainerRequest, opts ...grpc.CallOption) (*CommitContainerResponse, error)
 }
 
 type imageServiceClient struct {
@@ -154,6 +157,16 @@ func (c *imageServiceClient) InspectImage(ctx context.Context, in *InspectImageR
 	return out, nil
 }
 
+func (c *imageServiceClient) CommitContainer(ctx context.Context, in *CommitContainerRequest, opts ...grpc.CallOption) (*CommitContainerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CommitContainerResponse)
+	err := c.cc.Invoke(ctx, ImageService_CommitContainer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ImageServiceServer is the server API for ImageService service.
 // All implementations must embed UnimplementedImageServiceServer
 // for forward compatibility.
@@ -178,6 +191,8 @@ type ImageServiceServer interface {
 	ImageHistory(context.Context, *ImageHistoryRequest) (*ImageHistoryResponse, error)
 	// Get image details (equivalent to nerdctl inspect on images)
 	InspectImage(context.Context, *InspectImageRequest) (*InspectImageResponse, error)
+	// Commit container changes to create a new image (equivalent to nerdctl commit)
+	CommitContainer(context.Context, *CommitContainerRequest) (*CommitContainerResponse, error)
 	mustEmbedUnimplementedImageServiceServer()
 }
 
@@ -214,6 +229,9 @@ func (UnimplementedImageServiceServer) ImageHistory(context.Context, *ImageHisto
 }
 func (UnimplementedImageServiceServer) InspectImage(context.Context, *InspectImageRequest) (*InspectImageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InspectImage not implemented")
+}
+func (UnimplementedImageServiceServer) CommitContainer(context.Context, *CommitContainerRequest) (*CommitContainerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CommitContainer not implemented")
 }
 func (UnimplementedImageServiceServer) mustEmbedUnimplementedImageServiceServer() {}
 func (UnimplementedImageServiceServer) testEmbeddedByValue()                      {}
@@ -398,6 +416,24 @@ func _ImageService_InspectImage_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ImageService_CommitContainer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommitContainerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImageServiceServer).CommitContainer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ImageService_CommitContainer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImageServiceServer).CommitContainer(ctx, req.(*CommitContainerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ImageService_ServiceDesc is the grpc.ServiceDesc for ImageService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -440,6 +476,10 @@ var ImageService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "InspectImage",
 			Handler:    _ImageService_InspectImage_Handler,
+		},
+		{
+			MethodName: "CommitContainer",
+			Handler:    _ImageService_CommitContainer_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

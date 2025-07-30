@@ -42,7 +42,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/health.v1.HeartbeatResponse'
-    # Removed helloworld endpoint
+    /v1/containers/{containerId}/commit:
+        post:
+            tags:
+                - ImageService
+            description: Commit container changes to create a new image (equivalent to nerdctl commit)
+            operationId: ImageService_CommitContainer
+            parameters:
+                - name: containerId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/image.v1.CommitContainerRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/image.v1.CommitContainerResponse'
     /v1/ecr/login:
         post:
             tags:
@@ -557,7 +581,6 @@ components:
                 serverId:
                     type: string
             description: The heartbeat response message.
-        # Removed helloworld.v1.HelloReply schema
         image.v1.AWSAccessKeyCredentials:
             type: object
             properties:
@@ -603,6 +626,57 @@ components:
             type: object
             properties: {}
             description: AWS Instance Profile credentials
+        image.v1.CommitContainerRequest:
+            type: object
+            properties:
+                containerId:
+                    type: string
+                repository:
+                    type: string
+                tag:
+                    type: string
+                author:
+                    type: string
+                message:
+                    type: string
+                change:
+                    type: array
+                    items:
+                        type: string
+                pause:
+                    type: boolean
+                compression:
+                    type: string
+                format:
+                    type: string
+                estargz:
+                    type: boolean
+                estargzCompressionLevel:
+                    type: integer
+                    format: int32
+                estargzChunkSize:
+                    type: integer
+                    format: int32
+                estargzMinChunkSize:
+                    type: integer
+                    format: int32
+                zstdchunked:
+                    type: boolean
+                zstdchunkedCompressionLevel:
+                    type: integer
+                    format: int32
+                zstdchunkedChunkSize:
+                    type: integer
+                    format: int32
+            description: Commit container request
+        image.v1.CommitContainerResponse:
+            type: object
+            properties:
+                imageId:
+                    type: string
+                status:
+                    type: string
+            description: Commit container response
         image.v1.ECRAuthConfig:
             type: object
             properties:
@@ -792,7 +866,6 @@ components:
 tags:
     - name: ECRService
       description: ECR authentication service for managing AWS Elastic Container Registry authentication
-    # Removed Greeter tag
     - name: Health
       description: The health service definition.
     - name: ImageService
