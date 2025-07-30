@@ -3,15 +3,49 @@
 
 openapi: 3.0.3
 info:
-    title: Greeter API
-    description: The greeting service definition.
+    title: ""
     version: 0.0.1
 paths:
+    /health:
+        get:
+            tags:
+                - Health
+            description: Check health/heartbeat status
+            operationId: Health_Check
+            parameters:
+                - name: service
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/health.v1.HealthResponse'
+    /heartbeat:
+        get:
+            tags:
+                - Health
+            description: Heartbeat endpoint
+            operationId: Health_Heartbeat
+            parameters:
+                - name: clientId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/health.v1.HeartbeatResponse'
     /helloworld/{name}:
         get:
             tags:
                 - Greeter
-                - subgroup
             description: Sends a greeting
             operationId: Greeter_SayHello
             parameters:
@@ -27,13 +61,437 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.HelloReply'
+    /v1/images:
+        get:
+            tags:
+                - ImageService
+            description: List images (equivalent to nerdctl images)
+            operationId: ImageService_ListImages
+            parameters:
+                - name: all
+                  in: query
+                  schema:
+                    type: boolean
+                - name: quiet
+                  in: query
+                  schema:
+                    type: boolean
+                - name: noTrunc
+                  in: query
+                  schema:
+                    type: boolean
+                - name: filter
+                  in: query
+                  schema:
+                    type: string
+                - name: format
+                  in: query
+                  schema:
+                    type: string
+                - name: digests
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/image.v1.ListImagesResponse'
+    /v1/images/load:
+        post:
+            tags:
+                - ImageService
+            description: Load images from tar archive (equivalent to nerdctl load)
+            operationId: ImageService_LoadImage
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/image.v1.LoadImageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/image.v1.LoadImageResponse'
+    /v1/images/pull:
+        post:
+            tags:
+                - ImageService
+            description: Pull an image (equivalent to nerdctl pull)
+            operationId: ImageService_PullImage
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/image.v1.PullImageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/image.v1.PullImageResponse'
+    /v1/images/push:
+        post:
+            tags:
+                - ImageService
+            description: Push an image (equivalent to nerdctl push)
+            operationId: ImageService_PushImage
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/image.v1.PushImageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/image.v1.PushImageResponse'
+    /v1/images/save:
+        post:
+            tags:
+                - ImageService
+            description: Save images to tar archive (equivalent to nerdctl save)
+            operationId: ImageService_SaveImage
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/image.v1.SaveImageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/image.v1.SaveImageResponse'
+    /v1/images/{name}:
+        delete:
+            tags:
+                - ImageService
+            description: Remove images (equivalent to nerdctl rmi)
+            operationId: ImageService_RemoveImage
+            parameters:
+                - name: name
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: force
+                  in: query
+                  schema:
+                    type: boolean
+                - name: noPrune
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/image.v1.RemoveImageResponse'
+    /v1/images/{name}/history:
+        get:
+            tags:
+                - ImageService
+            description: Show image history (equivalent to nerdctl history)
+            operationId: ImageService_ImageHistory
+            parameters:
+                - name: name
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: noTrunc
+                  in: query
+                  schema:
+                    type: boolean
+                - name: quiet
+                  in: query
+                  schema:
+                    type: boolean
+                - name: format
+                  in: query
+                  schema:
+                    type: string
+                - name: human
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/image.v1.ImageHistoryResponse'
+    /v1/images/{name}/inspect:
+        get:
+            tags:
+                - ImageService
+            description: Get image details (equivalent to nerdctl inspect on images)
+            operationId: ImageService_InspectImage
+            parameters:
+                - name: name
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: format
+                  in: query
+                  schema:
+                    type: string
+                - name: mode
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/image.v1.InspectImageResponse'
+    /v1/images/{sourceImage}/tag:
+        post:
+            tags:
+                - ImageService
+            description: Tag an image (equivalent to nerdctl tag)
+            operationId: ImageService_TagImage
+            parameters:
+                - name: sourceImage
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/image.v1.TagImageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/image.v1.TagImageResponse'
 components:
     schemas:
+        health.v1.HealthResponse:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    format: enum
+                message:
+                    type: string
+                timestamp:
+                    type: string
+            description: The health check response message.
+        health.v1.HeartbeatResponse:
+            type: object
+            properties:
+                status:
+                    type: string
+                timestamp:
+                    type: string
+                serverId:
+                    type: string
+            description: The heartbeat response message.
         helloworld.v1.HelloReply:
             type: object
             properties:
                 message:
                     type: string
             description: The response message containing the greetings
+        image.v1.HistoryLayer:
+            type: object
+            properties:
+                id:
+                    type: string
+                created:
+                    type: string
+                createdBy:
+                    type: string
+                size:
+                    type: string
+                comment:
+                    type: string
+                missing:
+                    type: boolean
+            description: History layer information
+        image.v1.ImageHistoryResponse:
+            type: object
+            properties:
+                layers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/image.v1.HistoryLayer'
+            description: Image history response
+        image.v1.ImageInfo:
+            type: object
+            properties:
+                repository:
+                    type: string
+                tag:
+                    type: string
+                id:
+                    type: string
+                digest:
+                    type: string
+                created:
+                    type: string
+                size:
+                    type: string
+                platform:
+                    type: string
+            description: Image information
+        image.v1.InspectImageResponse:
+            type: object
+            properties:
+                content:
+                    type: string
+            description: Inspect image response
+        image.v1.ListImagesResponse:
+            type: object
+            properties:
+                images:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/image.v1.ImageInfo'
+            description: List images response
+        image.v1.LoadImageRequest:
+            type: object
+            properties:
+                input:
+                    type: string
+                quiet:
+                    type: boolean
+                platform:
+                    type: string
+                allPlatforms:
+                    type: boolean
+            description: Load image request
+        image.v1.LoadImageResponse:
+            type: object
+            properties:
+                loaded:
+                    type: array
+                    items:
+                        type: string
+            description: Load image response
+        image.v1.PullImageRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                platform:
+                    type: string
+                allPlatforms:
+                    type: boolean
+                quiet:
+                    type: boolean
+                verify:
+                    type: string
+                cosignKey:
+                    type: string
+                unpack:
+                    type: string
+            description: Pull image request
+        image.v1.PullImageResponse:
+            type: object
+            properties:
+                digest:
+                    type: string
+                status:
+                    type: string
+            description: Pull image response
+        image.v1.PushImageRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                allPlatforms:
+                    type: boolean
+                quiet:
+                    type: boolean
+                sign:
+                    type: string
+                cosignKey:
+                    type: string
+            description: Push image request
+        image.v1.PushImageResponse:
+            type: object
+            properties:
+                digest:
+                    type: string
+                status:
+                    type: string
+            description: Push image response
+        image.v1.RemoveImageResponse:
+            type: object
+            properties:
+                removed:
+                    type: array
+                    items:
+                        type: string
+                untagged:
+                    type: array
+                    items:
+                        type: string
+            description: Remove image response
+        image.v1.SaveImageRequest:
+            type: object
+            properties:
+                names:
+                    type: array
+                    items:
+                        type: string
+                output:
+                    type: string
+                format:
+                    type: string
+            description: Save image request
+        image.v1.SaveImageResponse:
+            type: object
+            properties:
+                outputPath:
+                    type: string
+                size:
+                    type: string
+            description: Save image response
+        image.v1.TagImageRequest:
+            type: object
+            properties:
+                sourceImage:
+                    type: string
+                targetImage:
+                    type: string
+            description: Tag image request
+        image.v1.TagImageResponse:
+            type: object
+            properties:
+                status:
+                    type: string
+            description: Tag image response
 tags:
     - name: Greeter
+      description: The greeting service definition.
+    - name: Health
+      description: The health service definition.
+    - name: ImageService
+      description: The image management service definition
