@@ -6,6 +6,7 @@ import (
 	imagev1 "dsagent/api/image/v1"
 	ecrv1 "dsagent/api/ecr/v1"
 	containerv1 "dsagent/api/container/v1"
+	eventsv1 "dsagent/api/events/v1"
 	"dsagent/internal/conf"
 	"dsagent/internal/service"
 
@@ -15,7 +16,7 @@ import (
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, health *service.HealthService, imageService *service.ImageServiceV2, ecrService *service.ECRService, containerService *service.ContainerService, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Server, health *service.HealthService, imageService *service.ImageServiceV2, ecrService *service.ECRService, containerService *service.ContainerService, eventsService *service.EventsService, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
@@ -36,5 +37,6 @@ func NewGRPCServer(c *conf.Server, health *service.HealthService, imageService *
 	imagev1.RegisterImageServiceServer(srv, imageService)
 	ecrv1.RegisterECRServiceServer(srv, ecrService)
 	containerv1.RegisterContainerServiceServer(srv, containerService)
+	eventsv1.RegisterEventsServiceServer(srv, eventsService)
 	return srv
 }

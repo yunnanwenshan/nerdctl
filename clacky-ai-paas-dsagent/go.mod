@@ -11,9 +11,9 @@ require (
 	github.com/containerd/containerd/v2 v2.1.3
 	github.com/containerd/log v0.1.0
 	github.com/containerd/nerdctl/v2 v2.0.0-00010101000000-000000000000
+	github.com/containerd/typeurl/v2 v2.2.3
 	github.com/envoyproxy/protoc-gen-validate v1.2.1
 	github.com/go-kratos/kratos/v2 v2.8.4
-	github.com/opencontainers/runtime-spec v1.2.1
 	github.com/spf13/cobra v1.9.1
 	go.uber.org/automaxprocs v1.6.0
 	go.uber.org/dig v1.19.0
@@ -58,7 +58,6 @@ require (
 	github.com/containerd/stargz-snapshotter/estargz v0.17.0 // indirect
 	github.com/containerd/stargz-snapshotter/ipfs v0.17.0 // indirect
 	github.com/containerd/ttrpc v1.2.7 // indirect
-	github.com/containerd/typeurl/v2 v2.2.3 // indirect
 	github.com/containernetworking/cni v1.3.0 // indirect
 	github.com/containernetworking/plugins v1.7.1 // indirect
 	github.com/containers/ocicrypt v1.2.1 // indirect
@@ -117,6 +116,7 @@ require (
 	github.com/multiformats/go-varint v0.0.7 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
+	github.com/opencontainers/runtime-spec v1.2.1 // indirect
 	github.com/opencontainers/runtime-tools v0.9.1-0.20221107090550-2e043c6bd626 // indirect
 	github.com/opencontainers/selinux v1.12.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect

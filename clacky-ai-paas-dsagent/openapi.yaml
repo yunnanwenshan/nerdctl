@@ -677,6 +677,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ecr.v1.ECRStatusResponse'
+    /v1/events:
+        get:
+            tags:
+                - EventsService
+            description: Get real-time system events stream - equivalent to `nerdctl events`
+            operationId: EventsService_GetSystemEvents
+            parameters:
+                - name: format
+                  in: query
+                  description: Output format template (e.g., "json", "{{json .}}")
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/events.v1.SystemEvent'
+    /v1/events/filtered:
+        post:
+            tags:
+                - EventsService
+            description: Get system events with filters
+            operationId: EventsService_GetFilteredSystemEvents
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/events.v1.GetFilteredSystemEventsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/events.v1.SystemEvent'
     /v1/images:
         get:
             tags:
@@ -2095,6 +2133,52 @@ components:
                 expiresInSeconds:
                     type: string
             description: ECR status response
+        events.v1.GetFilteredSystemEventsRequest:
+            type: object
+            properties:
+                format:
+                    type: string
+                    description: Output format template (e.g., "json", "{{json .}}")
+                filters:
+                    type: array
+                    items:
+                        type: string
+                    description: Event filters (e.g., "event=start", "status=start")
+            description: Request for getting filtered system events
+        events.v1.SystemEvent:
+            type: object
+            properties:
+                timestamp:
+                    type: string
+                    description: Event timestamp
+                    format: date-time
+                containerId:
+                    type: string
+                    description: Container ID (if applicable)
+                namespace:
+                    type: string
+                    description: Namespace
+                topic:
+                    type: string
+                    description: Event topic (e.g., "/containers/create", "/containers/delete")
+                status:
+                    type: string
+                    description: Event status (start, unknown, etc.)
+                eventData:
+                    type: string
+                    description: Raw event data as JSON string
+                eventType:
+                    type: string
+                    description: Event type (container, image, volume, network, etc.)
+                action:
+                    type: string
+                    description: Action (create, start, stop, delete, etc.)
+                attributes:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Additional attributes from the event
+            description: System event message representing a containerd event
         health.v1.HealthResponse:
             type: object
             properties:
@@ -2403,6 +2487,8 @@ tags:
       description: Container service provides container management operations
     - name: ECRService
       description: ECR authentication service for managing AWS Elastic Container Registry authentication
+    - name: EventsService
+      description: EventsService provides methods for monitoring container and system events.
     - name: Health
       description: The health service definition.
     - name: ImageService
