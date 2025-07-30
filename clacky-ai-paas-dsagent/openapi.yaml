@@ -61,6 +61,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.HelloReply'
+    /v1/ecr/login:
+        post:
+            tags:
+                - ImageService
+            description: Login to ECR registry
+            operationId: ImageService_ECRLogin
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/image.v1.ECRLoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/image.v1.ECRLoginResponse'
+    /v1/ecr/logout:
+        post:
+            tags:
+                - ImageService
+            description: Logout from ECR registry
+            operationId: ImageService_ECRLogout
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/image.v1.ECRLogoutRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/image.v1.ECRLogoutResponse'
     /v1/images:
         get:
             tags:
@@ -318,6 +356,95 @@ components:
                 message:
                     type: string
             description: The response message containing the greetings
+        image.v1.AWSAccessKeyCredentials:
+            type: object
+            properties:
+                accessKeyId:
+                    type: string
+                secretAccessKey:
+                    type: string
+                sessionToken:
+                    type: string
+            description: AWS Access Key credentials
+        image.v1.AWSAssumeRoleCredentials:
+            type: object
+            properties:
+                roleArn:
+                    type: string
+                sessionName:
+                    type: string
+                externalId:
+                    type: string
+                durationSeconds:
+                    type: integer
+                    format: int32
+                sourceCredentials:
+                    $ref: '#/components/schemas/image.v1.AWSCredentials'
+            description: AWS STS Assume Role credentials
+        image.v1.AWSCredentials:
+            type: object
+            properties:
+                accessKey:
+                    $ref: '#/components/schemas/image.v1.AWSAccessKeyCredentials'
+                assumeRole:
+                    $ref: '#/components/schemas/image.v1.AWSAssumeRoleCredentials'
+                instanceProfile:
+                    $ref: '#/components/schemas/image.v1.AWSInstanceProfileCredentials'
+                ecsTaskRole:
+                    $ref: '#/components/schemas/image.v1.AWSECSTaskRoleCredentials'
+            description: AWS credentials configuration
+        image.v1.AWSECSTaskRoleCredentials:
+            type: object
+            properties: {}
+            description: AWS ECS Task Role credentials
+        image.v1.AWSInstanceProfileCredentials:
+            type: object
+            properties: {}
+            description: AWS Instance Profile credentials
+        image.v1.ECRAuthConfig:
+            type: object
+            properties:
+                region:
+                    type: string
+                registryId:
+                    type: string
+                awsCredentials:
+                    $ref: '#/components/schemas/image.v1.AWSCredentials'
+                autoRefresh:
+                    type: boolean
+            description: ECR authentication configuration
+        image.v1.ECRLoginRequest:
+            type: object
+            properties:
+                ecrAuth:
+                    $ref: '#/components/schemas/image.v1.ECRAuthConfig'
+            description: ECR login request
+        image.v1.ECRLoginResponse:
+            type: object
+            properties:
+                status:
+                    type: string
+                registryUrl:
+                    type: string
+                username:
+                    type: string
+                token:
+                    type: string
+                expiresAt:
+                    type: string
+            description: ECR login response
+        image.v1.ECRLogoutRequest:
+            type: object
+            properties:
+                registryUrl:
+                    type: string
+            description: ECR logout request
+        image.v1.ECRLogoutResponse:
+            type: object
+            properties:
+                status:
+                    type: string
+            description: ECR logout response
         image.v1.HistoryLayer:
             type: object
             properties:
@@ -411,6 +538,8 @@ components:
                     type: string
                 unpack:
                     type: string
+                ecrAuth:
+                    $ref: '#/components/schemas/image.v1.ECRAuthConfig'
             description: Pull image request
         image.v1.PullImageResponse:
             type: object
@@ -433,6 +562,8 @@ components:
                     type: string
                 cosignKey:
                     type: string
+                ecrAuth:
+                    $ref: '#/components/schemas/image.v1.ECRAuthConfig'
             description: Push image request
         image.v1.PushImageResponse:
             type: object

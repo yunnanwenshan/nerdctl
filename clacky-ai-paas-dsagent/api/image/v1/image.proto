@@ -79,6 +79,22 @@ service ImageService {
       get: "/v1/images/{name}/inspect"
     };
   }
+  
+  // Login to ECR registry
+  rpc ECRLogin (ECRLoginRequest) returns (ECRLoginResponse) {
+    option (google.api.http) = {
+      post: "/v1/ecr/login"
+      body: "*"
+    };
+  }
+  
+  // Logout from ECR registry
+  rpc ECRLogout (ECRLogoutRequest) returns (ECRLogoutResponse) {
+    option (google.api.http) = {
+      post: "/v1/ecr/logout"
+      body: "*"
+    };
+  }
 }
 
 // ========================= Request Messages =========================
@@ -102,6 +118,7 @@ message PullImageRequest {
   string verify = 5;                  // Verify the image (none|cosign|notation)
   string cosign_key = 6;             // Path to the public key file for cosign verification
   string unpack = 7;                 // Unpack the image for the current single platform (auto/true/false)
+  ECRAuthConfig ecr_auth = 8;         // ECR authentication configuration
 }
 
 // Push image request
@@ -111,6 +128,7 @@ message PushImageRequest {
   bool quiet = 3;                     // Suppress verbose output
   string sign = 4;                    // Sign the image (cosign|notation)
   string cosign_key = 5;             // Path to the private key file for cosign signing
+  ECRAuthConfig ecr_auth = 6;         // ECR authentication configuration
 }
 
 // Remove image request
@@ -229,4 +247,78 @@ message HistoryLayer {
   string size = 4;                    // Layer size
   string comment = 5;                 // Comment
   bool missing = 6;                   // Whether the layer is missing
+}
+
+// ========================= ECR Authentication Types =========================
+
+// ECR authentication configuration
+message ECRAuthConfig {
+  string region = 1;                  // AWS region for ECR
+  string registry_id = 2;             // AWS account ID (optional, defaults to caller's account)
+  AWSCredentials aws_credentials = 3; // AWS credentials
+  bool auto_refresh = 4;              // Automatically refresh token when expired
+}
+
+// AWS credentials configuration
+message AWSCredentials {
+  oneof credential_type {
+    AWSAccessKeyCredentials access_key = 1;     // Access Key and Secret Key
+    AWSAssumeRoleCredentials assume_role = 2;   // STS Assume Role
+    AWSInstanceProfileCredentials instance_profile = 3; // EC2 Instance Profile
+    AWSECSTaskRoleCredentials ecs_task_role = 4; // ECS Task Role
+  }
+}
+
+// AWS Access Key credentials
+message AWSAccessKeyCredentials {
+  string access_key_id = 1;           // AWS Access Key ID
+  string secret_access_key = 2;       // AWS Secret Access Key
+  string session_token = 3;           // AWS Session Token (optional)
+}
+
+// AWS STS Assume Role credentials
+message AWSAssumeRoleCredentials {
+  string role_arn = 1;                // ARN of the role to assume
+  string session_name = 2;            // Session name for the assumed role
+  string external_id = 3;             // External ID (optional)
+  int32 duration_seconds = 4;         // Duration of the assumed role session
+  AWSCredentials source_credentials = 5; // Source credentials to assume the role
+}
+
+// AWS Instance Profile credentials
+message AWSInstanceProfileCredentials {
+  // Uses EC2 instance metadata service to get credentials
+  // No additional fields required
+}
+
+// AWS ECS Task Role credentials
+message AWSECSTaskRoleCredentials {
+  // Uses ECS task metadata service to get credentials
+  // No additional fields required
+}
+
+// ========================= ECR Authentication Requests/Responses =========================
+
+// ECR login request
+message ECRLoginRequest {
+  ECRAuthConfig ecr_auth = 1;         // ECR authentication configuration
+}
+
+// ECR login response
+message ECRLoginResponse {
+  string status = 1;                  // Login status message
+  string registry_url = 2;            // ECR registry URL
+  string username = 3;                // Username for registry auth
+  string token = 4;                   // Authentication token
+  int64 expires_at = 5;               // Token expiration timestamp
+}
+
+// ECR logout request
+message ECRLogoutRequest {
+  string registry_url = 1;            // ECR registry URL to logout from
+}
+
+// ECR logout response
+message ECRLogoutResponse {
+  string status = 1;                  // Logout status message
 }

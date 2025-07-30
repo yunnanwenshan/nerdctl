@@ -16,11 +16,16 @@ import (
 // ImageService implements the ImageService gRPC interface
 type ImageService struct {
 	pb.UnimplementedImageServiceServer
+	ecrAuthService    *ECRAuthService
+	dockerConfigMgr   *DockerConfigManager
 }
 
 // NewImageService creates a new ImageService instance
 func NewImageService() *ImageService {
-	return &ImageService{}
+	return &ImageService{
+		ecrAuthService:  NewECRAuthService(),
+		dockerConfigMgr: NewDockerConfigManager(),
+	}
 }
 
 // createBaseGlobalOptions creates base global options for nerdctl operations
@@ -117,6 +122,13 @@ func (s *ImageService) PullImage(ctx context.Context, req *pb.PullImageRequest) 
 	}
 	defer cancel()
 
+	// Auto-detect ECR and login if needed
+	if req.EcrAuth != nil {
+		if err := s.dockerConfigMgr.AutoDetectECRAndLogin(ctx, req.Name, req.EcrAuth, globalOpts); err != nil {
+			return nil, fmt.Errorf("ECR authentication failed: %w", err)
+		}
+	}
+
 	// Check the actual ImagePullOptions struct for valid fields
 	// For now, let's create a basic pull options struct
 	pullOpts := types.ImagePullOptions{
@@ -148,6 +160,13 @@ func (s *ImageService) PushImage(ctx context.Context, req *pb.PushImageRequest) 
 		return nil, fmt.Errorf("failed to create containerd client: %w", err)
 	}
 	defer cancel()
+
+	// Auto-detect ECR and login if needed
+	if req.EcrAuth != nil {
+		if err := s.dockerConfigMgr.AutoDetectECRAndLogin(ctx, req.Name, req.EcrAuth, globalOpts); err != nil {
+			return nil, fmt.Errorf("ECR authentication failed: %w", err)
+		}
+	}
 
 	// Create basic push options
 	pushOpts := types.ImagePushOptions{
@@ -285,5 +304,49 @@ func (s *ImageService) InspectImage(ctx context.Context, req *pb.InspectImageReq
 	// For now, return basic response
 	return &pb.InspectImageResponse{
 		Content: fmt.Sprintf(`{"name": "%s", "status": "not implemented"}`, req.Name),
+	}, nil
+}
+
+// ECRLogin implements the ECRLogin RPC method
+func (s *ImageService) ECRLogin(ctx context.Context, req *pb.ECRLoginRequest) (*pb.ECRLoginResponse, error) {
+	// Validate ECR config
+	if req.EcrAuth == nil {
+		return nil, fmt.Errorf("ECR authentication config is required")
+	}
+
+	// Get ECR authorization token
+	loginResp, err := s.ecrAuthService.GetECRAuthorizationToken(ctx, req.EcrAuth)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get ECR authorization token: %w", err)
+	}
+
+	// Perform Docker login using nerdctl
+	globalOpts := s.createBaseGlobalOptions()
+	if err := s.dockerConfigMgr.LoginToECR(ctx, req.EcrAuth, globalOpts); err != nil {
+		return nil, fmt.Errorf("failed to login to ECR: %w", err)
+	}
+
+	return loginResp, nil
+}
+
+// ECRLogout implements the ECRLogout RPC method
+func (s *ImageService) ECRLogout(ctx context.Context, req *pb.ECRLogoutRequest) (*pb.ECRLogoutResponse, error) {
+	// Validate registry URL
+	if req.RegistryUrl == "" {
+		return nil, fmt.Errorf("registry URL is required")
+	}
+
+	// Check if it's an ECR registry
+	if !s.ecrAuthService.IsECRRegistry(req.RegistryUrl) {
+		return nil, fmt.Errorf("not an ECR registry: %s", req.RegistryUrl)
+	}
+
+	// Remove registry authentication
+	if err := s.dockerConfigMgr.RemoveRegistryAuth(req.RegistryUrl); err != nil {
+		return nil, fmt.Errorf("failed to logout from ECR: %w", err)
+	}
+
+	return &pb.ECRLogoutResponse{
+		Status: fmt.Sprintf("Successfully logged out from %s", req.RegistryUrl),
 	}, nil
 }
