@@ -9,3 +9,48 @@ _output
 # vagrant
 /.vagrant
 Vagrantfile
+
+# Clacky-related configuration
+.clackyai/
+
+# Go-specific files
+# Go build cache
+go.sum.bak
+go.mod.bak
+# Go test cache
+.test/
+testdata/
+# Go coverage
+coverage.out
+coverage.html
+*.coverprofile
+# Go profiling files
+*.prof
+*.pprof
+# Go module download cache
+vendor/
+
+# Development and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.pid
+
+# Binary files
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Testing framework (Tigron)
+mod/tigron/_output/
+mod/tigron/coverage.out

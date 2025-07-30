@@ -1,0 +1,720 @@
+package types
+
+import (
+	"time"
+)
+
+// Network management request/response types for comprehensive network functionality
+
+// NetworkInfoExtended provides comprehensive network information
+type NetworkInfoExtended struct {
+	// Basic information
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	Driver string `json:"driver"`
+	Scope  string `json:"scope"`
+	
+	// Network configuration
+	IPAM    *IPAMConfig           `json:"ipam,omitempty"`
+	Options map[string]string     `json:"options,omitempty"`
+	Labels  map[string]string     `json:"labels,omitempty"`
+	
+	// Network properties
+	Internal     bool `json:"internal"`
+	Attachable   bool `json:"attachable"`
+	Ingress      bool `json:"ingress"`
+	IPv6Enabled  bool `json:"ipv6_enabled"`
+	EnableICC    bool `json:"enable_icc"`
+	
+	// Timestamps
+	Created time.Time `json:"created"`
+	Updated time.Time `json:"updated"`
+	
+	// Connected entities
+	Containers []*NetworkContainerExtended `json:"containers,omitempty"`
+	Endpoints  []*NetworkEndpoint          `json:"endpoints,omitempty"`
+	
+	// Network state
+	State   *NetworkState   `json:"state,omitempty"`
+	Config  *NetworkConfig  `json:"config,omitempty"`
+	
+	// Metrics and statistics
+	Metrics *NetworkMetrics `json:"metrics,omitempty"`
+	
+	// Driver-specific information
+	DriverData map[string]string `json:"driver_data,omitempty"`
+	
+	// Network topology
+	SubnetRanges     []string `json:"subnet_ranges,omitempty"`
+	GatewayAddresses []string `json:"gateway_addresses,omitempty"`
+	
+	// Security and isolation
+	FirewallRules []string `json:"firewall_rules,omitempty"`
+	IsolationMode string   `json:"isolation_mode,omitempty"`
+}
+
+// IPAMConfig provides extended IPAM configuration
+type IPAMConfig struct {
+	Driver     string               `json:"driver"`
+	Subnets    []*IPAMSubnet        `json:"subnets,omitempty"`
+	Options    map[string]string    `json:"options,omitempty"`
+	DriverOpts map[string]string    `json:"driver_opts,omitempty"`
+	
+	// Advanced IPAM configuration
+	EnableDHCP     bool     `json:"enable_dhcp"`
+	DHCPRangeStart string   `json:"dhcp_range_start,omitempty"`
+	DHCPRangeEnd   string   `json:"dhcp_range_end,omitempty"`
+	ReservedIPs    []string `json:"reserved_ips,omitempty"`
+	DNSServer      string   `json:"dns_server,omitempty"`
+	DNSSearch      []string `json:"dns_search,omitempty"`
+}
+
+// IPAMSubnet provides subnet configuration with state information
+type IPAMSubnet struct {
+	Subnet       string            `json:"subnet"`
+	Gateway      string            `json:"gateway,omitempty"`
+	IPRange      string            `json:"ip_range,omitempty"`
+	AuxAddresses map[string]string `json:"aux_addresses,omitempty"`
+	VlanID       int               `json:"vlan_id,omitempty"`
+	
+	// Subnet state
+	AvailableIPs       int      `json:"available_ips"`
+	AllocatedIPs       int      `json:"allocated_ips"`
+	AllocatedAddresses []string `json:"allocated_addresses,omitempty"`
+}
+
+// NetworkContainerExtended provides extended container network information
+type NetworkContainerExtended struct {
+	ContainerID  string `json:"container_id"`
+	Name         string `json:"name"`
+	Image        string `json:"image"`
+	IPv4Address  string `json:"ipv4_address,omitempty"`
+	IPv6Address  string `json:"ipv6_address,omitempty"`
+	MacAddress   string `json:"mac_address,omitempty"`
+	
+	// Network configuration for container
+	Aliases   []string          `json:"aliases,omitempty"`
+	Links     []string          `json:"links,omitempty"`
+	Endpoints map[string]string `json:"endpoints,omitempty"`
+	
+	// Container network state
+	State       NetworkEndpointState `json:"state"`
+	ConnectedAt time.Time            `json:"connected_at"`
+	
+	// Port mappings
+	PortMappings []*PortMapping `json:"port_mappings,omitempty"`
+}
+
+// NetworkEndpoint represents a network endpoint
+type NetworkEndpoint struct {
+	EndpointID  string `json:"endpoint_id"`
+	Name        string `json:"name"`
+	NetworkID   string `json:"network_id"`
+	ContainerID string `json:"container_id"`
+	
+	// Endpoint addresses
+	IPv4Address string `json:"ipv4_address,omitempty"`
+	IPv6Address string `json:"ipv6_address,omitempty"`
+	MacAddress  string `json:"mac_address,omitempty"`
+	
+	// Endpoint configuration
+	DNSNames []string          `json:"dns_names,omitempty"`
+	Aliases  []string          `json:"aliases,omitempty"`
+	Options  map[string]string `json:"options,omitempty"`
+	
+	// Endpoint state
+	State   NetworkEndpointState `json:"state"`
+	Created time.Time            `json:"created"`
+}
+
+// NetworkState represents the current state of a network
+type NetworkState struct {
+	Status         string    `json:"status"`           // active, inactive, error, creating, removing
+	Health         string    `json:"health"`           // healthy, unhealthy, degraded
+	LastError      string    `json:"last_error,omitempty"`
+	ContainerCount int       `json:"container_count"`
+	EndpointCount  int       `json:"endpoint_count"`
+	LastActivity   time.Time `json:"last_activity"`
+	
+	// Network connectivity state
+	BridgeUp         bool     `json:"bridge_up"`
+	DHCPActive       bool     `json:"dhcp_active"`
+	ActiveInterfaces []string `json:"active_interfaces,omitempty"`
+}
+
+// NetworkConfig represents network configuration
+type NetworkConfig struct {
+	// CNI configuration
+	CNIVersion    string   `json:"cni_version"`
+	CNIConfigPath string   `json:"cni_config_path"`
+	CNIPlugins    []string `json:"cni_plugins,omitempty"`
+	
+	// Network drivers
+	PrimaryDriver    string            `json:"primary_driver"`
+	AvailableDrivers []string          `json:"available_drivers,omitempty"`
+	DriverConfig     map[string]string `json:"driver_config,omitempty"`
+	
+	// Advanced configuration
+	MTU                     int  `json:"mtu,omitempty"`
+	HairpinMode             bool `json:"hairpin_mode"`
+	BridgeNfCallIptables    bool `json:"bridge_nf_call_iptables"`
+	BridgeNfCallIp6tables   bool `json:"bridge_nf_call_ip6tables"`
+	IPForward               bool `json:"ip_forward"`
+	IPMasq                  bool `json:"ip_masq"`
+	
+	// VLAN configuration
+	VlanID          int    `json:"vlan_id,omitempty"`
+	ParentInterface string `json:"parent_interface,omitempty"`
+	
+	// Security configuration
+	AllowedProtocols []string `json:"allowed_protocols,omitempty"`
+	BlockedPorts     []string `json:"blocked_ports,omitempty"`
+	EnableEncryption bool     `json:"enable_encryption"`
+}
+
+// NetworkMetrics provides network performance metrics
+type NetworkMetrics struct {
+	// Traffic statistics
+	BytesSent       int64 `json:"bytes_sent"`
+	BytesReceived   int64 `json:"bytes_received"`
+	PacketsSent     int64 `json:"packets_sent"`
+	PacketsReceived int64 `json:"packets_received"`
+	
+	// Error statistics
+	TxErrors  int64 `json:"tx_errors"`
+	RxErrors  int64 `json:"rx_errors"`
+	TxDropped int64 `json:"tx_dropped"`
+	RxDropped int64 `json:"rx_dropped"`
+	
+	// Connection statistics
+	CurrentConnections int   `json:"current_connections"`
+	PeakConnections    int   `json:"peak_connections"`
+	TotalConnections   int64 `json:"total_connections"`
+	
+	// Performance metrics
+	LatencyMs       float64 `json:"latency_ms"`
+	ThroughputMbps  float64 `json:"throughput_mbps"`
+	PacketLossRate  float64 `json:"packet_loss_rate"`
+	
+	CollectedAt time.Time `json:"collected_at"`
+}
+
+// NetworkEndpointState represents the state of a network endpoint
+type NetworkEndpointState int
+
+const (
+	NetworkEndpointStateUnknown NetworkEndpointState = iota
+	NetworkEndpointStateCreating
+	NetworkEndpointStateActive
+	NetworkEndpointStateInactive
+	NetworkEndpointStateError
+	NetworkEndpointStateRemoving
+)
+
+// PortMapping represents a port mapping configuration
+type PortMapping struct {
+	ContainerPort int    `json:"container_port"`
+	HostPort      int    `json:"host_port"`
+	Protocol      string `json:"protocol"` // tcp, udp, sctp
+	HostIP        string `json:"host_ip,omitempty"`
+	Description   string `json:"description,omitempty"`
+}
+
+// Request/Response types for network operations
+
+// CreateNetworkRequest for creating networks with extended options
+type CreateNetworkRequest struct {
+	Name      string `json:"name"`
+	Namespace string `json:"namespace"`
+	Driver    string `json:"driver"`
+	
+	// IPAM configuration
+	IPAM *IPAMConfig `json:"ipam,omitempty"`
+	
+	// Network properties
+	Internal   bool `json:"internal"`
+	Attachable bool `json:"attachable"`
+	Ingress    bool `json:"ingress"`
+	IPv6       bool `json:"ipv6"`
+	EnableICC  bool `json:"enable_icc"`
+	
+	// Configuration
+	Options map[string]string `json:"options,omitempty"`
+	Labels  map[string]string `json:"labels,omitempty"`
+	
+	// Advanced options
+	MTU             int    `json:"mtu,omitempty"`
+	ParentInterface string `json:"parent_interface,omitempty"`
+	VlanID          int    `json:"vlan_id,omitempty"`
+	
+	// Security options
+	FirewallRules    []string `json:"firewall_rules,omitempty"`
+	IsolationMode    string   `json:"isolation_mode,omitempty"`
+	EnableEncryption bool     `json:"enable_encryption"`
+	
+	// CNI specific
+	ConfigFile     string `json:"config_file,omitempty"`
+	ConfigDir      string `json:"config_dir,omitempty"`
+	ValidateConfig bool   `json:"validate_config"`
+}
+
+type CreateNetworkResponse struct {
+	NetworkID string                 `json:"network_id"`
+	Warnings  []string               `json:"warnings,omitempty"`
+	Network   *NetworkInfoExtended   `json:"network,omitempty"`
+}
+
+// RemoveNetworkRequest for removing networks with advanced options
+type RemoveNetworkRequest struct {
+	Networks         []string `json:"networks"`
+	Namespace        string   `json:"namespace"`
+	Force            bool     `json:"force"`
+	RemoveContainers bool     `json:"remove_containers"`
+	TimeoutSeconds   int      `json:"timeout_seconds,omitempty"`
+	DryRun           bool     `json:"dry_run"`
+}
+
+type RemoveNetworkResponse struct {
+	Removed  []string           `json:"removed"`
+	Failed   []string           `json:"failed,omitempty"`
+	Warnings []string           `json:"warnings,omitempty"`
+	Results  []*OperationResult `json:"results,omitempty"`
+}
+
+// ListNetworksRequest for listing networks with filtering and pagination
+type ListNetworksRequest struct {
+	Namespace string            `json:"namespace"`
+	Filters   map[string]string `json:"filters,omitempty"`
+	Quiet     bool              `json:"quiet"`
+	Format    string            `json:"format,omitempty"`
+	NoTrunc   bool              `json:"no_trunc"`
+	All       bool              `json:"all"`
+	
+	// Extended options
+	IncludeSystem     bool     `json:"include_system"`
+	IncludeMetrics    bool     `json:"include_metrics"`
+	IncludeContainers bool     `json:"include_containers"`
+	Fields            []string `json:"fields,omitempty"`
+	
+	// Pagination
+	Limit         int    `json:"limit,omitempty"`
+	ContinueToken string `json:"continue_token,omitempty"`
+	
+	// Sorting
+	SortBy      string `json:"sort_by,omitempty"`
+	ReverseSort bool   `json:"reverse_sort"`
+}
+
+type ListNetworksResponse struct {
+	Networks      []*NetworkInfoExtended `json:"networks"`
+	TotalCount    int                    `json:"total_count"`
+	ContinueToken string                 `json:"continue_token,omitempty"`
+	Warnings      []string               `json:"warnings,omitempty"`
+}
+
+// InspectNetworkRequest for detailed network inspection
+type InspectNetworkRequest struct {
+	Network           string   `json:"network"`
+	Namespace         string   `json:"namespace"`
+	Format            string   `json:"format,omitempty"`
+	Verbose           bool     `json:"verbose"`
+	IncludeContainers bool     `json:"include_containers"`
+	IncludeEndpoints  bool     `json:"include_endpoints"`
+	IncludeMetrics    bool     `json:"include_metrics"`
+	Fields            []string `json:"fields,omitempty"`
+}
+
+type InspectNetworkResponse struct {
+	Network  *NetworkInfoExtended `json:"network"`
+	Warnings []string             `json:"warnings,omitempty"`
+}
+
+// ConnectNetworkRequest for connecting containers to networks
+type ConnectNetworkRequest struct {
+	Network   string `json:"network"`
+	Container string `json:"container"`
+	Namespace string `json:"namespace"`
+	
+	// Endpoint configuration
+	EndpointConfig *NetworkEndpointConfig `json:"endpoint_config,omitempty"`
+	
+	// Connection options
+	Force                bool `json:"force"`
+	TimeoutSeconds       int  `json:"timeout_seconds,omitempty"`
+	ValidateConnectivity bool `json:"validate_connectivity"`
+}
+
+type ConnectNetworkResponse struct {
+	Connected  bool             `json:"connected"`
+	EndpointID string           `json:"endpoint_id,omitempty"`
+	Warnings   []string         `json:"warnings,omitempty"`
+	Endpoint   *NetworkEndpoint `json:"endpoint,omitempty"`
+}
+
+// DisconnectNetworkRequest for disconnecting containers from networks
+type DisconnectNetworkRequest struct {
+	Network          string `json:"network"`
+	Container        string `json:"container"`
+	Namespace        string `json:"namespace"`
+	Force            bool   `json:"force"`
+	TimeoutSeconds   int    `json:"timeout_seconds,omitempty"`
+	CleanupResources bool   `json:"cleanup_resources"`
+}
+
+type DisconnectNetworkResponse struct {
+	Disconnected   bool     `json:"disconnected"`
+	Warnings       []string `json:"warnings,omitempty"`
+	CleanupActions []string `json:"cleanup_actions,omitempty"`
+}
+
+// PruneNetworksRequest for cleaning up unused networks
+type PruneNetworksRequest struct {
+	Namespace           string            `json:"namespace"`
+	Filters             map[string]string `json:"filters,omitempty"`
+	Force               bool              `json:"force"`
+	PruneSystemNetworks bool              `json:"prune_system_networks"`
+	TimeoutSeconds      int               `json:"timeout_seconds,omitempty"`
+	DryRun              bool              `json:"dry_run"`
+	
+	// Advanced pruning options
+	Until           string `json:"until,omitempty"` // Prune networks older than this timestamp
+	PruneUnusedOnly bool   `json:"prune_unused_only"`
+	IncludeVolumes  bool   `json:"include_volumes"`
+}
+
+type PruneNetworksResponse struct {
+	Pruned         []string           `json:"pruned"`
+	Failed         []string           `json:"failed,omitempty"`
+	SpaceReclaimed int64              `json:"space_reclaimed"`
+	Warnings       []string           `json:"warnings,omitempty"`
+	Results        []*OperationResult `json:"results,omitempty"`
+}
+
+// UpdateNetworkRequest for updating network configuration
+type UpdateNetworkRequest struct {
+	Network   string `json:"network"`
+	Namespace string `json:"namespace"`
+	
+	// Updatable fields
+	Labels  map[string]string `json:"labels,omitempty"`
+	Options map[string]string `json:"options,omitempty"`
+	
+	// Configuration updates
+	EnableICC     bool     `json:"enable_icc"`
+	MTU           int      `json:"mtu,omitempty"`
+	FirewallRules []string `json:"firewall_rules,omitempty"`
+	
+	// Advanced updates
+	IPAMUpdate *IPAMConfig `json:"ipam_update,omitempty"`
+	AddIPAM    bool        `json:"add_ipam"` // Whether to add or replace IPAM config
+	
+	UpdateMask string `json:"update_mask,omitempty"` // Field mask for partial updates
+}
+
+type UpdateNetworkResponse struct {
+	Updated  bool                 `json:"updated"`
+	Network  *NetworkInfoExtended `json:"network,omitempty"`
+	Warnings []string             `json:"warnings,omitempty"`
+}
+
+// NetworkExistsRequest for checking network existence
+type NetworkExistsRequest struct {
+	Network   string `json:"network"`
+	Namespace string `json:"namespace"`
+}
+
+type NetworkExistsResponse struct {
+	Exists    bool   `json:"exists"`
+	NetworkID string `json:"network_id,omitempty"`
+}
+
+// NetworkEndpointConfig provides advanced endpoint configuration
+type NetworkEndpointConfig struct {
+	IPv4Address string `json:"ipv4_address,omitempty"`
+	IPv6Address string `json:"ipv6_address,omitempty"`
+	Aliases     []string `json:"aliases,omitempty"`
+	Links       []string `json:"links,omitempty"`
+	DriverOpts  map[string]string `json:"driver_opts,omitempty"`
+	MacAddress  string `json:"mac_address,omitempty"`
+	
+	// Advanced endpoint configuration
+	DNSNames   []string          `json:"dns_names,omitempty"`
+	DNSServers []string          `json:"dns_servers,omitempty"`
+	DNSSearch  []string          `json:"dns_search,omitempty"`
+	ExtraHosts map[string]string `json:"extra_hosts,omitempty"`
+	
+	// Port configuration
+	PortMappings []*PortMapping `json:"port_mappings,omitempty"`
+	
+	// Security configuration
+	Capabilities []string `json:"capabilities,omitempty"`
+	Privileged   bool     `json:"privileged"`
+	UserNsMode   string   `json:"user_ns_mode,omitempty"`
+}
+
+// Network statistics and monitoring types
+
+// NetworkStatsRequest for network statistics collection
+type NetworkStatsRequest struct {
+	Networks           []string `json:"networks,omitempty"`
+	Namespace          string   `json:"namespace"`
+	Stream             bool     `json:"stream"`
+	IntervalSeconds    int      `json:"interval_seconds,omitempty"`
+	IncludeSystemStats bool     `json:"include_system_stats"`
+}
+
+type NetworkStatsResponse struct {
+	NetworkID   string                 `json:"network_id"`
+	NetworkName string                 `json:"network_name"`
+	Stats       *NetworkMetrics        `json:"stats"`
+	Timestamp   time.Time              `json:"timestamp"`
+	
+	// System-level network stats
+	SystemStats map[string]float64     `json:"system_stats,omitempty"`
+	Interfaces  []*InterfaceStats      `json:"interfaces,omitempty"`
+}
+
+// InterfaceStats provides network interface statistics
+type InterfaceStats struct {
+	InterfaceName   string `json:"interface_name"`
+	BytesSent       int64  `json:"bytes_sent"`
+	BytesReceived   int64  `json:"bytes_received"`
+	PacketsSent     int64  `json:"packets_sent"`
+	PacketsReceived int64  `json:"packets_received"`
+	Errors          int64  `json:"errors"`
+	Dropped         int64  `json:"dropped"`
+	IsUp            bool   `json:"is_up"`
+	MTU             int    `json:"mtu"`
+}
+
+// Batch operations types
+
+// BatchNetworkRequest for performing multiple network operations
+type BatchNetworkRequest struct {
+	Operations     []*NetworkOperation `json:"operations"`
+	Namespace      string              `json:"namespace"`
+	FailFast       bool                `json:"fail_fast"`
+	Concurrency    int                 `json:"concurrency,omitempty"`
+	TimeoutSeconds int                 `json:"timeout_seconds,omitempty"`
+}
+
+type NetworkOperation struct {
+	OperationID string `json:"operation_id"`
+	
+	// Operation type would be determined by which field is set
+	// This is a simplified version - in practice you'd have oneof-style fields
+	CreateRequest     *CreateNetworkRequest     `json:"create_request,omitempty"`
+	RemoveRequest     *RemoveNetworkRequest     `json:"remove_request,omitempty"`
+	ConnectRequest    *ConnectNetworkRequest    `json:"connect_request,omitempty"`
+	DisconnectRequest *DisconnectNetworkRequest `json:"disconnect_request,omitempty"`
+	UpdateRequest     *UpdateNetworkRequest     `json:"update_request,omitempty"`
+}
+
+type BatchNetworkResponse struct {
+	OperationID  string `json:"operation_id"`
+	Success      bool   `json:"success"`
+	ErrorMessage string `json:"error_message,omitempty"`
+	
+	// Result type would depend on operation type
+	CreateResult     *CreateNetworkResponse     `json:"create_result,omitempty"`
+	RemoveResult     *RemoveNetworkResponse     `json:"remove_result,omitempty"`
+	ConnectResult    *ConnectNetworkResponse    `json:"connect_result,omitempty"`
+	DisconnectResult *DisconnectNetworkResponse `json:"disconnect_result,omitempty"`
+	UpdateResult     *UpdateNetworkResponse     `json:"update_result,omitempty"`
+}
+
+// BulkInspectNetworkRequest for inspecting multiple networks
+type BulkInspectNetworkRequest struct {
+	Networks          []string `json:"networks"`
+	Namespace         string   `json:"namespace"`
+	Verbose           bool     `json:"verbose"`
+	IncludeContainers bool     `json:"include_containers"`
+	IncludeMetrics    bool     `json:"include_metrics"`
+	Fields            []string `json:"fields,omitempty"`
+}
+
+type BulkInspectNetworkResponse struct {
+	Results      []*NetworkInspectResult `json:"results"`
+	TotalCount   int                     `json:"total_count"`
+	SuccessCount int                     `json:"success_count"`
+	ErrorCount   int                     `json:"error_count"`
+	Warnings     []string                `json:"warnings,omitempty"`
+}
+
+type NetworkInspectResult struct {
+	Network      string               `json:"network"`
+	Success      bool                 `json:"success"`
+	ErrorMessage string               `json:"error_message,omitempty"`
+	NetworkInfo  *NetworkInfoExtended `json:"network_info,omitempty"`
+}
+
+// Driver and configuration types
+
+// ListNetworkDriversRequest for listing available network drivers
+type ListNetworkDriversRequest struct {
+	Namespace         string `json:"namespace"`
+	IncludePluginInfo bool   `json:"include_plugin_info"`
+}
+
+type ListNetworkDriversResponse struct {
+	Drivers  []*NetworkDriver `json:"drivers"`
+	Warnings []string         `json:"warnings,omitempty"`
+}
+
+type NetworkDriver struct {
+	Name         string            `json:"name"`
+	Version      string            `json:"version"`
+	Description  string            `json:"description"`
+	Capabilities []string          `json:"capabilities,omitempty"`
+	Options      map[string]string `json:"options,omitempty"`
+	IsAvailable  bool              `json:"is_available"`
+	IsDefault    bool              `json:"is_default"`
+	
+	// Plugin information
+	PluginPath   string            `json:"plugin_path,omitempty"`
+	PluginConfig map[string]string `json:"plugin_config,omitempty"`
+}
+
+// GetNetworkConfigRequest for retrieving network configuration
+type GetNetworkConfigRequest struct {
+	Network   string `json:"network"`
+	Namespace string `json:"namespace"`
+	Format    string `json:"format,omitempty"` // json, yaml, raw
+}
+
+type GetNetworkConfigResponse struct {
+	Config     string   `json:"config"`
+	Format     string   `json:"format"`
+	ConfigPath string   `json:"config_path,omitempty"`
+	Warnings   []string `json:"warnings,omitempty"`
+}
+
+// ValidateNetworkConfigRequest for validating network configuration
+type ValidateNetworkConfigRequest struct {
+	Config           string `json:"config,omitempty"`
+	ConfigPath       string `json:"config_path,omitempty"`
+	Format           string `json:"format,omitempty"` // json, yaml
+	StrictValidation bool   `json:"strict_validation"`
+}
+
+type ValidateNetworkConfigResponse struct {
+	Valid    bool                 `json:"valid"`
+	Errors   []string             `json:"errors,omitempty"`
+	Warnings []string             `json:"warnings,omitempty"`
+	Issues   []*ValidationIssue   `json:"issues,omitempty"`
+}
+
+type ValidationIssue struct {
+	Severity   string `json:"severity"`   // error, warning, info
+	Field      string `json:"field"`
+	Message    string `json:"message"`
+	Suggestion string `json:"suggestion,omitempty"`
+}
+
+// Diagnostics types
+
+// DiagnoseNetworkRequest for network diagnostics
+type DiagnoseNetworkRequest struct {
+	Network           string   `json:"network"`
+	Namespace         string   `json:"namespace"`
+	DeepInspection    bool     `json:"deep_inspection"`
+	CheckConnectivity bool     `json:"check_connectivity"`
+	CheckDNS          bool     `json:"check_dns"`
+	TargetContainers  []string `json:"target_containers,omitempty"`
+}
+
+type DiagnoseNetworkResponse struct {
+	NetworkID       string               `json:"network_id"`
+	NetworkName     string               `json:"network_name"`
+	OverallStatus   string               `json:"overall_status"` // healthy, degraded, unhealthy
+	
+	Results         []*DiagnosticResult  `json:"results"`
+	Recommendations []string             `json:"recommendations,omitempty"`
+	DebugInfo       map[string]string    `json:"debug_info,omitempty"`
+}
+
+type DiagnosticResult struct {
+	TestName        string            `json:"test_name"`
+	Status          string            `json:"status"` // pass, fail, warning, skip
+	Message         string            `json:"message"`
+	Details         map[string]string `json:"details,omitempty"`
+	ExecutionTimeMs float64           `json:"execution_time_ms"`
+}
+
+// NetworkConnectivityRequest for testing network connectivity
+type NetworkConnectivityRequest struct {
+	SourceNetwork   string   `json:"source_network"`
+	TargetNetwork   string   `json:"target_network"`
+	Namespace       string   `json:"namespace"`
+	
+	// Test parameters
+	SourceContainer string   `json:"source_container,omitempty"`
+	TargetContainer string   `json:"target_container,omitempty"`
+	Protocols       []string `json:"protocols,omitempty"` // tcp, udp, icmp
+	Ports           []int    `json:"ports,omitempty"`
+	TimeoutSeconds  int      `json:"timeout_seconds,omitempty"`
+	RetryCount      int      `json:"retry_count,omitempty"`
+}
+
+type NetworkConnectivityResponse struct {
+	Reachable          bool                   `json:"reachable"`
+	Results            []*ConnectivityResult  `json:"results"`
+	Summary            string                 `json:"summary"`
+	AverageLatencyMs   float64                `json:"average_latency_ms"`
+	PacketLossRate     float64                `json:"packet_loss_rate"`
+	Warnings           []string               `json:"warnings,omitempty"`
+}
+
+type ConnectivityResult struct {
+	Protocol     string  `json:"protocol"`
+	Port         int     `json:"port"`
+	Success      bool    `json:"success"`
+	LatencyMs    float64 `json:"latency_ms"`
+	ErrorMessage string  `json:"error_message,omitempty"`
+	AttemptCount int     `json:"attempt_count"`
+}
+
+// Supported features types
+
+// NetworkSupportedFeatures describes supported network capabilities
+type NetworkSupportedFeatures struct {
+	Drivers       []string `json:"drivers"`
+	IPAMDrivers   []string `json:"ipam_drivers"`
+	CNIPlugins    []string `json:"cni_plugins"`
+	
+	// Feature flags
+	SupportsIPv6                   bool `json:"supports_ipv6"`
+	SupportsMacvlan                bool `json:"supports_macvlan"`
+	SupportsOverlay                bool `json:"supports_overlay"`
+	SupportsEncryption             bool `json:"supports_encryption"`
+	SupportsMulticast              bool `json:"supports_multicast"`
+	SupportsVLAN                   bool `json:"supports_vlan"`
+	SupportsBridgeNetworking       bool `json:"supports_bridge_networking"`
+	SupportsHostNetworking         bool `json:"supports_host_networking"`
+	SupportsNoneNetworking         bool `json:"supports_none_networking"`
+	
+	// Advanced features
+	SupportsNetworkPolicies        bool `json:"supports_network_policies"`
+	SupportsServiceDiscovery       bool `json:"supports_service_discovery"`
+	SupportsLoadBalancing          bool `json:"supports_load_balancing"`
+	SupportsTrafficShaping         bool `json:"supports_traffic_shaping"`
+	SupportsNetworkMonitoring      bool `json:"supports_network_monitoring"`
+	SupportsNetworkDiagnostics     bool `json:"supports_network_diagnostics"`
+	
+	// Version information
+	CNIVersion        string `json:"cni_version"`
+	MinNerdctlVersion string `json:"min_nerdctl_version"`
+	MaxNerdctlVersion string `json:"max_nerdctl_version"`
+	
+	Capabilities         map[string]string `json:"capabilities,omitempty"`
+	ExperimentalFeatures []string          `json:"experimental_features,omitempty"`
+}
+
+// Common operation result type
+type OperationResult struct {
+	ID           string            `json:"id"`
+	Success      bool              `json:"success"`
+	ErrorMessage string            `json:"error_message,omitempty"`
+	Metadata     map[string]string `json:"metadata,omitempty"`
+	Timestamp    time.Time         `json:"timestamp"`
+}

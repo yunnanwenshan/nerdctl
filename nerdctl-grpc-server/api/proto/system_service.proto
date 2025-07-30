@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+package api.proto;
+
+import "api/proto/common.proto";
+
+option go_package = "github.com/containerd/nerdctl-grpc-server/api/proto";
+
+// SystemService provides system-level operations and monitoring
+service SystemService {
+  // GetSystemInfo retrieves system information
+  rpc GetSystemInfo(GetSystemInfoRequest) returns (GetSystemInfoResponse);
+  
+  // GetSystemEvents streams real-time events from the server
+  // This is equivalent to "nerdctl events"
+  rpc GetSystemEvents(GetSystemEventsRequest) returns (stream SystemEvent);
+  
+  // SystemPrune cleans up unused resources
+  rpc SystemPrune(SystemPruneRequest) returns (SystemPruneResponse);
+}
+
+// GetSystemInfoRequest for system info retrieval
+message GetSystemInfoRequest {
+  // Additional system info parameters if needed
+}
+
+// GetSystemInfoResponse contains system information
+message GetSystemInfoResponse {
+  // System information details
+  SystemInfo info = 1;
+}
+
+// SystemInfo contains detailed system information
+message SystemInfo {
+  string version = 1;               // nerdctl version
+  string containerd_version = 2;    // containerd version
+  string runtime_version = 3;       // runtime version
+  string kernel_version = 4;        // kernel version
+  string os = 5;                    // operating system
+  string architecture = 6;          // system architecture
+  int64 containers_running = 7;     // number of running containers
+  int64 containers_paused = 8;      // number of paused containers  
+  int64 containers_stopped = 9;     // number of stopped containers
+  int64 images_count = 10;          // number of images
+}
+
+// GetSystemEventsRequest for events streaming
+// Equivalent to "nerdctl events" command
+message GetSystemEventsRequest {
+  // Filter events based on conditions (equivalent to --filter/-f flag)
+  repeated string filters = 1;
+  
+  // Format template for output (equivalent to --format flag)
+  string format = 2;
+  
+  // Since timestamp for historical events (optional)
+  int64 since = 3;
+  
+  // Until timestamp for historical events (optional)  
+  int64 until = 4;
+}
+
+// SystemEvent represents a single system event
+// Based on nerdctl events output format
+message SystemEvent {
+  // Event timestamp (Unix timestamp in nanoseconds)
+  int64 timestamp = 1;
+  
+  // Container ID if applicable
+  string container_id = 2;
+  
+  // Namespace where event occurred
+  string namespace = 3;
+  
+  // Event topic (e.g., "/tasks/start", "/tasks/delete")
+  string topic = 4;
+  
+  // Event status derived from topic
+  string status = 5;
+  
+  // Raw event data as JSON string
+  string event_data = 6;
+  
+  // Event type for easier filtering
+  EventType type = 7;
+  
+  // Additional event metadata
+  map<string, string> metadata = 8;
+}
+
+// EventType enumeration for event categorization
+enum EventType {
+  UNKNOWN_EVENT = 0;
+  CONTAINER_EVENT = 1;
+  IMAGE_EVENT = 2;
+  NETWORK_EVENT = 3;
+  VOLUME_EVENT = 4;
+  TASK_EVENT = 5;
+}
+
+// SystemPruneRequest for resource cleanup
+message SystemPruneRequest {
+  // Remove all stopped containers
+  bool prune_containers = 1;
+  
+  // Remove unused images
+  bool prune_images = 2;
+  
+  // Remove unused networks
+  bool prune_networks = 3;
+  
+  // Remove unused volumes
+  bool prune_volumes = 4;
+  
+  // Remove all unused resources (equivalent to --all flag)
+  bool all = 5;
+  
+  // Force removal without confirmation
+  bool force = 6;
+  
+  // Filters for selective pruning
+  repeated string filters = 7;
+}
+
+// SystemPruneResponse contains cleanup results
+message SystemPruneResponse {
+  // Containers removed
+  repeated string containers_deleted = 1;
+  
+  // Images removed
+  repeated string images_deleted = 2;
+  
+  // Networks removed  
+  repeated string networks_deleted = 3;
+  
+  // Volumes removed
+  repeated string volumes_deleted = 4;
+  
+  // Total space reclaimed in bytes
+  int64 space_reclaimed = 5;
+  
+  // Cleanup summary
+  SystemPruneSummary summary = 6;
+}
+
+// SystemPruneSummary provides cleanup statistics
+message SystemPruneSummary {
+  int32 containers_count = 1;       // Number of containers removed
+  int32 images_count = 2;           // Number of images removed  
+  int32 networks_count = 3;         // Number of networks removed
+  int32 volumes_count = 4;          // Number of volumes removed
+  int64 total_size_bytes = 5;       // Total space reclaimed
+}

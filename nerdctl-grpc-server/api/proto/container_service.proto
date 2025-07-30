@@ -1,0 +1,521 @@
+syntax = "proto3";
+
+package nerdctl.v1;
+
+option go_package = "github.com/containerd/nerdctl-grpc-server/api/proto";
+
+import "google/protobuf/timestamp.proto";
+import "api/proto/common.proto";
+
+// Container service for managing container lifecycle
+service ContainerService {
+  // Create a new container
+  rpc CreateContainer(CreateContainerRequest) returns (CreateContainerResponse);
+  
+  // Start a container
+  rpc StartContainer(StartContainerRequest) returns (StartContainerResponse);
+  
+  // Stop a container
+  rpc StopContainer(StopContainerRequest) returns (StopContainerResponse);
+  
+  // Restart a container
+  rpc RestartContainer(RestartContainerRequest) returns (RestartContainerResponse);
+  
+  // Remove a container
+  rpc RemoveContainer(RemoveContainerRequest) returns (RemoveContainerResponse);
+  
+  // Kill a container (send signal)
+  rpc KillContainer(KillContainerRequest) returns (KillContainerResponse);
+  
+  // Pause a container
+  rpc PauseContainer(PauseContainerRequest) returns (PauseContainerResponse);
+  
+  // Unpause a container
+  rpc UnpauseContainer(UnpauseContainerRequest) returns (UnpauseContainerResponse);
+  
+  // Run a container (create + start)
+  rpc RunContainer(RunContainerRequest) returns (RunContainerResponse);
+  
+  // Run a container with streaming output
+  rpc RunContainerStream(RunContainerRequest) returns (stream RunContainerStreamResponse);
+  
+  // List containers
+  rpc ListContainers(ListContainersRequest) returns (ListContainersResponse);
+  
+  // Get container information
+  rpc InspectContainer(InspectContainerRequest) returns (InspectContainerResponse);
+  
+  // Get container logs
+  rpc GetContainerLogs(GetContainerLogsRequest) returns (stream LogEntry);
+  
+  // Attach to container
+  rpc AttachContainer(stream AttachContainerRequest) returns (stream AttachContainerResponse);
+  
+  // Execute command in container
+  rpc ExecContainer(ExecContainerRequest) returns (ExecContainerResponse);
+  
+  // Execute command in container with streaming
+  rpc ExecContainerStream(stream ExecContainerStreamRequest) returns (stream ExecContainerStreamResponse);
+  
+  // Get container statistics
+  rpc GetContainerStats(GetContainerStatsRequest) returns (stream ContainerStats);
+  
+  // Wait for container to finish
+  rpc WaitContainer(WaitContainerRequest) returns (WaitContainerResponse);
+  
+  // Rename a container
+  rpc RenameContainer(RenameContainerRequest) returns (RenameContainerResponse);
+  
+  // Update container resources
+  rpc UpdateContainer(UpdateContainerRequest) returns (UpdateContainerResponse);
+  
+  // Copy files/folders between container and host
+  rpc CopyToContainer(stream CopyToContainerRequest) returns (CopyToContainerResponse);
+  rpc CopyFromContainer(CopyFromContainerRequest) returns (stream CopyFromContainerResponse);
+  
+  // Export container as tar archive
+  rpc ExportContainer(ExportContainerRequest) returns (stream ExportContainerResponse);
+  
+  // Create container diff
+  rpc DiffContainer(DiffContainerRequest) returns (DiffContainerResponse);
+  
+  // Commit container to new image
+  rpc CommitContainer(CommitContainerRequest) returns (CommitContainerResponse);
+  
+  // Prune containers
+  rpc PruneContainers(PruneContainersRequest) returns (PruneContainersResponse);
+}
+
+// Request/Response messages
+
+message CreateContainerRequest {
+  string image = 1;                          // Image reference
+  string name = 2;                          // Container name
+  repeated string command = 3;              // Command to run
+  repeated string args = 4;                 // Command arguments
+  repeated string env = 5;                  // Environment variables
+  string working_dir = 6;                   // Working directory
+  map<string, string> labels = 7;          // Container labels
+  NetworkConfig network_config = 8;         // Network configuration
+  repeated VolumeMount mounts = 9;         // Volume mounts
+  ResourceLimits resources = 10;           // Resource limits
+  SecurityOptions security = 11;           // Security options
+  HealthCheck health_check = 12;           // Health check configuration
+  LogConfig log_config = 13;               // Log configuration
+  RestartPolicy restart_policy = 14;       // Restart policy
+  Platform platform = 15;                 // Platform specification
+  string namespace = 16;                   // Containerd namespace
+  bool tty = 17;                          // Allocate pseudo-TTY
+  bool stdin = 18;                        // Keep STDIN open
+  bool init = 19;                         // Run init process
+  string init_binary = 20;                // Init binary path
+  repeated string cap_add = 21;           // Capabilities to add
+  repeated string cap_drop = 22;          // Capabilities to drop
+  repeated string device = 23;            // Device mappings
+  string cgroup_parent = 24;              // Parent cgroup
+  string ipc_mode = 25;                   // IPC mode
+  string pid_mode = 26;                   // PID mode
+  string uts_mode = 27;                   // UTS mode
+  repeated string sysctl = 28;            // Sysctl settings
+  repeated string tmpfs = 29;             // Tmpfs mounts
+  string shm_size = 30;                   // Shared memory size
+  string stop_signal = 31;                // Stop signal
+  int32 stop_timeout = 32;                // Stop timeout in seconds
+}
+
+message CreateContainerResponse {
+  string container_id = 1;                 // Created container ID
+  repeated string warnings = 2;           // Warning messages
+}
+
+message StartContainerRequest {
+  string container_id = 1;                // Container ID or name
+  string namespace = 2;                   // Containerd namespace
+  repeated string attach = 3;             // Attach to STDIN/STDOUT/STDERR
+  string detach_keys = 4;                 // Detach key sequence
+}
+
+message StartContainerResponse {
+  bool started = 1;                       // Whether container was started
+  repeated string warnings = 2;          // Warning messages
+}
+
+message StopContainerRequest {
+  string container_id = 1;               // Container ID or name
+  string namespace = 2;                  // Containerd namespace
+  int32 timeout = 3;                     // Timeout in seconds
+}
+
+message StopContainerResponse {
+  bool stopped = 1;                      // Whether container was stopped
+}
+
+message RestartContainerRequest {
+  string container_id = 1;               // Container ID or name
+  string namespace = 2;                  // Containerd namespace
+  int32 timeout = 3;                     // Timeout in seconds
+}
+
+message RestartContainerResponse {
+  bool restarted = 1;                    // Whether container was restarted
+}
+
+message RemoveContainerRequest {
+  string container_id = 1;               // Container ID or name
+  string namespace = 2;                  // Containerd namespace
+  bool force = 3;                        // Force removal
+  bool volumes = 4;                      // Remove associated volumes
+}
+
+message RemoveContainerResponse {
+  bool removed = 1;                      // Whether container was removed
+}
+
+message KillContainerRequest {
+  string container_id = 1;               // Container ID or name
+  string namespace = 2;                  // Containerd namespace
+  string signal = 3;                     // Signal to send (default: SIGKILL)
+}
+
+message KillContainerResponse {
+  bool killed = 1;                       // Whether signal was sent
+}
+
+message PauseContainerRequest {
+  string container_id = 1;               // Container ID or name
+  string namespace = 2;                  // Containerd namespace
+}
+
+message PauseContainerResponse {
+  bool paused = 1;                       // Whether container was paused
+}
+
+message UnpauseContainerRequest {
+  string container_id = 1;               // Container ID or name
+  string namespace = 2;                  // Containerd namespace
+}
+
+message UnpauseContainerResponse {
+  bool unpaused = 1;                     // Whether container was unpaused
+}
+
+message RunContainerRequest {
+  string image = 1;                      // Image reference
+  string name = 2;                       // Container name
+  repeated string command = 3;           // Command to run
+  repeated string args = 4;              // Command arguments
+  repeated string env = 5;               // Environment variables
+  string working_dir = 6;                // Working directory
+  map<string, string> labels = 7;       // Container labels
+  NetworkConfig network_config = 8;      // Network configuration
+  repeated VolumeMount mounts = 9;      // Volume mounts
+  ResourceLimits resources = 10;        // Resource limits
+  SecurityOptions security = 11;        // Security options
+  string namespace = 12;                // Containerd namespace
+  bool detached = 13;                   // Run in background
+  bool tty = 14;                        // Allocate pseudo-TTY
+  bool interactive = 15;                // Keep STDIN open
+  bool remove = 16;                     // Remove container after exit
+  string pull_policy = 17;              // Image pull policy
+  Platform platform = 18;              // Platform specification
+  RestartPolicy restart_policy = 19;    // Restart policy
+}
+
+message RunContainerResponse {
+  string container_id = 1;              // Container ID
+  ContainerStatus status = 2;           // Container status
+  int32 exit_code = 3;                 // Exit code (if exited)
+  repeated string warnings = 4;        // Warning messages
+}
+
+message RunContainerStreamResponse {
+  oneof response {
+    OperationProgress progress = 1;      // Operation progress
+    LogEntry log = 2;                   // Log output
+    RunContainerResponse result = 3;    // Final result
+  }
+}
+
+message ListContainersRequest {
+  string namespace = 1;                  // Containerd namespace
+  bool all = 2;                         // Include stopped containers
+  map<string, string> filters = 3;     // Filters (name, label, status, etc.)
+  int32 limit = 4;                      // Limit number of results
+}
+
+message ListContainersResponse {
+  repeated ContainerInfo containers = 1; // Container list
+}
+
+message InspectContainerRequest {
+  string container_id = 1;              // Container ID or name
+  string namespace = 2;                 // Containerd namespace
+}
+
+message InspectContainerResponse {
+  ContainerInfo container = 1;          // Container information
+}
+
+message GetContainerLogsRequest {
+  string container_id = 1;              // Container ID or name
+  string namespace = 2;                 // Containerd namespace
+  bool follow = 3;                      // Follow log output
+  bool timestamps = 4;                  // Include timestamps
+  string since = 5;                     // Show logs since timestamp
+  string until = 6;                     // Show logs until timestamp
+  int32 tail = 7;                       // Number of lines from end
+  bool stdout = 8;                      // Include stdout (default: true)
+  bool stderr = 9;                      // Include stderr (default: true)
+}
+
+message LogEntry {
+  google.protobuf.Timestamp timestamp = 1; // Log timestamp
+  string stream = 2;                       // Stream type: "stdout", "stderr"
+  bytes content = 3;                       // Log content
+}
+
+message AttachContainerRequest {
+  oneof request {
+    AttachContainerOptions options = 1;   // Attach options
+    bytes stdin = 2;                     // STDIN data
+  }
+}
+
+message AttachContainerOptions {
+  string container_id = 1;              // Container ID or name
+  string namespace = 2;                 // Containerd namespace
+  bool stdin = 3;                       // Attach STDIN
+  bool stdout = 4;                      // Attach STDOUT
+  bool stderr = 5;                      // Attach STDERR
+  string detach_keys = 6;               // Detach key sequence
+}
+
+message AttachContainerResponse {
+  oneof response {
+    bytes stdout = 1;                    // STDOUT data
+    bytes stderr = 2;                    // STDERR data
+    bool detached = 3;                   // Detached from container
+  }
+}
+
+message ExecContainerRequest {
+  string container_id = 1;              // Container ID or name
+  string namespace = 2;                 // Containerd namespace
+  repeated string command = 3;          // Command to execute
+  repeated string env = 4;              // Environment variables
+  string working_dir = 5;               // Working directory
+  string user = 6;                      // User specification
+  bool privileged = 7;                  // Run as privileged
+  bool tty = 8;                        // Allocate pseudo-TTY
+  bool detach = 9;                     // Run in background
+  string detach_keys = 10;             // Detach key sequence
+}
+
+message ExecContainerResponse {
+  int32 exit_code = 1;                 // Exit code
+  bytes stdout = 2;                    // STDOUT output
+  bytes stderr = 3;                    // STDERR output
+}
+
+message ExecContainerStreamRequest {
+  oneof request {
+    ExecContainerRequest exec = 1;      // Execute request
+    bytes stdin = 2;                    // STDIN data
+  }
+}
+
+message ExecContainerStreamResponse {
+  oneof response {
+    bytes stdout = 1;                   // STDOUT data
+    bytes stderr = 2;                   // STDERR data
+    int32 exit_code = 3;               // Exit code
+  }
+}
+
+message GetContainerStatsRequest {
+  string container_id = 1;             // Container ID or name
+  string namespace = 2;                // Containerd namespace
+  bool stream = 3;                     // Stream statistics
+}
+
+message ContainerStats {
+  string container_id = 1;                    // Container ID
+  string name = 2;                           // Container name
+  google.protobuf.Timestamp timestamp = 3;   // Stats timestamp
+  
+  // CPU stats
+  message CPUStats {
+    uint64 cpu_usage_total = 1;             // Total CPU usage
+    uint64 cpu_usage_system = 2;            // System CPU usage
+    uint64 cpu_usage_user = 3;              // User CPU usage
+    uint64 cpu_usage_per_cpu = 4;           // Per-CPU usage
+    double cpu_percent = 5;                 // CPU usage percentage
+    uint64 throttled_periods = 6;           // Throttled periods
+    uint64 throttled_time = 7;              // Throttled time
+  }
+  CPUStats cpu = 4;
+  
+  // Memory stats
+  message MemoryStats {
+    uint64 usage = 1;                       // Memory usage
+    uint64 limit = 2;                       // Memory limit
+    uint64 max_usage = 3;                   // Maximum memory usage
+    uint64 cache = 4;                       // Cache usage
+    uint64 rss = 5;                         // RSS usage
+    uint64 swap = 6;                        // Swap usage
+    double percent = 7;                     // Memory usage percentage
+  }
+  MemoryStats memory = 5;
+  
+  // Block I/O stats
+  message BlkioStats {
+    uint64 read_bytes = 1;                  // Bytes read
+    uint64 write_bytes = 2;                 // Bytes written
+    uint64 read_iops = 3;                   // Read IOPS
+    uint64 write_iops = 4;                  // Write IOPS
+  }
+  BlkioStats blkio = 6;
+  
+  // Network stats
+  message NetworkStats {
+    uint64 rx_bytes = 1;                    // Received bytes
+    uint64 tx_bytes = 2;                    // Transmitted bytes
+    uint64 rx_packets = 3;                  // Received packets
+    uint64 tx_packets = 4;                  // Transmitted packets
+    uint64 rx_errors = 5;                   // Receive errors
+    uint64 tx_errors = 6;                   // Transmit errors
+    uint64 rx_dropped = 7;                  // Received dropped
+    uint64 tx_dropped = 8;                  // Transmitted dropped
+  }
+  map<string, NetworkStats> networks = 7;   // Per-network stats
+  
+  // PIDs stats
+  message PidsStats {
+    uint64 current = 1;                     // Current PIDs
+    uint64 limit = 2;                       // PIDs limit
+  }
+  PidsStats pids = 8;
+}
+
+message WaitContainerRequest {
+  string container_id = 1;               // Container ID or name
+  string namespace = 2;                  // Containerd namespace
+}
+
+message WaitContainerResponse {
+  int32 exit_code = 1;                   // Exit code
+  string error = 2;                      // Error message
+}
+
+message RenameContainerRequest {
+  string container_id = 1;               // Current container ID or name
+  string new_name = 2;                   // New container name
+  string namespace = 3;                  // Containerd namespace
+}
+
+message RenameContainerResponse {
+  bool renamed = 1;                      // Whether container was renamed
+}
+
+message UpdateContainerRequest {
+  string container_id = 1;               // Container ID or name
+  string namespace = 2;                  // Containerd namespace
+  ResourceLimits resources = 3;          // Updated resource limits
+  RestartPolicy restart_policy = 4;      // Updated restart policy
+}
+
+message UpdateContainerResponse {
+  bool updated = 1;                      // Whether container was updated
+  repeated string warnings = 2;         // Warning messages
+}
+
+message CopyToContainerRequest {
+  oneof request {
+    CopyToContainerOptions options = 1;  // Copy options
+    bytes data = 2;                      // File data chunk
+  }
+}
+
+message CopyToContainerOptions {
+  string container_id = 1;               // Container ID or name
+  string namespace = 2;                  // Containerd namespace
+  string dest_path = 3;                  // Destination path in container
+  bool extract_tar = 4;                  // Extract tar archive
+  bool no_overwrite = 5;                 // Don't overwrite existing files
+}
+
+message CopyToContainerResponse {
+  bool copied = 1;                       // Whether files were copied
+}
+
+message CopyFromContainerRequest {
+  string container_id = 1;               // Container ID or name
+  string namespace = 2;                  // Containerd namespace
+  string src_path = 3;                   // Source path in container
+}
+
+message CopyFromContainerResponse {
+  bytes data = 1;                        // File data chunk
+  bool finished = 2;                     // Whether copy is finished
+}
+
+message ExportContainerRequest {
+  string container_id = 1;               // Container ID or name
+  string namespace = 2;                  // Containerd namespace
+}
+
+message ExportContainerResponse {
+  bytes data = 1;                        // Tar archive data chunk
+  bool finished = 2;                     // Whether export is finished
+}
+
+message DiffContainerRequest {
+  string container_id = 1;               // Container ID or name
+  string namespace = 2;                  // Containerd namespace
+}
+
+message ContainerChange {
+  enum Kind {
+    UNKNOWN = 0;
+    MODIFIED = 1;
+    ADDED = 2;
+    DELETED = 3;
+  }
+  Kind kind = 1;                         // Change kind
+  string path = 2;                       // File path
+}
+
+message DiffContainerResponse {
+  repeated ContainerChange changes = 1;   // File changes
+}
+
+message CommitContainerRequest {
+  string container_id = 1;               // Container ID or name
+  string namespace = 2;                  // Containerd namespace
+  string repository = 3;                 // Repository name
+  string tag = 4;                        // Tag name
+  string message = 5;                    // Commit message
+  string author = 6;                     // Author information
+  repeated string changes = 7;           // Dockerfile changes
+  bool pause = 8;                        // Pause container during commit
+}
+
+message CommitContainerResponse {
+  string image_id = 1;                   // Created image ID
+}
+
+message PruneContainersRequest {
+  string namespace = 1;                  // Containerd namespace
+  map<string, string> filters = 2;      // Filters for pruning
+}
+
+message PruneContainerInfo {
+  string container_id = 1;               // Pruned container ID
+  string name = 2;                       // Container name
+  int64 size = 3;                        // Reclaimed size
+}
+
+message PruneContainersResponse {
+  repeated PruneContainerInfo pruned = 1; // Pruned containers
+  int64 space_reclaimed = 2;             // Total space reclaimed
+}
