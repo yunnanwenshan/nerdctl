@@ -1,7 +1,7 @@
 package container
 
 import (
-	"dsagent/internal/biz"
+	// Removed unused biz import
 	"dsagent/internal/conf"
 	"dsagent/internal/data"
 	"dsagent/internal/server"
@@ -38,19 +38,19 @@ func New() *Container {
 func (c *Container) registerDataProviders() {
 	// Register data providers
 	c.container.Provide(data.NewData)
-	c.container.Provide(data.NewGreeterRepo)
+	// Removed greeter repo provider
 }
 
 // registerBizProviders registers all business logic providers
 func (c *Container) registerBizProviders() {
 	// Register biz providers
-	c.container.Provide(biz.NewGreeterUsecase)
+	// Removed greeter usecase provider
 }
 
 // registerServiceProviders registers all service layer providers
 func (c *Container) registerServiceProviders() {
 	// Register service providers
-	c.container.Provide(service.NewGreeterService)
+	// Removed greeter service provider
 	c.container.Provide(service.NewHealthService)
 	// Use the new ImageServiceV2 with auto-ECR authentication
 	c.container.Provide(service.NewImageServiceV2)

@@ -42,25 +42,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/health.v1.HeartbeatResponse'
-    /helloworld/{name}:
-        get:
-            tags:
-                - Greeter
-            description: Sends a greeting
-            operationId: Greeter_SayHello
-            parameters:
-                - name: name
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/helloworld.v1.HelloReply'
+    # Removed helloworld endpoint
     /v1/ecr/login:
         post:
             tags:
@@ -575,12 +557,7 @@ components:
                 serverId:
                     type: string
             description: The heartbeat response message.
-        helloworld.v1.HelloReply:
-            type: object
-            properties:
-                message:
-                    type: string
-            description: The response message containing the greetings
+        # Removed helloworld.v1.HelloReply schema
         image.v1.AWSAccessKeyCredentials:
             type: object
             properties:
@@ -815,8 +792,7 @@ components:
 tags:
     - name: ECRService
       description: ECR authentication service for managing AWS Elastic Container Registry authentication
-    - name: Greeter
-      description: The greeting service definition.
+    # Removed Greeter tag
     - name: Health
       description: The health service definition.
     - name: ImageService

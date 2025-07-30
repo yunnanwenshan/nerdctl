@@ -1,7 +1,7 @@
 package server
 
 import (
-	v1 "dsagent/api/helloworld/v1"
+	// Removed helloworld import
 	healthv1 "dsagent/api/health/v1"
 	imagev1 "dsagent/api/image/v1"
 	ecrv1 "dsagent/api/ecr/v1"
@@ -14,7 +14,7 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, health *service.HealthService, imageService *service.ImageServiceV2, ecrService *service.ECRService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, health *service.HealthService, imageService *service.ImageServiceV2, ecrService *service.ECRService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
@@ -30,7 +30,7 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, health *serv
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
 	srv := http.NewServer(opts...)
-	v1.RegisterGreeterHTTPServer(srv, greeter)
+	// Removed greeter HTTP server registration
 	healthv1.RegisterHealthHTTPServer(srv, health)
 	imagev1.RegisterImageServiceHTTPServer(srv, imageService)
 	ecrv1.RegisterECRServiceHTTPServer(srv, ecrService)

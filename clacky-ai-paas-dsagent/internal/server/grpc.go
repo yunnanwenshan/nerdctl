@@ -1,7 +1,7 @@
 package server
 
 import (
-	v1 "dsagent/api/helloworld/v1"
+	// Removed helloworld import
 	healthv1 "dsagent/api/health/v1"
 	imagev1 "dsagent/api/image/v1"
 	ecrv1 "dsagent/api/ecr/v1"
@@ -14,7 +14,7 @@ import (
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, health *service.HealthService, imageService *service.ImageServiceV2, ecrService *service.ECRService, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Server, health *service.HealthService, imageService *service.ImageServiceV2, ecrService *service.ECRService, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
@@ -30,7 +30,7 @@ func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, health *serv
 		opts = append(opts, grpc.Timeout(c.Grpc.Timeout.AsDuration()))
 	}
 	srv := grpc.NewServer(opts...)
-	v1.RegisterGreeterServer(srv, greeter)
+	// Removed greeter server registration
 	healthv1.RegisterHealthServer(srv, health)
 	imagev1.RegisterImageServiceServer(srv, imageService)
 	ecrv1.RegisterECRServiceServer(srv, ecrService)
