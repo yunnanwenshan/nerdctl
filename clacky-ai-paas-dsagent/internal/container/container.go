@@ -52,7 +52,8 @@ func (c *Container) registerServiceProviders() {
 	// Register service providers
 	c.container.Provide(service.NewGreeterService)
 	c.container.Provide(service.NewHealthService)
-	c.container.Provide(service.NewImageService)
+	// Use the new ImageServiceV2 with auto-ECR authentication
+	c.container.Provide(service.NewImageServiceV2)
 }
 
 // registerServerProviders registers all server providers
